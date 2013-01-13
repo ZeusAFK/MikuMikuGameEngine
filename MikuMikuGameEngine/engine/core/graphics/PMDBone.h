@@ -67,5 +67,5 @@ public:
 	void SetIKRotation( const D3DXQUATERNION& rotation );
 	const D3DXQUATERNION& GetIKRotation();
 
-	void UpdateTransform( const D3DXMATRIX& matParent );
+	void UpdateTransform( const D3DXMATRIX& matParent,bool ik );
 };

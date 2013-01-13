@@ -3,6 +3,7 @@
 #include "PMDModelRenderer.h"
 
 #include "../../GameObject.h"
+#include "../util/util.h"
 
 PMDModelRenderer::PMDModelRenderer()
 	: m_gameObject(NULL)
@@ -184,7 +185,7 @@ void PMDModelRenderer::SetModel( PMDModelPtr pModel )
 	{
 		if( m_ppBoneList[idx]->GetParent()==NULL )
 		{
-			m_ppBoneList[idx]->UpdateTransform( matIdent );
+			m_ppBoneList[idx]->UpdateTransform( matIdent,false );
 
 			m_ppRootBoneList[rootBoneIndex] = m_ppBoneList[idx];
 			rootBoneIndex++;
@@ -288,7 +289,7 @@ void PMDModelRenderer::UpdateBone()
 	{
 		if( m_ppRootBoneList[idx]!=NULL )
 		{
-			m_ppRootBoneList[idx]->UpdateTransform( matIdent );
+			m_ppRootBoneList[idx]->UpdateTransform( matIdent,false );
 		}
 	}
 
@@ -302,8 +303,11 @@ void PMDModelRenderer::UpdateBone()
 		PMDBone* targetBone = m_ppBoneList[ikData->ik_target_bone_index];
 		PMDBone* ikBone = m_ppBoneList[ikData->ik_bone_index];
 
-		// ターゲットボーンの位置を初期化するとミクさんがおかしくなる。
-		// 初期化しないと、MMDエンジンかしもでる２.pmdが動かない・・・
+		//targetBone->SetIKRotation(targetBone->GetMotionRotation());
+		//targetBone->SetMotionRotation(D3DXQUATERNION(0.0f,0.0f,0.0f,1.0f));
+
+		//// ターゲットボーンの位置を初期化するとミクさんがおかしくなる。
+		//// 初期化しないと、MMDエンジンかしもでる.pmdが動かない・・・
 		//D3DXMATRIX targetMatrix = m_pOffsetMatrices[ikData->ik_target_bone_index];
 		//D3DXMatrixInverse( &targetMatrix,NULL,&targetMatrix );
 
@@ -327,8 +331,6 @@ void PMDModelRenderer::UpdateBone()
 		//}
 		//else
 		//{
-		//	D3DXMATRIX matIdent;
-		//	D3DXMatrixIdentity( &matIdent );
 		//	targetBone->UpdateTransform( matIdent );
 		//}
 
@@ -360,6 +362,14 @@ void PMDModelRenderer::UpdateBone()
 				D3DXVECTOR3 localTargetDir;																// ターゲットのローカル方向（注目ボーンの位置基準）
 				D3DXVec3Normalize(&localTargetDir, &localTargetPos);
 
+				D3DXVECTOR3 v = localTargetDir-localEffectorDir;
+				float s=D3DXVec3LengthSq( &v );
+
+				if(s<0.0000001f)
+				{
+					break;
+				}
+
 				bool limitBone = (childBone->GetName().key().find( _T("右ひざ") ) == 0 || childBone->GetName().key().find( _T("左ひざ") ) == 0 );
 
 				if( iteration == 0 )
@@ -389,6 +399,8 @@ void PMDModelRenderer::UpdateBone()
 				{
 					IKrot = limit_arg;
 				}
+
+				//OutputDebugStringFormat( _T("IKrot(%d) : %f\n"),ikIdx,D3DXToDegree(IKrot) );
 
 				D3DXVECTOR3 axis;
 				D3DXVec3Cross(&axis, &localEffectorDir, &localTargetDir);
@@ -449,13 +461,11 @@ void PMDModelRenderer::UpdateBone()
 
 				if( parentBone )
 				{
-					childBone->UpdateTransform( parentBone->GetWorldMatrix() );
+					childBone->UpdateTransform( parentBone->GetWorldMatrix(),true );
 				}
 				else
 				{
-					D3DXMATRIX matIdent;
-					D3DXMatrixIdentity( &matIdent );
-					childBone->UpdateTransform( matIdent );
+					childBone->UpdateTransform( matIdent,true );
 				}
 			}
 		}

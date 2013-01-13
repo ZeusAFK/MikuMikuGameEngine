@@ -20,7 +20,7 @@ PMDBone::PMDBone()
 	m_changedLocal = true;
 	m_changedMotion = true;
 	m_changedIK = true;
-	UpdateTransform( matParent );
+	UpdateTransform( matParent,false );
 
 	m_influenceBoneIndex = -1;
 	m_influenceWeight = 0.0f;
@@ -119,10 +119,8 @@ const D3DXQUATERNION& PMDBone::GetIKRotation()
 	return m_ikRotation;
 }
 
-void PMDBone::UpdateTransform( const D3DXMATRIX& matParent )
+void PMDBone::UpdateTransform( const D3DXMATRIX& matParent,bool ik )
 {
-	bool changedBoneLocal = false;
-
 	if( m_changedMotion )
 	{
 		D3DXMATRIX matTrans;
@@ -134,7 +132,6 @@ void PMDBone::UpdateTransform( const D3DXMATRIX& matParent )
 		D3DXMatrixMultiply( &m_matMotion,&matRotation,&matTrans );
 
 		m_changedMotion = false;
-		changedBoneLocal = true;
 	}
 
 	if( m_changedLocal )
@@ -148,7 +145,6 @@ void PMDBone::UpdateTransform( const D3DXMATRIX& matParent )
 		D3DXMatrixMultiply( &m_matLocal,&matRotation,&matTrans );
 
 		m_changedLocal = false; 
-		changedBoneLocal = true;
 	}
 
 	if( m_changedIK )
@@ -156,15 +152,19 @@ void PMDBone::UpdateTransform( const D3DXMATRIX& matParent )
 		D3DXMatrixRotationQuaternion( &m_matIK,&m_ikRotation );
 
 		m_changedIK = false; 
-		changedBoneLocal = true;
 	}
 
-	if( changedBoneLocal )
+	if( ik )
 	{
 		D3DXMatrixMultiply( &m_matBoneLocal,&m_matIK,&m_matMotion );
-		D3DXMatrixMultiply( &m_matBoneLocal,&m_matBoneLocal,&m_matLocal );
+	}
+	else
+	{
+		m_matBoneLocal = m_matMotion;
 	}
 
+	D3DXMatrixMultiply( &m_matBoneLocal,&m_matBoneLocal,&m_matLocal );
+	
 	D3DXMatrixMultiply( &m_matWorld,&m_matBoneLocal,&matParent );
 
 	static tstring_symbol dummyName = _T("ダミーボーン1");
@@ -180,7 +180,7 @@ void PMDBone::UpdateTransform( const D3DXMATRIX& matParent )
 	PMDBone* child = GetChild();
 	while( child )
 	{
-		child->UpdateTransform( m_matWorld );
+		child->UpdateTransform( m_matWorld,ik );
 
 		child = child->GetSiblingNext();
 	}

@@ -416,6 +416,80 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 		}
 	}
 
+	{
+		tstring pmdFilePath = _T("project\\assets\\Model\\MMDエンジン原理可視モデル\\MMDエンジンかしもでる.pmd");
+
+		TCHAR path[MAX_PATH];
+		_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
+
+		PathRemoveExtension( path );
+
+		PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
+		if( !pModel )
+		{
+			PMDFileLoader pmdFileLoader;
+			pModel = pmdFileLoader.Open( pmdFilePath );
+
+			ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
+		}
+
+		if( pModel )
+		{
+			GameObject* gameObject = new GameObject;
+
+			gameObject->SetName( path );
+
+			PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
+			pmdModelRenderer->SetGameObject( gameObject );
+			pmdModelRenderer->SetModel( pModel );
+
+			tstring filePath = _T("project/assets/shader.fx");
+			ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
+			if( !pShader )
+			{
+				pShader = ShaderPtr(new Shader);
+				if( pShader->CreateFromFile( filePath ) )
+				{
+					ResourceManager::GetInstance().AddResource( filePath,pShader );
+				}
+				else
+				{
+					pShader = ShaderPtr();
+				}
+			}
+
+			if( pShader )
+			{
+				DWORD materialNum = pmdModelRenderer->GetMaterialNum();
+				for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
+				{
+					pmdModelRenderer->SetShader( matIdx,pShader );
+				}
+			}
+			gameObject->SetPMDModelRenderer( pmdModelRenderer );
+
+			gameObject->SetLocalPosition( D3DXVECTOR3(-20.0f,0.0f,0.0f) );
+
+			GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
+
+			tstring vmdFilePath = _T("project\\assets\\MMDエンジン原理可視モデルでのテストぐるぐる.vmd");
+
+			VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
+			if( !pAnimationClip )
+			{
+				VMDFileLoader vmdFileLoader;
+				pAnimationClip = vmdFileLoader.Open( vmdFilePath );
+
+				ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
+			}
+
+			if( pAnimationClip )
+			{
+				gameObject->SetVMDAnimationClip( pAnimationClip );
+			}
+		}
+	}
+
 	m_cameraPosition = D3DXVECTOR3( 0.0f,10.0f,0.0f );
 
 	D3DXQuaternionIdentity( &m_cameraRotation );
