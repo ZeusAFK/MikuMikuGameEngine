@@ -1,4 +1,6 @@
 Debug/
 Release/
+project/
 *.user
 *.suo
+*.ncb
