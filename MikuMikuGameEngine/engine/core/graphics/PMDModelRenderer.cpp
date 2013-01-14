@@ -692,7 +692,6 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 			pEffect->SetMatrix( "g_mWorldView",&matWorldView );
 			pEffect->SetMatrix( "g_mLightViewProjection", &matLightViewProj );
 
-			pEffect->SetVector( "g_materialEmissive" , &D3DXVECTOR4(0.0f,0.0f,0.0f,0.0f) );
 			pEffect->SetValue( "g_materialAmbient" , &pMaterial->colorAmbient,sizeof(D3DXCOLOR) );
 			pEffect->SetValue( "g_materialDiffuse",&pMaterial->colorDiffuse,sizeof(D3DXCOLOR) );
 
@@ -724,13 +723,8 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 			pEffect->SetVector( "g_lightDir", &D3DXVECTOR4( vLight.x,vLight.y,vLight.z,1.0f) );
 			pEffect->SetVector( "g_eyePos" , &D3DXVECTOR4(vEye.x,vEye.y,vEye.z,1.0f) );
 
-			int cpass = 0;
-			cpass = 1;
-			if( pMaterial->textureToon )
-			{
-				cpass = 2;
-				pEffect->SetTexture( "g_ToonTexture" , pMaterial->textureToon->GetTexture() );
-			}
+			int cpass = 1;
+			pEffect->SetValue( "g_materialToon", &pMaterial->colorToon,sizeof(D3DXCOLOR) );
 
 			pEffect->SetTechnique( techName.c_str() );
 			
