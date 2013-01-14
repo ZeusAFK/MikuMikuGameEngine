@@ -172,29 +172,29 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 
 	m_initialized = true;
 
-	{
-		tstring xFilePath = _T("project\\assets\\stage01\\stage01.x");
-		//tstring xFilePath = _T("project\\assets\\Sample5.x");]
+	//{
+	//	tstring xFilePath = _T("project\\assets\\stage01\\stage01.x");
+	//	//tstring xFilePath = _T("project\\assets\\Sample5.x");]
 
-		TCHAR path[MAX_PATH];
-		_tcscpy_s( path,PathFindFileName( xFilePath.c_str() ) );
+	//	TCHAR path[MAX_PATH];
+	//	_tcscpy_s( path,PathFindFileName( xFilePath.c_str() ) );
 
-		PathRemoveExtension( path );
+	//	PathRemoveExtension( path );
 
-		ModelPtr pModel = ResourceManager::GetInstance().GetResource<Model>( xFilePath );
-		if( !pModel )
-		{
-			XFileLoader xFileLoader;
-			pModel = xFileLoader.Open( xFilePath,10.0f );
+	//	ModelPtr pModel = ResourceManager::GetInstance().GetResource<Model>( xFilePath );
+	//	if( !pModel )
+	//	{
+	//		XFileLoader xFileLoader;
+	//		pModel = xFileLoader.Open( xFilePath,10.0f );
 
-			ResourceManager::GetInstance().AddResource( xFilePath,pModel );
-		}
+	//		ResourceManager::GetInstance().AddResource( xFilePath,pModel );
+	//	}
 
-		if( pModel )
-		{
-			GameObject* gameObject = CreateGameObjectFromModelFrame( GetDocument()->GetRootGameObject(),pModel->GetFrame(),true );
-		}
-	}
+	//	if( pModel )
+	//	{
+	//		GameObject* gameObject = CreateGameObjectFromModelFrame( GetDocument()->GetRootGameObject(),pModel->GetFrame(),true );
+	//	}
+	//}
 
 	{
 		tstring pmdFilePath = _T("project\\assets\\Model\\初音ミク.pmd");
@@ -250,245 +250,245 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 
 			GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
 
-			tstring vmdFilePath = _T("project\\assets\\love_and_joy.vmd");
+			//tstring vmdFilePath = _T("project\\assets\\love_and_joy.vmd");
 
-			VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
-			if( !pAnimationClip )
-			{
-				VMDFileLoader vmdFileLoader;
-				pAnimationClip = vmdFileLoader.Open( vmdFilePath );
+			//VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
+			//if( !pAnimationClip )
+			//{
+			//	VMDFileLoader vmdFileLoader;
+			//	pAnimationClip = vmdFileLoader.Open( vmdFilePath );
 
-				ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
-			}
+			//	ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
+			//}
 
-			if( pAnimationClip )
-			{
-				gameObject->SetVMDAnimationClip( pAnimationClip );
-			}
+			//if( pAnimationClip )
+			//{
+			//	gameObject->SetVMDAnimationClip( pAnimationClip );
+			//}
 		}
 	}
 
-	{
-		tstring pmdFilePath = _T("project\\assets\\Model\\つむじ風\\つむじ風.pmd");
+	//{
+	//	tstring pmdFilePath = _T("project\\assets\\Model\\つむじ風\\つむじ風.pmd");
 
-		TCHAR path[MAX_PATH];
-		_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
+	//	TCHAR path[MAX_PATH];
+	//	_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
 
-		PathRemoveExtension( path );
+	//	PathRemoveExtension( path );
 
-		PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
-		if( !pModel )
-		{
-			PMDFileLoader pmdFileLoader;
-			pModel = pmdFileLoader.Open( pmdFilePath );
+	//	PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
+	//	if( !pModel )
+	//	{
+	//		PMDFileLoader pmdFileLoader;
+	//		pModel = pmdFileLoader.Open( pmdFilePath );
 
-			ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
-		}
+	//		ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
+	//	}
 
-		if( pModel )
-		{
-			GameObject* gameObject = new GameObject;
+	//	if( pModel )
+	//	{
+	//		GameObject* gameObject = new GameObject;
 
-			gameObject->SetName( path );
+	//		gameObject->SetName( path );
 
-			PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
-			pmdModelRenderer->SetGameObject( gameObject );
-			pmdModelRenderer->SetModel( pModel );
+	//		PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
+	//		pmdModelRenderer->SetGameObject( gameObject );
+	//		pmdModelRenderer->SetModel( pModel );
 
-			//tstring filePath = _T("project/assets/shader.fx");
-			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			//if( !pShader )
-			//{
-			//	pShader = ShaderPtr(new Shader);
-			//	if( pShader->CreateFromFile( filePath ) )
-			//	{
-			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
-			//	}
-			//	else
-			//	{
-			//		pShader = ShaderPtr();
-			//	}
-			//}
+	//		//tstring filePath = _T("project/assets/shader.fx");
+	//		//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
+	//		//if( !pShader )
+	//		//{
+	//		//	pShader = ShaderPtr(new Shader);
+	//		//	if( pShader->CreateFromFile( filePath ) )
+	//		//	{
+	//		//		ResourceManager::GetInstance().AddResource( filePath,pShader );
+	//		//	}
+	//		//	else
+	//		//	{
+	//		//		pShader = ShaderPtr();
+	//		//	}
+	//		//}
 
-			//if( pShader )
-			//{
-			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-			//	{
-			//		pmdModelRenderer->SetShader( matIdx,pShader );
-			//	}
-			//}
-			gameObject->SetPMDModelRenderer( pmdModelRenderer );
+	//		//if( pShader )
+	//		//{
+	//		//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
+	//		//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
+	//		//	{
+	//		//		pmdModelRenderer->SetShader( matIdx,pShader );
+	//		//	}
+	//		//}
+	//		gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
-			gameObject->SetLocalPosition( D3DXVECTOR3(10.0f,0.0f,0.0f) );
+	//		gameObject->SetLocalPosition( D3DXVECTOR3(10.0f,0.0f,0.0f) );
 
-			GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
+	//		GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
 
-			tstring vmdFilePath = _T("project\\assets\\つむじ風.vmd");
+	//		tstring vmdFilePath = _T("project\\assets\\つむじ風.vmd");
 
-			VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
-			if( !pAnimationClip )
-			{
-				VMDFileLoader vmdFileLoader;
-				pAnimationClip = vmdFileLoader.Open( vmdFilePath );
+	//		VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
+	//		if( !pAnimationClip )
+	//		{
+	//			VMDFileLoader vmdFileLoader;
+	//			pAnimationClip = vmdFileLoader.Open( vmdFilePath );
 
-				ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
-			}
+	//			ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
+	//		}
 
-			if( pAnimationClip )
-			{
-				gameObject->SetVMDAnimationClip( pAnimationClip );
-			}
-		}
-	}
+	//		if( pAnimationClip )
+	//		{
+	//			gameObject->SetVMDAnimationClip( pAnimationClip );
+	//		}
+	//	}
+	//}
 
-	{
-		tstring pmdFilePath = _T("project\\assets\\Model\\ＭＭＤのエンジンをＭＭＤエンジンで\\MMDのエンジンをMMDエンジンで.pmd");
+	//{
+	//	tstring pmdFilePath = _T("project\\assets\\Model\\ＭＭＤのエンジンをＭＭＤエンジンで\\MMDのエンジンをMMDエンジンで.pmd");
 
-		TCHAR path[MAX_PATH];
-		_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
+	//	TCHAR path[MAX_PATH];
+	//	_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
 
-		PathRemoveExtension( path );
+	//	PathRemoveExtension( path );
 
-		PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
-		if( !pModel )
-		{
-			PMDFileLoader pmdFileLoader;
-			pModel = pmdFileLoader.Open( pmdFilePath );
+	//	PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
+	//	if( !pModel )
+	//	{
+	//		PMDFileLoader pmdFileLoader;
+	//		pModel = pmdFileLoader.Open( pmdFilePath );
 
-			ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
-		}
+	//		ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
+	//	}
 
-		if( pModel )
-		{
-			GameObject* gameObject = new GameObject;
+	//	if( pModel )
+	//	{
+	//		GameObject* gameObject = new GameObject;
 
-			gameObject->SetName( path );
+	//		gameObject->SetName( path );
 
-			PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
-			pmdModelRenderer->SetGameObject( gameObject );
-			pmdModelRenderer->SetModel( pModel );
+	//		PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
+	//		pmdModelRenderer->SetGameObject( gameObject );
+	//		pmdModelRenderer->SetModel( pModel );
 
-			//tstring filePath = _T("project/assets/shader.fx");
-			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			//if( !pShader )
-			//{
-			//	pShader = ShaderPtr(new Shader);
-			//	if( pShader->CreateFromFile( filePath ) )
-			//	{
-			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
-			//	}
-			//	else
-			//	{
-			//		pShader = ShaderPtr();
-			//	}
-			//}
+	//		//tstring filePath = _T("project/assets/shader.fx");
+	//		//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
+	//		//if( !pShader )
+	//		//{
+	//		//	pShader = ShaderPtr(new Shader);
+	//		//	if( pShader->CreateFromFile( filePath ) )
+	//		//	{
+	//		//		ResourceManager::GetInstance().AddResource( filePath,pShader );
+	//		//	}
+	//		//	else
+	//		//	{
+	//		//		pShader = ShaderPtr();
+	//		//	}
+	//		//}
 
-			//if( pShader )
-			//{
-			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-			//	{
-			//		pmdModelRenderer->SetShader( matIdx,pShader );
-			//	}
-			//}
-			gameObject->SetPMDModelRenderer( pmdModelRenderer );
+	//		//if( pShader )
+	//		//{
+	//		//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
+	//		//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
+	//		//	{
+	//		//		pmdModelRenderer->SetShader( matIdx,pShader );
+	//		//	}
+	//		//}
+	//		gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
-			gameObject->SetLocalPosition( D3DXVECTOR3(-10.0f,0.0f,0.0f) );
+	//		gameObject->SetLocalPosition( D3DXVECTOR3(-10.0f,0.0f,0.0f) );
 
-			GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
+	//		GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
 
-			tstring vmdFilePath = _T("project\\assets\\MMDエンジンのエンジン.vmd");
+	//		tstring vmdFilePath = _T("project\\assets\\MMDエンジンのエンジン.vmd");
 
-			VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
-			if( !pAnimationClip )
-			{
-				VMDFileLoader vmdFileLoader;
-				pAnimationClip = vmdFileLoader.Open( vmdFilePath );
+	//		VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
+	//		if( !pAnimationClip )
+	//		{
+	//			VMDFileLoader vmdFileLoader;
+	//			pAnimationClip = vmdFileLoader.Open( vmdFilePath );
 
-				ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
-			}
+	//			ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
+	//		}
 
-			if( pAnimationClip )
-			{
-				gameObject->SetVMDAnimationClip( pAnimationClip );
-			}
-		}
-	}
+	//		if( pAnimationClip )
+	//		{
+	//			gameObject->SetVMDAnimationClip( pAnimationClip );
+	//		}
+	//	}
+	//}
 
-	{
-		tstring pmdFilePath = _T("project\\assets\\Model\\MMDエンジン原理可視モデル\\MMDエンジンかしもでる.pmd");
+	//{
+	//	tstring pmdFilePath = _T("project\\assets\\Model\\MMDエンジン原理可視モデル\\MMDエンジンかしもでる.pmd");
 
-		TCHAR path[MAX_PATH];
-		_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
+	//	TCHAR path[MAX_PATH];
+	//	_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
 
-		PathRemoveExtension( path );
+	//	PathRemoveExtension( path );
 
-		PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
-		if( !pModel )
-		{
-			PMDFileLoader pmdFileLoader;
-			pModel = pmdFileLoader.Open( pmdFilePath );
+	//	PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
+	//	if( !pModel )
+	//	{
+	//		PMDFileLoader pmdFileLoader;
+	//		pModel = pmdFileLoader.Open( pmdFilePath );
 
-			ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
-		}
+	//		ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
+	//	}
 
-		if( pModel )
-		{
-			GameObject* gameObject = new GameObject;
+	//	if( pModel )
+	//	{
+	//		GameObject* gameObject = new GameObject;
 
-			gameObject->SetName( path );
+	//		gameObject->SetName( path );
 
-			PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
-			pmdModelRenderer->SetGameObject( gameObject );
-			pmdModelRenderer->SetModel( pModel );
+	//		PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
+	//		pmdModelRenderer->SetGameObject( gameObject );
+	//		pmdModelRenderer->SetModel( pModel );
 
-			//tstring filePath = _T("project/assets/shader.fx");
-			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			//if( !pShader )
-			//{
-			//	pShader = ShaderPtr(new Shader);
-			//	if( pShader->CreateFromFile( filePath ) )
-			//	{
-			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
-			//	}
-			//	else
-			//	{
-			//		pShader = ShaderPtr();
-			//	}
-			//}
+	//		//tstring filePath = _T("project/assets/shader.fx");
+	//		//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
+	//		//if( !pShader )
+	//		//{
+	//		//	pShader = ShaderPtr(new Shader);
+	//		//	if( pShader->CreateFromFile( filePath ) )
+	//		//	{
+	//		//		ResourceManager::GetInstance().AddResource( filePath,pShader );
+	//		//	}
+	//		//	else
+	//		//	{
+	//		//		pShader = ShaderPtr();
+	//		//	}
+	//		//}
 
-			//if( pShader )
-			//{
-			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-			//	{
-			//		pmdModelRenderer->SetShader( matIdx,pShader );
-			//	}
-			//}
-			gameObject->SetPMDModelRenderer( pmdModelRenderer );
+	//		//if( pShader )
+	//		//{
+	//		//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
+	//		//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
+	//		//	{
+	//		//		pmdModelRenderer->SetShader( matIdx,pShader );
+	//		//	}
+	//		//}
+	//		gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
-			gameObject->SetLocalPosition( D3DXVECTOR3(-20.0f,0.0f,0.0f) );
+	//		gameObject->SetLocalPosition( D3DXVECTOR3(-20.0f,0.0f,0.0f) );
 
-			GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
+	//		GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
 
-			tstring vmdFilePath = _T("project\\assets\\MMDエンジン原理可視モデルでのテストぐるぐる.vmd");
+	//		tstring vmdFilePath = _T("project\\assets\\MMDエンジン原理可視モデルでのテストぐるぐる.vmd");
 
-			VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
-			if( !pAnimationClip )
-			{
-				VMDFileLoader vmdFileLoader;
-				pAnimationClip = vmdFileLoader.Open( vmdFilePath );
+	//		VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
+	//		if( !pAnimationClip )
+	//		{
+	//			VMDFileLoader vmdFileLoader;
+	//			pAnimationClip = vmdFileLoader.Open( vmdFilePath );
 
-				ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
-			}
+	//			ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
+	//		}
 
-			if( pAnimationClip )
-			{
-				gameObject->SetVMDAnimationClip( pAnimationClip );
-			}
-		}
-	}
+	//		if( pAnimationClip )
+	//		{
+	//			gameObject->SetVMDAnimationClip( pAnimationClip );
+	//		}
+	//	}
+	//}
 
 	m_cameraPosition = D3DXVECTOR3( 0.0f,10.0f,0.0f );
 
@@ -528,15 +528,15 @@ void CMikuMikuGameEngineView::OnIdle()
 		Graphics* graphics = Graphics::GetInstance();
 		//Locker lock( graphics->GetCriticalSection() );
 
-		D3DXMATRIX matProj;
-		D3DXMatrixPerspectiveFovLH( &matProj, D3DXToRadian(45.0f), (float)graphics->GetBackBufferWidth()/(float)graphics->GetBackBufferHeight(), 1.0f, 10000.0f);
+		sRenderInfo renderInfo;
 
-		D3DXVECTOR3 vecEyePt(0.0f,0.0f,-1.0f);
-		D3DXVECTOR3 lightDir(-0.5f,-1.0f,0.5f);
-		D3DXVec3Normalize( &lightDir,&lightDir );
-		D3DXCOLOR lightColor( 0xFF9A9A9A );
+		D3DXMatrixPerspectiveFovLH( &renderInfo.matProj, D3DXToRadian(45.0f), (float)graphics->GetBackBufferWidth()/(float)graphics->GetBackBufferHeight(), 1.0f, 10000.0f);
 
-		D3DXMATRIX matView;
+		renderInfo.lightDir = D3DXVECTOR3(-0.5f,-1.0f,0.5f);
+		D3DXVec3Normalize( &renderInfo.lightDir,&renderInfo.lightDir );
+		renderInfo.lightColor = D3DXCOLOR( 0xFF9A9A9A );
+
+		renderInfo.eyePos = D3DXVECTOR3(0.0f,0.0f,-1.0f);
 		{
 			D3DXVECTOR3 vecLookPt(0.0f,0.0f,1.0f);
 			D3DXVECTOR3 vecUpVec(0.0f,1.0f,0.0f);
@@ -546,15 +546,25 @@ void CMikuMikuGameEngineView::OnIdle()
 			D3DXMatrixRotationQuaternion( &matCameraRotate,&m_cameraRotation );
 
 			D3DXVec3TransformNormal( &vecLookPt,&vecLookPt,&matCameraRotate );
-			D3DXVec3TransformNormal( &vecEyePt,&vecEyePt,&matCameraRotate );
+			D3DXVec3TransformNormal( &renderInfo.eyePos,&renderInfo.eyePos,&matCameraRotate );
 			D3DXVec3TransformNormal( &vecUpVec,&vecUpVec,&matCameraRotate );
 
-			D3DXVec3Scale( &vecEyePt,&vecEyePt,m_cameraRadius );
-			D3DXVec3Add( &vecEyePt,&m_cameraPosition,&vecEyePt );
+			D3DXVec3Scale( &renderInfo.eyePos,&renderInfo.eyePos,m_cameraRadius );
+			D3DXVec3Add( &renderInfo.eyePos,&m_cameraPosition,&renderInfo.eyePos );
 
-			D3DXVec3Add( &vecLookPt,&vecEyePt,&vecLookPt );
+			D3DXVec3Add( &vecLookPt,&renderInfo.eyePos,&vecLookPt );
 
-			D3DXMatrixLookAtLH( &matView, &vecEyePt, &vecLookPt, &vecUpVec );
+			D3DXMatrixLookAtLH( &renderInfo.matView, &renderInfo.eyePos, &vecLookPt, &vecUpVec );
+		}
+
+		D3DXMatrixOrthoLH( &renderInfo.matLightProj, (float)graphics->GetBackBufferWidth(),(float)graphics->GetBackBufferHeight(), 1.0f, 10000.0f);
+		
+		D3DXVECTOR3 lightPos = renderInfo.lightDir * (-1000.0f);
+		{
+			D3DXVECTOR3 vecLookPt(0.0f,0.0f,0.0f);
+			D3DXVECTOR3 vecUpVec(0.0f,1.0f,0.0f);
+
+			D3DXMatrixLookAtLH( &renderInfo.matLightView, &renderInfo.eyePos, &vecLookPt, &vecUpVec );
 		}
 
 		HRESULT hr = graphics->BeginScene();
@@ -566,7 +576,7 @@ void CMikuMikuGameEngineView::OnIdle()
 			graphics->Clear( 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB( 255, 255, 255 ), 1.0f, 0 );
 
 			{
-				m_coordinateAxis->Render( matView,matProj );
+				m_coordinateAxis->Render( renderInfo.matView,renderInfo.matProj );
 			}
 
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
@@ -578,7 +588,7 @@ void CMikuMikuGameEngineView::OnIdle()
 			graphics->SetRenderState( D3DRS_DESTBLENDALPHA,D3DBLEND_ONE );
 			graphics->SetRenderState( D3DRS_BLENDOPALPHA,D3DBLENDOP_ADD );
 
-			GetDocument()->GetRootGameObject()->Render( matView,matProj,vecEyePt,lightDir,lightColor );
+			GetDocument()->GetRootGameObject()->Render( renderInfo );
 
 			graphics->SetRenderState( D3DRS_SEPARATEALPHABLENDENABLE,FALSE );
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );

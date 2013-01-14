@@ -371,22 +371,22 @@ void GameObject::UpdateAnimation( float elapsedTime )
 	}
 }
 
-void GameObject::Render( const D3DXMATRIX& matView,const D3DXMATRIX& matProj,const D3DXVECTOR3& eyePos,const D3DXVECTOR3& lightDir,const D3DXCOLOR& lightColor )
+void GameObject::Render( const sRenderInfo& renderInfo )
 {
 	if( m_pModelRenderer )
 	{
-		m_pModelRenderer->Render( m_matWorld,matView,matProj,eyePos,lightDir,lightColor );
+		m_pModelRenderer->Render( m_matWorld,renderInfo );
 	}
 
 	if( m_pPMDModelRenderer )
 	{
-		m_pPMDModelRenderer->Render( m_matWorld,matView,matProj,eyePos,lightDir,lightColor );
+		m_pPMDModelRenderer->Render( m_matWorld,renderInfo );
 	}
 
 	GameObject* child = GetChild();
 	while( child )
 	{
-		child->Render( matView,matProj,eyePos,lightDir,lightColor );
+		child->Render( renderInfo );
 
 		child = child->GetSiblingNext();
 	}

@@ -3,6 +3,8 @@
 #include "Model.h"
 #include "Shader.h"
 
+struct sRenderInfo;
+
 class ModelRenderer
 {
 private:
@@ -21,7 +23,7 @@ public:
 	DWORD GetMaterialNum();
 	void SetShader( DWORD materialIndex,ShaderPtr shader );
 
-	void Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matView,const D3DXMATRIX& matProj,const D3DXVECTOR3& eyePos,const D3DXVECTOR3& lightDir,const D3DXCOLOR& lightColor );
+	void Render( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo );
 
 	void RenderNonShader();
 };

@@ -6,6 +6,18 @@
 
 #include "core/util/TreeNode.h"
 
+struct sRenderInfo
+{
+	D3DXMATRIX matView;
+	D3DXMATRIX matProj;
+	D3DXVECTOR3 eyePos;
+	D3DXVECTOR3 lightDir;
+	D3DXCOLOR lightColor;
+
+	D3DXMATRIX matLightView;
+	D3DXMATRIX matLightProj;
+};
+
 class GameObject : public TreeNode<GameObject>
 {
 private:
@@ -58,7 +70,7 @@ public:
 	void UpdateAnimation( float elapsedTime );
 
 public:
-	void Render( const D3DXMATRIX& matView,const D3DXMATRIX& matProj,const D3DXVECTOR3& eyePos,const D3DXVECTOR3& lightDir,const D3DXCOLOR& lightColor );
+	void Render( const sRenderInfo& renderInfo );
 
 	void RenderNonShader();
 };

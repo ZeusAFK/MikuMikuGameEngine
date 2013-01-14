@@ -5,6 +5,10 @@
 #include "../../GameObject.h"
 #include "../util/util.h"
 
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
 PMDModelRenderer::PMDModelRenderer()
 	: m_gameObject(NULL)
 	, m_pMesh(NULL)
@@ -613,7 +617,7 @@ void PMDModelRenderer::UpdateSkinMesh()
 	delete[] pBoneMatrix;
 }
 
-void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matView,const D3DXMATRIX& matProj,const D3DXVECTOR3& eyePos,const D3DXVECTOR3& lightDir,const D3DXCOLOR& lightColor )
+void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo )
 {
 	if( !m_pMesh )
 	{
@@ -622,8 +626,11 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matV
 
 	UpdateSkinMesh();
 
-	D3DXMATRIX matWorldView = matWorld * matView;
-	D3DXMATRIX matWorldViewProj = matWorldView * matProj;
+	D3DXMATRIX matWorldView = matWorld * renderInfo.matView;
+	D3DXMATRIX matWorldViewProj = matWorldView * renderInfo.matProj;
+
+	D3DXMATRIX matLightView = matWorld * renderInfo.matLightView;
+	D3DXMATRIX matLightViewProj = matLightView * renderInfo.matLightProj;
 	
 	DWORD attrNum = m_pMesh->GetAttributeRangeNum();
 
@@ -631,14 +638,14 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matV
 
 	ShaderPtr pDefaultShader = Graphics::GetInstance()->GetDefaultShader();
 
-	D3DXVECTOR3 vLight = lightDir;
-	D3DXVECTOR3 vEye = eyePos;
+	D3DXVECTOR3 vLight = renderInfo.lightDir;
+	D3DXVECTOR3 vEye = renderInfo.eyePos;
 	//if( info.flag & RENDERFLAG_LIGHT )
 	{
 		D3DXMATRIX matWorldInv;
 		D3DXMatrixInverse( &matWorldInv,NULL,&matWorld );
 
-		D3DXVec3TransformNormal( &vLight,&vLight,&matView );
+		D3DXVec3TransformNormal( &vLight,&vLight,&renderInfo.matView );
 		vLight = -vLight;
 
 		D3DXVec3TransformCoord( &vEye,&vEye,&matWorldInv );
@@ -683,6 +690,7 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matV
 		
 			pEffect->SetMatrix( "g_mWorldViewProjection",&matWorldViewProj );
 			pEffect->SetMatrix( "g_mWorldView",&matWorldView );
+			pEffect->SetMatrix( "g_mLightViewProjection", &matLightViewProj );
 
 			pEffect->SetVector( "g_materialEmissive" , &D3DXVECTOR4(0.0f,0.0f,0.0f,0.0f) );
 			pEffect->SetValue( "g_materialAmbient" , &pMaterial->colorAmbient,sizeof(D3DXCOLOR) );
@@ -712,7 +720,7 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matV
 				pEffect->SetTexture( "g_SphereMapTexture" , pMaterial->textureSphere->GetTexture() );
 			}
 
-			pEffect->SetValue( "g_lightColor", &lightColor,sizeof(D3DXCOLOR) );
+			pEffect->SetValue( "g_lightColor", &renderInfo.lightColor,sizeof(D3DXCOLOR) );
 			pEffect->SetVector( "g_lightDir", &D3DXVECTOR4( vLight.x,vLight.y,vLight.z,1.0f) );
 			pEffect->SetVector( "g_eyePos" , &D3DXVECTOR4(vEye.x,vEye.y,vEye.z,1.0f) );
 

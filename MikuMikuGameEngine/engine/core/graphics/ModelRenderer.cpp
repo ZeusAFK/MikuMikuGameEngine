@@ -2,6 +2,8 @@
 
 #include "ModelRenderer.h"
 
+#include "../../GameObject.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -55,7 +57,7 @@ void ModelRenderer::SetShader( DWORD materialIndex,ShaderPtr shader )
 	}
 }
 
-void ModelRenderer::Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matView,const D3DXMATRIX& matProj,const D3DXVECTOR3& eyePos,const D3DXVECTOR3& lightDir,const D3DXCOLOR& lightColor )
+void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo )
 {
 	if( !m_pMeshContainer )
 	{
@@ -69,7 +71,7 @@ void ModelRenderer::Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matView
 		return;
 	}
 
-	D3DXMATRIX matWorldViewProj = matWorld * matView * matProj;
+	D3DXMATRIX matWorldViewProj = matWorld * renderInfo.matView * renderInfo.matProj;
 
 	DWORD attrNum = pMesh->GetAttributeRangeNum();
 
