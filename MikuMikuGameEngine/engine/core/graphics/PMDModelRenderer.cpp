@@ -558,7 +558,9 @@ void PMDModelRenderer::UpdateSkinMesh()
 				{
 					sPMD_SkinVertex* skinVert = &skin->skin_vert[vertIdx];
 
-					skinOffsets[ skinVert->index ] += D3DXVECTOR3( skinVert->pos ) * skinWeight->weight;
+					skinOffsets[ skinVert->index ].x += skinVert->pos[0] * skinWeight->weight;
+					skinOffsets[ skinVert->index ].y += skinVert->pos[1] * skinWeight->weight;
+					skinOffsets[ skinVert->index ].z += skinVert->pos[2] * skinWeight->weight;
 				}
 			}
 
@@ -588,11 +590,9 @@ void PMDModelRenderer::UpdateSkinMesh()
 
 		weight = (float)pmdVertex->bone_weight/100.0f;
 		
-		vertex->position.x = pmdVertex->pos[0];
-		vertex->position.y = pmdVertex->pos[1];
-		vertex->position.z = pmdVertex->pos[2];
-
-		vertex->position += skinOffsets[ idx ];
+		vertex->position.x = pmdVertex->pos[0] + skinOffsets[ idx ].x;
+		vertex->position.y = pmdVertex->pos[1] + skinOffsets[ idx ].y;
+		vertex->position.z = pmdVertex->pos[2] + skinOffsets[ idx ].z;
 
 		D3DXVec3TransformCoord( &pos1,&vertex->position,&pBoneMatrix[boneIdx1] );
 		D3DXVec3TransformCoord( &pos2,&vertex->position,&pBoneMatrix[boneIdx2] );
