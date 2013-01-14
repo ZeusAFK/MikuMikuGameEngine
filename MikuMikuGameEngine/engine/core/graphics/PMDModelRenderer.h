@@ -55,7 +55,7 @@ public:
 
 	void UpdateSkinMesh();
 
-	void Render( const D3DXMATRIX& matWorldViewProj );
+	void Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matView,const D3DXMATRIX& matProj,const D3DXVECTOR3& eyePos,const D3DXVECTOR3& lightDir,const D3DXCOLOR& lightColor );
 
 	void RenderNonShader();
 };

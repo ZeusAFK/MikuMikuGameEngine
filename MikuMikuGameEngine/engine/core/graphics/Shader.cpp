@@ -50,6 +50,42 @@ bool Shader::CreateFromFile( const tstring& filePath )
 	return true;
 }
 
+bool Shader::CreateFromMemory( LPCVOID buffer,size_t size )
+{
+	Graphics* graphics = Graphics::GetInstance();
+
+	if( m_pEffect )
+	{
+		m_pEffect.Release();
+		graphics->DelResource( this );
+	}
+
+	LPD3DXBUFFER pBuffer = NULL;
+
+	HRESULT hr = D3DXCreateEffect(
+		graphics->GetDirect3DDevice(),
+		buffer,
+		size,
+		NULL,NULL,0,NULL,&m_pEffect,&pBuffer );
+
+	if( pBuffer )
+	{
+		tstring error = to_tstring( (char*)pBuffer->GetBufferPointer() );
+		OutputDebugStringFormat( _T("effect compiled\n%s"),error.c_str() );
+
+		pBuffer->Release();
+	}
+
+	if( hr!=D3D_OK )
+	{
+		return false;
+	}
+
+	graphics->AddResource( this );
+
+	return true;
+}
+
 ID3DXEffectPtr Shader::GetEffect()
 {
 	return m_pEffect;

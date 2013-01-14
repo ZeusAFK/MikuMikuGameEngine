@@ -55,7 +55,7 @@ void ModelRenderer::SetShader( DWORD materialIndex,ShaderPtr shader )
 	}
 }
 
-void ModelRenderer::Render( const D3DXMATRIX& matWorldViewProj )
+void ModelRenderer::Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matView,const D3DXMATRIX& matProj,const D3DXVECTOR3& eyePos,const D3DXVECTOR3& lightDir,const D3DXCOLOR& lightColor )
 {
 	if( !m_pMeshContainer )
 	{
@@ -68,6 +68,8 @@ void ModelRenderer::Render( const D3DXMATRIX& matWorldViewProj )
 	{
 		return;
 	}
+
+	D3DXMATRIX matWorldViewProj = matWorld * matView * matProj;
 
 	DWORD attrNum = pMesh->GetAttributeRangeNum();
 

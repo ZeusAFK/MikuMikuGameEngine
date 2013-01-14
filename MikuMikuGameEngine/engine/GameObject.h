@@ -58,7 +58,7 @@ public:
 	void UpdateAnimation( float elapsedTime );
 
 public:
-	void Render( const D3DXMATRIX& matView,const D3DXMATRIX& matProj );
+	void Render( const D3DXMATRIX& matView,const D3DXMATRIX& matProj,const D3DXVECTOR3& eyePos,const D3DXVECTOR3& lightDir,const D3DXCOLOR& lightColor );
 
 	void RenderNonShader();
 };

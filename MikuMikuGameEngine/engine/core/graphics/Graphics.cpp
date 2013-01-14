@@ -2,8 +2,11 @@
 
 #include "../Thread.h"
 #include "Graphics.h"
+#include "Shader.h"
 
 #include "../util/Charset.h"
+
+#include "effect/DefaultEffect.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -149,6 +152,12 @@ HRESULT Graphics::Initialize( HWND window )
 	::GetWindowRect(hWnd, &m_rectWindow);
 	::GetClientRect(hWnd, &m_rectClient);
 	m_windowActive = true;
+
+	m_defaultShader = ShaderPtr(new Shader);
+	if( !m_defaultShader->CreateFromMemory( g_DefaultEffect,sizeof(g_DefaultEffect)/sizeof(BYTE) ) )
+	{
+		m_defaultShader = ShaderPtr();
+	}
 
 	m_init = true;
 
@@ -592,4 +601,9 @@ void Graphics::Cleanup()
 void Graphics::EnableRender( bool enable )
 {
 	m_enableRender = enable;
+}
+
+ShaderPtr Graphics::GetDefaultShader()
+{
+	return m_defaultShader;
 }

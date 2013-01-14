@@ -3,6 +3,9 @@
 #include "../util/Charset.h"
 #include "../Thread.h"
 
+class Shader;
+typedef std::tr1::shared_ptr< Shader > ShaderPtr;
+
 #define WM_USER_LOSTDEVICE (WM_APP+0)
 #define WM_USER_RESETDEVICE (WM_APP+1)
 
@@ -108,4 +111,10 @@ private:
 	bool m_enableRender;
 
 	std::set< UnmanagedResource* > m_resourceList;
+
+public:
+	ShaderPtr GetDefaultShader();
+
+private:
+	ShaderPtr m_defaultShader;
 };

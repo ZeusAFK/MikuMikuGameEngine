@@ -223,29 +223,29 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 			pmdModelRenderer->SetGameObject( gameObject );
 			pmdModelRenderer->SetModel( pModel );
 
-			tstring filePath = _T("project/assets/shader.fx");
-			ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			if( !pShader )
-			{
-				pShader = ShaderPtr(new Shader);
-				if( pShader->CreateFromFile( filePath ) )
-				{
-					ResourceManager::GetInstance().AddResource( filePath,pShader );
-				}
-				else
-				{
-					pShader = ShaderPtr();
-				}
-			}
+			//tstring filePath = _T("project/assets/shader.fx");
+			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
+			//if( !pShader )
+			//{
+			//	pShader = ShaderPtr(new Shader);
+			//	if( pShader->CreateFromFile( filePath ) )
+			//	{
+			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
+			//	}
+			//	else
+			//	{
+			//		pShader = ShaderPtr();
+			//	}
+			//}
 
-			if( pShader )
-			{
-				DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-				for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-				{
-					pmdModelRenderer->SetShader( matIdx,pShader );
-				}
-			}
+			//if( pShader )
+			//{
+			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
+			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
+			//	{
+			//		pmdModelRenderer->SetShader( matIdx,pShader );
+			//	}
+			//}
 			gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
 			GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
@@ -295,29 +295,29 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 			pmdModelRenderer->SetGameObject( gameObject );
 			pmdModelRenderer->SetModel( pModel );
 
-			tstring filePath = _T("project/assets/shader.fx");
-			ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			if( !pShader )
-			{
-				pShader = ShaderPtr(new Shader);
-				if( pShader->CreateFromFile( filePath ) )
-				{
-					ResourceManager::GetInstance().AddResource( filePath,pShader );
-				}
-				else
-				{
-					pShader = ShaderPtr();
-				}
-			}
+			//tstring filePath = _T("project/assets/shader.fx");
+			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
+			//if( !pShader )
+			//{
+			//	pShader = ShaderPtr(new Shader);
+			//	if( pShader->CreateFromFile( filePath ) )
+			//	{
+			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
+			//	}
+			//	else
+			//	{
+			//		pShader = ShaderPtr();
+			//	}
+			//}
 
-			if( pShader )
-			{
-				DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-				for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-				{
-					pmdModelRenderer->SetShader( matIdx,pShader );
-				}
-			}
+			//if( pShader )
+			//{
+			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
+			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
+			//	{
+			//		pmdModelRenderer->SetShader( matIdx,pShader );
+			//	}
+			//}
 			gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
 			gameObject->SetLocalPosition( D3DXVECTOR3(10.0f,0.0f,0.0f) );
@@ -369,29 +369,29 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 			pmdModelRenderer->SetGameObject( gameObject );
 			pmdModelRenderer->SetModel( pModel );
 
-			tstring filePath = _T("project/assets/shader.fx");
-			ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			if( !pShader )
-			{
-				pShader = ShaderPtr(new Shader);
-				if( pShader->CreateFromFile( filePath ) )
-				{
-					ResourceManager::GetInstance().AddResource( filePath,pShader );
-				}
-				else
-				{
-					pShader = ShaderPtr();
-				}
-			}
+			//tstring filePath = _T("project/assets/shader.fx");
+			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
+			//if( !pShader )
+			//{
+			//	pShader = ShaderPtr(new Shader);
+			//	if( pShader->CreateFromFile( filePath ) )
+			//	{
+			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
+			//	}
+			//	else
+			//	{
+			//		pShader = ShaderPtr();
+			//	}
+			//}
 
-			if( pShader )
-			{
-				DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-				for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-				{
-					pmdModelRenderer->SetShader( matIdx,pShader );
-				}
-			}
+			//if( pShader )
+			//{
+			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
+			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
+			//	{
+			//		pmdModelRenderer->SetShader( matIdx,pShader );
+			//	}
+			//}
 			gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
 			gameObject->SetLocalPosition( D3DXVECTOR3(-10.0f,0.0f,0.0f) );
@@ -443,29 +443,29 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 			pmdModelRenderer->SetGameObject( gameObject );
 			pmdModelRenderer->SetModel( pModel );
 
-			tstring filePath = _T("project/assets/shader.fx");
-			ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			if( !pShader )
-			{
-				pShader = ShaderPtr(new Shader);
-				if( pShader->CreateFromFile( filePath ) )
-				{
-					ResourceManager::GetInstance().AddResource( filePath,pShader );
-				}
-				else
-				{
-					pShader = ShaderPtr();
-				}
-			}
+			//tstring filePath = _T("project/assets/shader.fx");
+			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
+			//if( !pShader )
+			//{
+			//	pShader = ShaderPtr(new Shader);
+			//	if( pShader->CreateFromFile( filePath ) )
+			//	{
+			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
+			//	}
+			//	else
+			//	{
+			//		pShader = ShaderPtr();
+			//	}
+			//}
 
-			if( pShader )
-			{
-				DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-				for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-				{
-					pmdModelRenderer->SetShader( matIdx,pShader );
-				}
-			}
+			//if( pShader )
+			//{
+			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
+			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
+			//	{
+			//		pmdModelRenderer->SetShader( matIdx,pShader );
+			//	}
+			//}
 			gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
 			gameObject->SetLocalPosition( D3DXVECTOR3(-20.0f,0.0f,0.0f) );
@@ -531,9 +531,13 @@ void CMikuMikuGameEngineView::OnIdle()
 		D3DXMATRIX matProj;
 		D3DXMatrixPerspectiveFovLH( &matProj, D3DXToRadian(45.0f), (float)graphics->GetBackBufferWidth()/(float)graphics->GetBackBufferHeight(), 1.0f, 10000.0f);
 
+		D3DXVECTOR3 vecEyePt(0.0f,0.0f,-1.0f);
+		D3DXVECTOR3 lightDir(-0.5f,-1.0f,0.5f);
+		D3DXVec3Normalize( &lightDir,&lightDir );
+		D3DXCOLOR lightColor( 0xFF9A9A9A );
+
 		D3DXMATRIX matView;
 		{
-			D3DXVECTOR3 vecEyePt(0.0f,0.0f,-1.0f);
 			D3DXVECTOR3 vecLookPt(0.0f,0.0f,1.0f);
 			D3DXVECTOR3 vecUpVec(0.0f,1.0f,0.0f);
 
@@ -569,8 +573,14 @@ void CMikuMikuGameEngineView::OnIdle()
 			graphics->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
 			graphics->SetRenderState( D3DRS_DESTBLEND, D3DBLEND_INVSRCALPHA );
 
-			GetDocument()->GetRootGameObject()->Render( matView,matProj );
+			graphics->SetRenderState( D3DRS_SEPARATEALPHABLENDENABLE,TRUE );
+			graphics->SetRenderState( D3DRS_SRCBLENDALPHA,D3DBLEND_ONE );
+			graphics->SetRenderState( D3DRS_DESTBLENDALPHA,D3DBLEND_ONE );
+			graphics->SetRenderState( D3DRS_BLENDOPALPHA,D3DBLENDOP_ADD );
 
+			GetDocument()->GetRootGameObject()->Render( matView,matProj,vecEyePt,lightDir,lightColor );
+
+			graphics->SetRenderState( D3DRS_SEPARATEALPHABLENDENABLE,FALSE );
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 
 			//GameObject* selectObject = GetDocument()->GetSelectGameObject();

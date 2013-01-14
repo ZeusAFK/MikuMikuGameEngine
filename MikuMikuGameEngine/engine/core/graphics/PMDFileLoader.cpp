@@ -145,8 +145,8 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 
 			if( ext == _T(".sph" ) || ext == _T(".spa") )
 			{
-				texFileName = _T("");
 				sphereFileName = texFileName;
+				texFileName = _T("");
 			}
 		}
 

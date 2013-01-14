@@ -613,7 +613,7 @@ void PMDModelRenderer::UpdateSkinMesh()
 	delete[] pBoneMatrix;
 }
 
-void PMDModelRenderer::Render( const D3DXMATRIX& matWorldViewProj )
+void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const D3DXMATRIX& matView,const D3DXMATRIX& matProj,const D3DXVECTOR3& eyePos,const D3DXVECTOR3& lightDir,const D3DXCOLOR& lightColor )
 {
 	if( !m_pMesh )
 	{
@@ -622,9 +622,27 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorldViewProj )
 
 	UpdateSkinMesh();
 
+	D3DXMATRIX matWorldView = matWorld * matView;
+	D3DXMATRIX matWorldViewProj = matWorldView * matProj;
+	
 	DWORD attrNum = m_pMesh->GetAttributeRangeNum();
 
 	sPMDMaterial* pMaterials = m_pModel->GetMaterials();
+
+	ShaderPtr pDefaultShader = Graphics::GetInstance()->GetDefaultShader();
+
+	D3DXVECTOR3 vLight = lightDir;
+	D3DXVECTOR3 vEye = eyePos;
+	//if( info.flag & RENDERFLAG_LIGHT )
+	{
+		D3DXMATRIX matWorldInv;
+		D3DXMatrixInverse( &matWorldInv,NULL,&matWorld );
+
+		D3DXVec3TransformNormal( &vLight,&vLight,&matView );
+		vLight = -vLight;
+
+		D3DXVec3TransformCoord( &vEye,&vEye,&matWorldInv );
+	}
 
 	for( DWORD attrIdx = 0 ; attrIdx < attrNum ; attrIdx++ )
 	{
@@ -653,6 +671,64 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorldViewProj )
 			UINT numPass;
 			pEffect->Begin( &numPass, 0 );
 			pEffect->BeginPass(0);
+
+			m_pMesh->Draw( attrIdx );
+
+			pEffect->EndPass();
+			pEffect->End();
+		}
+		else if( pDefaultShader )
+		{
+			ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
+		
+			pEffect->SetMatrix( "g_mWorldViewProjection",&matWorldViewProj );
+			pEffect->SetMatrix( "g_mWorldView",&matWorldView );
+
+			pEffect->SetVector( "g_materialEmissive" , &D3DXVECTOR4(0.0f,0.0f,0.0f,0.0f) );
+			pEffect->SetValue( "g_materialAmbient" , &pMaterial->colorAmbient,sizeof(D3DXCOLOR) );
+			pEffect->SetValue( "g_materialDiffuse",&pMaterial->colorDiffuse,sizeof(D3DXCOLOR) );
+
+			pEffect->SetValue( "g_materialSpecular",&pMaterial->colorSpecular,sizeof(D3DXCOLOR) );
+			pEffect->SetFloat( "g_materialSpecularPower" , pMaterial->specularPower );
+
+			std::string techName = "TechDiffuse";
+			if( pMaterial->textureDiffuse )
+			{
+				techName+="Texture";
+				pEffect->SetTexture( "g_Texture",pMaterial->textureDiffuse->GetTexture() );
+				pEffect->SetFloat( "g_texAlphaTestRef" , 0.0f );
+			}
+			if( pMaterial->textureSphere )
+			{
+				switch( pMaterial->spheremap )
+				{
+				case eSPHEREMAP_MUL:
+					techName+="SphereMul";
+					break;
+				case eSPHEREMAP_ADD:
+					techName+="SphereAdd";
+					break;
+				}
+				pEffect->SetTexture( "g_SphereMapTexture" , pMaterial->textureSphere->GetTexture() );
+			}
+
+			pEffect->SetValue( "g_lightColor", &lightColor,sizeof(D3DXCOLOR) );
+			pEffect->SetVector( "g_lightDir", &D3DXVECTOR4( vLight.x,vLight.y,vLight.z,1.0f) );
+			pEffect->SetVector( "g_eyePos" , &D3DXVECTOR4(vEye.x,vEye.y,vEye.z,1.0f) );
+
+			int cpass = 0;
+			cpass = 1;
+			if( pMaterial->textureToon )
+			{
+				cpass = 2;
+				pEffect->SetTexture( "g_ToonTexture" , pMaterial->textureToon->GetTexture() );
+			}
+
+			pEffect->SetTechnique( techName.c_str() );
+			
+			UINT numPass;
+			pEffect->Begin( &numPass, 0 );
+			pEffect->BeginPass(cpass);
 
 			m_pMesh->Draw( attrIdx );
 

@@ -565,6 +565,36 @@
 						RelativePath=".\engine\core\graphics\XFileLoader.h"
 						>
 					</File>
+					<Filter
+						Name="effect"
+						>
+						<File
+							RelativePath=".\engine\core\graphics\effect\DefaultEffect.fx"
+							>
+							<FileConfiguration
+								Name="Debug|Win32"
+								>
+								<Tool
+									Name="VCCustomBuildTool"
+									Description="$(InputFileName)をコンパイルします。"
+									CommandLine="fxc /nologo /Vn g_$(InputName) /T fx_2_0 /Fh $(InputDir)$(InputName).h $(InputPath)"
+									AdditionalDependencies="$(InputPath)"
+									Outputs="$(InputDir)$(InputName).h"
+								/>
+							</FileConfiguration>
+							<FileConfiguration
+								Name="Release|Win32"
+								>
+								<Tool
+									Name="VCCustomBuildTool"
+									Description="$(InputFileName)をコンパイルします。"
+									CommandLine="fxc /nologo /Vn g_$(InputName) /T fx_2_0 /Fh $(InputDir)$(InputName).h $(InputPath)"
+									AdditionalDependencies="$(InputPath)"
+									Outputs="$(InputDir)$(InputName).h"
+								/>
+							</FileConfiguration>
+						</File>
+					</Filter>
 				</Filter>
 				<Filter
 					Name="stx"

@@ -15,6 +15,7 @@ public:
 
 public:
 	bool CreateFromFile( const tstring& filePath );
+	bool CreateFromMemory( LPCVOID buffer,size_t size );
 
 	ID3DXEffectPtr GetEffect();
 
