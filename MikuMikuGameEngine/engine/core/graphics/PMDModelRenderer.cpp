@@ -749,6 +749,10 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 				}
 				pEffect->SetTexture( "g_SphereMapTexture" , pMaterial->textureSphere->GetTexture() );
 			}
+			if( pMaterial->textureToon )
+			{
+				pEffect->SetTexture( "g_ToonTexture" , pMaterial->textureToon->GetTexture() );
+			}				
 
 			pEffect->SetValue( "g_lightColor", &renderInfo.lightColor,sizeof(D3DXCOLOR) );
 			pEffect->SetVector( "g_lightDir", &D3DXVECTOR4( vLight.x,vLight.y,vLight.z,1.0f) );

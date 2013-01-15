@@ -38,6 +38,20 @@ sampler TextureSampler = sampler_state
     AddressV = Wrap;
 };
 
+texture g_ToonTexture;
+sampler ToonSampler = sampler_state
+{
+	texture = <g_ToonTexture>;
+    
+	//フィルタ設定
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+    MipFilter = LINEAR;    
+    //テクスチャラッピング
+    AddressU = Clamp;
+    AddressV = Clamp;
+};
+
 texture g_SphereMapTexture;
 sampler SphereMapSampler = sampler_state
 {
@@ -106,7 +120,8 @@ float4 ps_LightToonDiffuse(float3 N,float3 lightDir)
 {
 	float LightNormal = dot( N, lightDir );
 
-	float3 diffuse = lerp(g_materialToon,float3(1.0f,1.0f,1.0),saturate(LightNormal * 16 + 0.5) );
+	//float3 diffuse = lerp(g_materialToon,float3(1.0f,1.0f,1.0),saturate(LightNormal * 16 + 0.5) );
+	float3 diffuse = tex2D(ToonSampler, float2(0, 0.5 - LightNormal * 0.5) ).rgb;
 	
 	return float4(diffuse.rgb,1.0f);
 }

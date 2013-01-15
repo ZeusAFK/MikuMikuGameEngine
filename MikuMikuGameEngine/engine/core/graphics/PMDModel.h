@@ -259,6 +259,8 @@ struct sPMDMaterial
 
 	TexturePtr textureSphere;
 
+	TexturePtr textureToon;
+
 	D3DXCOLOR colorToon;
 
 	eSPHEREMAP spheremap;

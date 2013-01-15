@@ -205,6 +205,8 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 			// TODO:デフォルトのtoonファイルは固定パスか・・・
 			toonTexName = to_tstring( pmd->toon_list.toon_file_name[pmdMat->toon_index] );
 		}
+
+		TexturePtr pTex;
 		
 		if( !toonTexName.empty() )
 		{
@@ -212,49 +214,70 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 			toonTexPath = path;
 			PathRemoveFileSpec( path );
 
-			TexturePtr pTex;
-
-			pTex = TexturePtr(new Texture);
-			if( !pTex->CreateFromFile( toonTexPath ) )
+			pTex = ResourceManager::GetInstance().GetResource<Texture>( toonTexPath );
+			if( !pTex )
 			{
-				TCHAR _path[MAX_PATH] = _T("project\\assets\\Data\\");
-
-				PathAppend( _path,toonTexName.c_str() );
-
-				toonTexPath = _path;
-
-				pTex = ResourceManager::GetInstance().GetResource<Texture>( toonTexPath );
-				if( !pTex )
+				pTex = TexturePtr(new Texture);
+				if( !pTex->CreateFromFile( toonTexPath ) )
 				{
-					pTex = TexturePtr(new Texture);
-					if( !pTex->CreateFromFile( toonTexPath ) )
+					TCHAR _path[MAX_PATH] = _T("project\\assets\\Data\\");
+
+					PathAppend( _path,toonTexName.c_str() );
+
+					toonTexPath = _path;
+
+					pTex = ResourceManager::GetInstance().GetResource<Texture>( toonTexPath );
+					if( !pTex )
 					{
-						pTex.reset();
+						pTex = TexturePtr(new Texture);
+						if( !pTex->CreateFromFile( toonTexPath ) )
+						{
+							pTex.reset();
+						}
 					}
 				}
 			}
+		}
 
-			if( pTex )
+		if( !pTex )
+		{
+			toonTexPath = _T("project\\assets\\white.jpg");
+
+			pTex = ResourceManager::GetInstance().GetResource<Texture>( toonTexPath );
+			if( !pTex )
 			{
-				IDirect3DTexture9Ptr pD3DTexture = pTex->GetTexture();
-
-				D3DSURFACE_DESC desc;
-				pD3DTexture->GetLevelDesc( 0,&desc );
-
-				D3DLOCKED_RECT lockRect;
-				pD3DTexture->LockRect(0, &lockRect, NULL, D3DLOCK_DISCARD);
-
-				int x = (int)(desc.Width*0.5f);
-				int y = (int)(desc.Height*0.75f);
-
-				DWORD color;
-
-				memcpy(&color,(BYTE*)lockRect.pBits + lockRect.Pitch*y + 4*x, sizeof(DWORD) );
-
-				pD3DTexture->UnlockRect(0);
-
-				pMaterial->colorToon = D3DXCOLOR( color );
+				pTex = TexturePtr(new Texture);
+				if( !pTex->CreateFromFile( toonTexPath ) )
+				{
+					pTex.reset();
+				}
 			}
+		}
+		
+		if( pTex )
+		{
+			pMaterial->textureToon = pTex;
+
+			ResourceManager::GetInstance().AddResource( toonTexPath,pTex );
+
+			IDirect3DTexture9Ptr pD3DTexture = pTex->GetTexture();
+
+			D3DSURFACE_DESC desc;
+			pD3DTexture->GetLevelDesc( 0,&desc );
+
+			D3DLOCKED_RECT lockRect;
+			pD3DTexture->LockRect(0, &lockRect, NULL, D3DLOCK_DISCARD);
+
+			int x = (int)(desc.Width*0.5f);
+			int y = (int)(desc.Height*0.75f);
+
+			DWORD color;
+
+			memcpy(&color,(BYTE*)lockRect.pBits + lockRect.Pitch*y + 4*x, sizeof(DWORD) );
+
+			pD3DTexture->UnlockRect(0);
+
+			pMaterial->colorToon = D3DXCOLOR( color );
 		}
 	}
 
