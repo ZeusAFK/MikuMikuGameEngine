@@ -197,7 +197,7 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	}
 
 	{
-		tstring pmdFilePath = _T("project\\assets\\Model\\初音ミク.pmd");
+		tstring pmdFilePath = _T("project\\assets\\Model\\Lat式ミクVer2.3\\Lat式ミクVer2.3_Normal.pmd");
 
 		TCHAR path[MAX_PATH];
 		_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );

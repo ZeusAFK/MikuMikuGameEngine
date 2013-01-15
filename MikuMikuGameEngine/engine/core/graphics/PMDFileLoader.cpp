@@ -110,6 +110,8 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 
 		pMaterial->spheremap = eSPHEREMAP_MUL;
 
+		pMaterial->edge = pmdMat->edge_flag!=0;
+
 		TCHAR path[MAX_PATH];
 		_tcscpy_s( path,m_path.c_str() );
 
@@ -193,6 +195,8 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 			}
 		}
 
+		pMaterial->colorToon = D3DXCOLOR( 1.0f,1.0f,1.0f,1.0f );
+
 		tstring toonTexName = _T("");
 		tstring toonTexPath = _T("");
 
@@ -200,19 +204,20 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 		{
 			// TODO:デフォルトのtoonファイルは固定パスか・・・
 			toonTexName = to_tstring( pmd->toon_list.toon_file_name[pmdMat->toon_index] );
-
+		}
+		
+		if( !toonTexName.empty() )
+		{
 			PathAppend( path,toonTexName.c_str() );
 			toonTexPath = path;
 			PathRemoveFileSpec( path );
-		}
-		
-		{
+
 			TexturePtr pTex;
 
 			pTex = TexturePtr(new Texture);
 			if( !pTex->CreateFromFile( toonTexPath ) )
 			{
-				TCHAR _path[MAX_PATH] = _T("project\\assets\\");
+				TCHAR _path[MAX_PATH] = _T("project\\assets\\Data\\");
 
 				PathAppend( _path,toonTexName.c_str() );
 
@@ -249,10 +254,6 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 				pD3DTexture->UnlockRect(0);
 
 				pMaterial->colorToon = D3DXCOLOR( color );
-			}
-			else
-			{
-				pMaterial->colorToon = D3DXCOLOR( 1.0f,1.0f,1.0f,1.0f );
 			}
 		}
 	}

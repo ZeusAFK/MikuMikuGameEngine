@@ -263,6 +263,8 @@ struct sPMDMaterial
 
 	eSPHEREMAP spheremap;
 
+	bool edge;
+
 public:
 	sPMDMaterial()
 		: colorDiffuse( 0xFFFFFFFF )
@@ -270,6 +272,7 @@ public:
 		, colorAmbient( 0xFF000000 )
 		, specularPower(1.0f)
 		, spheremap(eSPHEREMAP_MUL)
+		, edge(false)
 	{
 	}
 };

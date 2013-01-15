@@ -14,6 +14,8 @@ float3 g_eyePos;
 float3 g_lightDir;
 float3 g_lightColor;
 
+float4 g_edgeColor;
+
 static float4 DiffuseColor = saturate(g_materialDiffuse * float4(g_lightColor,1.0f) + g_materialAmbient);
 static float4 SpecularColor = g_materialSpecular*float4(g_lightColor,1.0f);
 
@@ -49,6 +51,33 @@ sampler SphereMapSampler = sampler_state
     AddressU = Clamp;
     AddressV = Clamp;
 };
+
+//=========================================================================================
+// Edge
+//=========================================================================================
+
+float4 VS_PosEdge( float4 vPos : POSITION ) : POSITION
+{
+	return mul( vPos,g_mWorldViewProjection );
+}
+
+float4 PS_Edge() : COLOR
+{
+	return g_edgeColor;
+}
+
+technique TechEdge
+{
+	pass P0
+	{
+		VertexShader = compile vs_1_1 VS_PosEdge();
+		PixelShader  = compile ps_2_0 PS_Edge();
+	}
+}
+
+//=========================================================================================
+// Model
+//=========================================================================================
 
 float ps_Lambert(float3 normal,float3 lightDir)
 {
@@ -291,29 +320,6 @@ technique TechDiffuseTextureSphereAdd
 	{
 		VertexShader = compile vs_2_0 VS_Scene();
 		PixelShader  = compile ps_2_0 PS_Scene(true,true,true,true);
-	}
-}
-
-//=========================================================================================
-// Edge
-//=========================================================================================
-
-float4 VS_PosEdge( sVS_Input In ) : POSITION
-{
-	return mul( In.vPos+In.vNormal*In.edge*0.001f,g_mWorldViewProjection );
-}
-
-float4 PS_Edge() : COLOR
-{
-	return g_materialDiffuse;
-}
-
-technique TechEdge
-{
-	pass P0
-	{
-		VertexShader = compile vs_1_1 VS_PosEdge();
-		PixelShader  = compile ps_2_0 PS_Edge();
 	}
 }
 

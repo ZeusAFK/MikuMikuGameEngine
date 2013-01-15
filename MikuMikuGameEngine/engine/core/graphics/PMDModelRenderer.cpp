@@ -12,6 +12,7 @@
 PMDModelRenderer::PMDModelRenderer()
 	: m_gameObject(NULL)
 	, m_pMesh(NULL)
+	, m_pEdgeMesh(NULL)
 	, m_ppShaders(NULL)
 	, m_ppBoneList(NULL)
 	, m_pOffsetMatrices(NULL)
@@ -27,6 +28,12 @@ PMDModelRenderer::~PMDModelRenderer()
 	{
 		delete m_pMesh;
 		m_pMesh = NULL;
+	}
+
+	if( m_pEdgeMesh )
+	{
+		delete m_pEdgeMesh;
+		m_pEdgeMesh = NULL;
 	}
 
 	if( m_ppShaders )
@@ -83,42 +90,53 @@ void PMDModelRenderer::SetModel( PMDModelPtr pModel )
 		m_pMesh = new Mesh;
 	}
 
+	if( !m_pEdgeMesh )
+	{
+		m_pEdgeMesh = new Mesh;
+	}
+
 	sPMD* pPmd = m_pModel->GetData();
 
 	m_pMesh->Create( pPmd->vertex_list.vert_count,pPmd->index_list.face_vert_count,pPmd->material_list.material_count );
+	m_pEdgeMesh->Create( pPmd->vertex_list.vert_count,pPmd->index_list.face_vert_count,pPmd->material_list.material_count );
 
 	sVertex* vertices = m_pMesh->GetVertices();
+	sVertex* edgeVertices = m_pEdgeMesh->GetVertices();
 
 	for( DWORD i=0;i<pPmd->vertex_list.vert_count;i++ )
 	{
 		sPMD_Vertex* pmdVertex = &pPmd->vertex_list.vertex[i];
 		sVertex* vertex = &vertices[i];
+		sVertex* edgeVertex = &edgeVertices[i];
 
-		vertex->position = D3DXVECTOR3(pmdVertex->pos);
-		vertex->normal = D3DXVECTOR3(pmdVertex->normal_vec);
-		vertex->color = 0xFFFFFFFF;
-		vertex->uv = D3DXVECTOR2(pmdVertex->uv);
+		edgeVertex->position = vertex->position = D3DXVECTOR3(pmdVertex->pos);
+		edgeVertex->normal = vertex->normal = D3DXVECTOR3(pmdVertex->normal_vec);
+		edgeVertex->color = vertex->color = 0xFFFFFFFF;
+		edgeVertex->uv = vertex->uv = D3DXVECTOR2(pmdVertex->uv);
 	}
 
 	DWORD* indices = m_pMesh->GetIndices();
+	DWORD* edgeIndices = m_pEdgeMesh->GetIndices();
 	for( DWORD i=0;i<pPmd->index_list.face_vert_count;i++ )
 	{
-		indices[i] = pPmd->index_list.face_vert_index[i];
+		edgeIndices[i] = indices[i] = pPmd->index_list.face_vert_index[i];
 	}
 
 	DWORD faceStart = 0;
 
 	D3DXATTRIBUTERANGE* pAttrs = m_pMesh->GetAttributeRanges();
+	D3DXATTRIBUTERANGE* pEdgeAttrs = m_pEdgeMesh->GetAttributeRanges();
 	for( DWORD i=0;i<pPmd->material_list.material_count;i++ )
 	{
 		sPMD_Material* pmdMaterial = &pPmd->material_list.material[i];
 		D3DXATTRIBUTERANGE* pAttr = &pAttrs[i];
+		D3DXATTRIBUTERANGE* pEdgeAttr = &pEdgeAttrs[i];
 
-		pAttr->AttribId = i;
-		pAttr->FaceStart = faceStart/3;
-		pAttr->FaceCount = pmdMaterial->face_vert_count/3;
-		pAttr->VertexStart = 0;
-		pAttr->VertexCount = pPmd->vertex_list.vert_count;
+		pEdgeAttr->AttribId = pAttr->AttribId = i;
+		pEdgeAttr->FaceStart = pAttr->FaceStart = faceStart/3;
+		pEdgeAttr->FaceCount = pAttr->FaceCount = pmdMaterial->face_vert_count/3;
+		pEdgeAttr->VertexStart = pAttr->VertexStart = 0;
+		pEdgeAttr->VertexCount = pAttr->VertexCount = pPmd->vertex_list.vert_count;
 
 		faceStart += pmdMaterial->face_vert_count;
 	}
@@ -524,6 +542,7 @@ void PMDModelRenderer::UpdateSkinMesh()
 
 	DWORD vertexNum = m_pMesh->GetVertexNum();
 	sVertex* vertices = m_pMesh->GetVertices();
+	sVertex* edgeVertices = m_pEdgeMesh->GetVertices();
 
 	sPMD* pmd = m_pModel->GetData();
 
@@ -576,6 +595,7 @@ void PMDModelRenderer::UpdateSkinMesh()
 	DWORD boneIdx2;
 
 	sVertex* vertex;
+	sVertex* edgeVertex;
 	sPMD_Vertex* pmdVertex;
 
 	D3DXVECTOR3 pos1,pos2;
@@ -586,6 +606,7 @@ void PMDModelRenderer::UpdateSkinMesh()
 	for( DWORD idx=0;idx<vertexNum;idx++ )
 	{
 		vertex = &vertices[idx];
+		edgeVertex = &edgeVertices[idx];
 
 		pmdVertex = &pmd->vertex_list.vertex[idx];
 
@@ -611,6 +632,13 @@ void PMDModelRenderer::UpdateSkinMesh()
 		D3DXVec3TransformNormal( &norm2,&vertex->normal,&pBoneMatrix[boneIdx2] );
 
 		D3DXVec3Lerp( &vertex->normal,&norm2,&norm1,weight );
+
+		edgeVertex->position = vertex->position;
+		edgeVertex->normal = vertex->normal;
+		if( pmdVertex->edge_flag==0 )
+		{
+			edgeVertex->position += vertex->normal*0.01f;
+		}
 	}
 
 	delete[] skinOffsets;
@@ -636,7 +664,9 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 
 	sPMDMaterial* pMaterials = m_pModel->GetMaterials();
 
-	ShaderPtr pDefaultShader = Graphics::GetInstance()->GetDefaultShader();
+	Graphics* graphics = Graphics::GetInstance();
+
+	ShaderPtr pDefaultShader = graphics->GetDefaultShader();
 
 	D3DXVECTOR3 vLight = renderInfo.lightDir;
 	D3DXVECTOR3 vEye = renderInfo.eyePos;
@@ -658,33 +688,34 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 		sPMDMaterial* pMaterial = &pMaterials[attrID];
 		ShaderPtr pShader = m_ppShaders[attrID];
 
-		if( pShader )
-		{
-			ID3DXEffectPtr pEffect = pShader->GetEffect();
-		
-			pEffect->SetMatrix( "matWorldViewProj", &matWorldViewProj );
-			
-			pEffect->SetValue( "colorDiffuse",&pMaterial->colorDiffuse,sizeof(D3DXCOLOR) );
-			if( pMaterial->textureDiffuse )
-			{
-				pEffect->SetTexture( "textureDiffuse",pMaterial->textureDiffuse->GetTexture() );
-			}
-			else
-			{
-				pEffect->SetTexture( "textureDiffuse",NULL );
-			}
-			
-			pEffect->SetTechnique( "Tec_Default" );
-			UINT numPass;
-			pEffect->Begin( &numPass, 0 );
-			pEffect->BeginPass(0);
+		//if( pShader )
+		//{
+		//	ID3DXEffectPtr pEffect = pShader->GetEffect();
+		//
+		//	pEffect->SetMatrix( "matWorldViewProj", &matWorldViewProj );
+		//	
+		//	pEffect->SetValue( "colorDiffuse",&pMaterial->colorDiffuse,sizeof(D3DXCOLOR) );
+		//	if( pMaterial->textureDiffuse )
+		//	{
+		//		pEffect->SetTexture( "textureDiffuse",pMaterial->textureDiffuse->GetTexture() );
+		//	}
+		//	else
+		//	{
+		//		pEffect->SetTexture( "textureDiffuse",NULL );
+		//	}
+		//	
+		//	pEffect->SetTechnique( "Tec_Default" );
+		//	UINT numPass;
+		//	pEffect->Begin( &numPass, 0 );
+		//	pEffect->BeginPass(0);
 
-			m_pMesh->Draw( attrIdx );
+		//	m_pMesh->Draw( attrIdx );
 
-			pEffect->EndPass();
-			pEffect->End();
-		}
-		else if( pDefaultShader )
+		//	pEffect->EndPass();
+		//	pEffect->End();
+		//}
+		//else 
+		if( pDefaultShader )
 		{
 			ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
 		
@@ -727,6 +758,15 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 			pEffect->SetValue( "g_materialToon", &pMaterial->colorToon,sizeof(D3DXCOLOR) );
 
 			pEffect->SetTechnique( techName.c_str() );
+
+			if( pMaterial->colorDiffuse.a < 1.0f )
+			{
+				graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_NONE );
+			}
+			else
+			{
+				graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_CCW );
+			}
 			
 			UINT numPass;
 			pEffect->Begin( &numPass, 0 );
@@ -736,6 +776,30 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 
 			pEffect->EndPass();
 			pEffect->End();
+
+			if( pMaterial->edge )
+			{
+				graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_CW );
+
+				std::string techName = "TechEdge";
+
+				pEffect->SetTechnique( techName.c_str() );
+				
+				UINT passes;
+				pEffect->Begin( &passes,0 );
+				
+				pEffect->SetVector( "g_edgeColor" , &D3DXVECTOR4(0.0f,0.0f,0.0f,1.0f) );
+				
+				pEffect->BeginPass( 0 );
+
+				m_pEdgeMesh->Draw( attrIdx );
+
+				pEffect->EndPass();
+				
+				pEffect->End();
+
+				graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_NONE );
+			}
 		}
 	}
 }

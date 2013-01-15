@@ -16,6 +16,7 @@ private:
 
 	PMDModelPtr m_pModel;
 	Mesh* m_pMesh;
+	Mesh* m_pEdgeMesh;
 
 	ShaderPtr* m_ppShaders;
 
