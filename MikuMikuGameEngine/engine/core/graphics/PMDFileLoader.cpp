@@ -152,11 +152,6 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 			}
 		}
 
-		if( texFileName.empty() )
-		{
-			texFileName = _T("project\\assets\\white.jpg");
-		}
-
 		if( !texFileName.empty() )
 		{
 			TexturePtr pTex = ResourceManager::GetInstance().GetResource<Texture>( texFileName );
@@ -241,13 +236,13 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 
 		if( !pTex )
 		{
-			toonTexPath = _T("project\\assets\\white.jpg");
+			toonTexPath = _T("<FFFFFFFF>");
 
 			pTex = ResourceManager::GetInstance().GetResource<Texture>( toonTexPath );
 			if( !pTex )
 			{
 				pTex = TexturePtr(new Texture);
-				if( !pTex->CreateFromFile( toonTexPath ) )
+				if( !pTex->CreateDotColor( 0xFFFFFFFF ) )
 				{
 					pTex.reset();
 				}
@@ -266,10 +261,10 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 			pD3DTexture->GetLevelDesc( 0,&desc );
 
 			D3DLOCKED_RECT lockRect;
-			pD3DTexture->LockRect(0, &lockRect, NULL, D3DLOCK_DISCARD);
+			pD3DTexture->LockRect(0, &lockRect, NULL, 0);
 
-			int x = (int)(desc.Width*0.5f);
-			int y = (int)(desc.Height*0.75f);
+			int x = desc.Width-1;
+			int y = desc.Height-1;
 
 			DWORD color;
 

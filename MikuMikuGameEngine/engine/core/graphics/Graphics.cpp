@@ -342,8 +342,8 @@ void Graphics::OnResetDevice()
 {
 	// TODO:リソースを復帰してください。
 
-	std::set< UnmanagedResource* >::iterator it = m_resourceList.begin();
-	while( it!=m_resourceList.end() )
+	std::set< UnmanagedResource* >::reverse_iterator it = m_resourceList.rbegin();
+	while( it!=m_resourceList.rend() )
 	{
 		(*it)->OnResetDevice();
 		++it;

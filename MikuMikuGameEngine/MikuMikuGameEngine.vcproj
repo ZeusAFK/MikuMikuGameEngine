@@ -577,7 +577,7 @@
 								<Tool
 									Name="VCCustomBuildTool"
 									Description="$(InputFileName)をコンパイルします。"
-									CommandLine="fxc /nologo /Vn g_$(InputName) /T fx_2_0 /Fh $(InputDir)$(InputName).h $(InputPath)"
+									CommandLine="fxc /nologo /Vn g_$(InputName) /T fx_2_0 /Fh $(InputDir)$(InputName).h $(InputPath)&#x0D;&#x0A;"
 									AdditionalDependencies="$(InputPath)"
 									Outputs="$(InputDir)$(InputName).h"
 								/>
@@ -588,7 +588,7 @@
 								<Tool
 									Name="VCCustomBuildTool"
 									Description="$(InputFileName)をコンパイルします。"
-									CommandLine="fxc /nologo /Vn g_$(InputName) /T fx_2_0 /Fh $(InputDir)$(InputName).h $(InputPath)"
+									CommandLine="fxc /nologo /Vn g_$(InputName) /T fx_2_0 /Fh $(InputDir)$(InputName).h $(InputPath)&#x0D;&#x0A;"
 									AdditionalDependencies="$(InputPath)"
 									Outputs="$(InputDir)$(InputName).h"
 								/>

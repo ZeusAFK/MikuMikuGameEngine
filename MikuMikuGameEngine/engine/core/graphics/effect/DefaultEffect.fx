@@ -44,12 +44,12 @@ sampler ToonSampler = sampler_state
 	texture = <g_ToonTexture>;
     
 	//フィルタ設定
-    MinFilter = LINEAR;
-    MagFilter = LINEAR;
-    MipFilter = LINEAR;    
+    MinFilter = POINT;
+    MagFilter = POINT;
+    MipFilter = POINT;    
     //テクスチャラッピング
-    AddressU = Clamp;
-    AddressV = Clamp;
+    AddressU = Wrap;
+    AddressV = Wrap;
 };
 
 texture g_SphereMapTexture;

@@ -93,7 +93,7 @@ ID3DXEffectPtr Shader::GetEffect()
 
 void Shader::OnLostDevice()
 {
-	OutputDebugStringFormat( _T("Shader::OnLostDevice\n") );
+	OutputDebugStringFormat( _T("Shader(%p)::OnLostDevice\n"),this );
 
 	if( m_pEffect )
 	{
@@ -103,7 +103,7 @@ void Shader::OnLostDevice()
 
 void Shader::OnResetDevice()
 {
-	OutputDebugStringFormat( _T("Shader::OnResetDevice\n") );
+	OutputDebugStringFormat( _T("Shader(%p)::OnResetDevice\n"),this );
 
 	if( m_pEffect )
 	{

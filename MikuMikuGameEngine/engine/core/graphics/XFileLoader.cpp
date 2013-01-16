@@ -228,22 +228,37 @@ HRESULT XFileLoader::LoadMeshContainer( LPD3DXFILEDATA pXofData,MeshContainer* m
 		{
 			textureFileName = m_path+to_tstring(pD3DMaterial->pTextureFilename);
 		}
-		else
-		{
-			textureFileName = _T("project/assets/white.jpg");
-		}
-
 
 		TexturePtr pTex = ResourceManager::GetInstance().GetResource<Texture>( textureFileName );
 		if( !pTex )
 		{
 			pTex = TexturePtr(new Texture);
-			pTex->CreateFromFile( textureFileName );
-
-			ResourceManager::GetInstance().AddResource( textureFileName,pTex );
+			if( !pTex->CreateFromFile( textureFileName ) )
+			{
+				pTex.reset();
+			}
 		}
 
-		material->textureDiffuse = pTex;
+		if( !pTex )
+		{
+			textureFileName = _T("<FFFFFFFF>");
+
+			pTex = ResourceManager::GetInstance().GetResource<Texture>( textureFileName );
+			if( !pTex )
+			{
+				pTex = TexturePtr(new Texture);
+				if( !pTex->CreateDotColor( 0xFFFFFFFF ) )
+				{
+					pTex.reset();
+				}
+			}
+		}
+
+		if( pTex )
+		{
+			ResourceManager::GetInstance().AddResource( textureFileName,pTex );
+			material->textureDiffuse = pTex;
+		}
 	}
 
 exit:
