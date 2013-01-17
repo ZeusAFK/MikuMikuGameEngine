@@ -4,6 +4,8 @@
 
 #include "Texture.h"
 
+#include "Material.h"
+
 #pragma pack(push,1)
 
 struct sPMD_Header
@@ -241,61 +243,23 @@ struct sPMD
 bool PMDLoad(unsigned char* buffer,size_t size,sPMD* pmd);
 void PMDRelease(sPMD* pmd);
 
-enum eSPHEREMAP
-{
-	eSPHEREMAP_MUL,
-	eSPHEREMAP_ADD,
-};
-
-struct sPMDMaterial
-{
-	D3DXCOLOR colorDiffuse;
-	D3DXCOLOR colorSpecular;
-	D3DXCOLOR colorAmbient;
-
-	float     specularPower;
-
-	TexturePtr textureDiffuse;
-
-	TexturePtr textureSphere;
-
-	TexturePtr textureToon;
-
-	D3DXCOLOR colorToon;
-
-	eSPHEREMAP spheremap;
-
-	bool edge;
-
-public:
-	sPMDMaterial()
-		: colorDiffuse( 0xFFFFFFFF )
-		, colorSpecular( 0xFF000000 )
-		, colorAmbient( 0xFF000000 )
-		, specularPower(1.0f)
-		, spheremap(eSPHEREMAP_MUL)
-		, edge(false)
-	{
-	}
-};
-
 class PMDModel : public IResource
 {
 private:
 	sPMD* m_pPmd;
 
 	DWORD m_materialNum;
-	sPMDMaterial* m_pMaterials;
+	sMaterial* m_pMaterials;
 
 public:
-	PMDModel( sPMD* pPmd,DWORD materialNum,sPMDMaterial* pMaterials );
+	PMDModel( sPMD* pPmd,DWORD materialNum,sMaterial* pMaterials );
 	virtual ~PMDModel();
 
 public:
 	sPMD* GetData();
 
 	DWORD GetMaterialNum();
-	sPMDMaterial* GetMaterials();
+	sMaterial* GetMaterials();
 };
 
 typedef std::tr1::shared_ptr< PMDModel > PMDModelPtr;

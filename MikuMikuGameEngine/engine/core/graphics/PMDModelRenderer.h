@@ -18,8 +18,6 @@ private:
 	Mesh* m_pMesh;
 	Mesh* m_pEdgeMesh;
 
-	ShaderPtr* m_ppShaders;
-
 	PMDBone** m_ppBoneList;
 	D3DXMATRIX* m_pOffsetMatrices;
 
@@ -43,7 +41,6 @@ public:
 	void SetModel( PMDModelPtr pModel );
 	
 	DWORD GetMaterialNum();
-	void SetShader( DWORD materialIndex,ShaderPtr shader );
 
 	DWORD GetBoneNum();
 	PMDBone* GetBone( DWORD index );

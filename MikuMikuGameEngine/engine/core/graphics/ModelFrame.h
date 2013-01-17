@@ -5,20 +5,10 @@
 
 #include "../util/TreeNode.h"
 
+#include "Material.h"
+
 class Model;
 typedef std::tr1::weak_ptr< Model > ModelWeakPtr;
-
-struct sMaterial
-{
-	D3DXCOLOR colorDiffuse;
-	TexturePtr textureDiffuse;
-
-public:
-	sMaterial()
-		: colorDiffuse( 0xFFFFFFFF )
-	{
-	}
-};
 
 struct MeshContainer
 {

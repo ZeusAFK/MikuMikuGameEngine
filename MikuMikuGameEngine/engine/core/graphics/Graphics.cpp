@@ -104,7 +104,7 @@ HRESULT Graphics::Initialize( HWND window )
     m_d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;
 	m_d3dpp.BackBufferCount = 1;
 	m_d3dpp.EnableAutoDepthStencil = TRUE;
-	m_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+	m_d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 	m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 	//m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 
@@ -201,7 +201,7 @@ void Graphics::ChangeScreenMode( bool windowed )
 		m_d3dpp.BackBufferCount = 1;
 		m_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		m_d3dpp.EnableAutoDepthStencil = TRUE;
-		m_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+		m_d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 		m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 	}
 	else
@@ -217,7 +217,7 @@ void Graphics::ChangeScreenMode( bool windowed )
 		m_d3dpp.BackBufferCount = 1;
 		m_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
 		m_d3dpp.EnableAutoDepthStencil = TRUE;
-		m_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
+		m_d3dpp.AutoDepthStencilFormat = D3DFMT_D24X8;
 		m_d3dpp.FullScreen_RefreshRateInHz = D3DPRESENT_RATE_DEFAULT;
 		m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 

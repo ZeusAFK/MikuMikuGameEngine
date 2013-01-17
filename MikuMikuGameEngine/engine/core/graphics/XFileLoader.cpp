@@ -217,47 +217,121 @@ HRESULT XFileLoader::LoadMeshContainer( LPD3DXFILEDATA pXofData,MeshContainer* m
 
 	for( DWORD i=0;i<Materials;i++ )
 	{
-		sMaterial* material = &meshContainer->pMaterials[i];
+		sMaterial* pMaterial = &meshContainer->pMaterials[i];
 
 		D3DXMATERIAL* pD3DMaterial = &pD3DMaterials[i];
 
-		tstring textureFileName;
+		pMaterial->colorDiffuse = pD3DMaterial->MatD3D.Diffuse;
 
-		material->colorDiffuse = pD3DMaterial->MatD3D.Diffuse;
+		pMaterial->colorSpecular.r = pD3DMaterial->MatD3D.Specular.r;
+		pMaterial->colorSpecular.g = pD3DMaterial->MatD3D.Specular.g;
+		pMaterial->colorSpecular.b = pD3DMaterial->MatD3D.Specular.b;
+		pMaterial->colorSpecular.a = 0.0f;
+
+		pMaterial->colorAmbient.r = pD3DMaterial->MatD3D.Diffuse.r;
+		pMaterial->colorAmbient.g = pD3DMaterial->MatD3D.Diffuse.g;
+		pMaterial->colorAmbient.b = pD3DMaterial->MatD3D.Diffuse.b;
+		pMaterial->colorAmbient.a = 0.0f;
+
+		pMaterial->colorEmissive.r = pD3DMaterial->MatD3D.Emissive.r;
+		pMaterial->colorEmissive.g = pD3DMaterial->MatD3D.Emissive.g;
+		pMaterial->colorEmissive.b = pD3DMaterial->MatD3D.Emissive.b;
+		pMaterial->colorEmissive.a = 0.0f;
+
+		pMaterial->specularPower = pD3DMaterial->MatD3D.Power;
+
+		TCHAR path[MAX_PATH];
+		_tcscpy_s( path,m_path.c_str() );
+
+		tstring texFileName;
+		tstring sphereFileName;
+
 		if( pD3DMaterial->pTextureFilename && strlen(pD3DMaterial->pTextureFilename)>0 )
 		{
-			textureFileName = m_path+to_tstring(pD3DMaterial->pTextureFilename);
-		}
+			tstring filename = to_tstring(pD3DMaterial->pTextureFilename);
 
-		TexturePtr pTex = ResourceManager::GetInstance().GetResource<Texture>( textureFileName );
-		if( !pTex )
-		{
-			pTex = TexturePtr(new Texture);
-			if( !pTex->CreateFromFile( textureFileName ) )
+			tstring::size_type index = filename.find( _T("*") );
+			if( index != tstring::npos )
 			{
-				pTex.reset();
+				sphereFileName = filename.substr( index+1 );
+				PathAppend( path,sphereFileName.c_str() );
+				sphereFileName = path;
+				PathRemoveFileSpec( path );
+
+				texFileName = filename.erase( index );
+				PathAppend( path,texFileName.c_str() );
+				texFileName = path;
+				PathRemoveFileSpec( path );
+			}
+			else
+			{
+				texFileName = filename;
+				PathAppend( path,texFileName.c_str() );
+				texFileName = path;
+				PathRemoveFileSpec( path );
+			}
+
+			tstring ext = PathFindExtension( texFileName.c_str() );
+
+			if( ext == _T(".sph" ) || ext == _T(".spa") )
+			{
+				sphereFileName = texFileName;
+				texFileName = _T("");
 			}
 		}
 
-		if( !pTex )
+		if( !texFileName.empty() )
 		{
-			textureFileName = _T("<FFFFFFFF>");
-
-			pTex = ResourceManager::GetInstance().GetResource<Texture>( textureFileName );
+			TexturePtr pTex = ResourceManager::GetInstance().GetResource<Texture>( texFileName );
 			if( !pTex )
 			{
 				pTex = TexturePtr(new Texture);
-				if( !pTex->CreateDotColor( 0xFFFFFFFF ) )
+				if( pTex->CreateFromFile( texFileName ) )
+				{
+					ResourceManager::GetInstance().AddResource( texFileName,pTex );
+				}
+				else
 				{
 					pTex.reset();
 				}
 			}
+
+			if( pTex )
+			{
+				pMaterial->textureDiffuse = pTex;
+			}
 		}
 
-		if( pTex )
+		if( !sphereFileName.empty() )
 		{
-			ResourceManager::GetInstance().AddResource( textureFileName,pTex );
-			material->textureDiffuse = pTex;
+			TexturePtr pTex = ResourceManager::GetInstance().GetResource<Texture>( sphereFileName );
+			if( !pTex )
+			{
+				pTex = TexturePtr(new Texture);
+				if( pTex->CreateFromFile( sphereFileName ) )
+				{
+					ResourceManager::GetInstance().AddResource( sphereFileName,pTex );
+				}
+				else
+				{
+					pTex.reset();
+				}
+			}
+
+			if( pTex )
+			{
+				pMaterial->textureSphere = pTex;
+			}
+
+			tstring ext = PathFindExtension( sphereFileName.c_str() );
+			if( ext == _T(".sph" ) )
+			{
+				pMaterial->spheremap = eSPHEREMAP_MUL;
+			}
+			else if( ext == _T(".spa") )
+			{
+				pMaterial->spheremap = eSPHEREMAP_ADD;
+			}
 		}
 	}
 

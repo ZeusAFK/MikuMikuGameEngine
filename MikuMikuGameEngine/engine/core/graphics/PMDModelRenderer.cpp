@@ -13,7 +13,6 @@ PMDModelRenderer::PMDModelRenderer()
 	: m_gameObject(NULL)
 	, m_pMesh(NULL)
 	, m_pEdgeMesh(NULL)
-	, m_ppShaders(NULL)
 	, m_ppBoneList(NULL)
 	, m_pOffsetMatrices(NULL)
 	, m_rootBoneCount(0)
@@ -34,12 +33,6 @@ PMDModelRenderer::~PMDModelRenderer()
 	{
 		delete m_pEdgeMesh;
 		m_pEdgeMesh = NULL;
-	}
-
-	if( m_ppShaders )
-	{
-		delete[] m_ppShaders;
-		m_ppShaders = NULL;
 	}
 
 	if( m_ppRootBoneList )
@@ -144,8 +137,6 @@ void PMDModelRenderer::SetModel( PMDModelPtr pModel )
 	m_skinWeights = new SkinWeight[ pPmd->skin_list.skin_count ];
 	ZeroMemory( m_skinWeights,sizeof(float)*pPmd->skin_list.skin_count );
 	
-	m_ppShaders = new ShaderPtr[ pPmd->material_list.material_count ];
-
 	m_ppBoneList = new PMDBone*[ pPmd->bone_list.bone_count ];
 
 	for( DWORD idx=0;idx<pPmd->bone_list.bone_count;idx++ )
@@ -226,14 +217,6 @@ DWORD PMDModelRenderer::GetMaterialNum()
 	sPMD* pPmd = m_pModel->GetData();
 
 	return pPmd->material_list.material_count;
-}
-
-void PMDModelRenderer::SetShader( DWORD materialIndex,ShaderPtr shader )
-{
-	if( GetMaterialNum() > materialIndex )
-	{
-		m_ppShaders[materialIndex] = shader;
-	}
 }
 
 DWORD PMDModelRenderer::GetBoneNum()
@@ -662,7 +645,7 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 	
 	DWORD attrNum = m_pMesh->GetAttributeRangeNum();
 
-	sPMDMaterial* pMaterials = m_pModel->GetMaterials();
+	sMaterial* pMaterials = m_pModel->GetMaterials();
 
 	Graphics* graphics = Graphics::GetInstance();
 
@@ -670,62 +653,34 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 
 	D3DXVECTOR3 vLight = renderInfo.lightDir;
 	D3DXVECTOR3 vEye = renderInfo.eyePos;
-	//if( info.flag & RENDERFLAG_LIGHT )
-	{
-		D3DXMATRIX matWorldInv;
-		D3DXMatrixInverse( &matWorldInv,NULL,&matWorld );
+	//{
+	//	D3DXMATRIX matWorldInv;
+	//	D3DXMatrixInverse( &matWorldInv,NULL,&matWorld );
 
-		D3DXVec3TransformNormal( &vLight,&vLight,&renderInfo.matView );
-		vLight = -vLight;
+	//	D3DXVec3TransformNormal( &vLight,&vLight,&renderInfo.matView );
+	//	vLight = -vLight;
 
-		D3DXVec3TransformCoord( &vEye,&vEye,&matWorldInv );
-	}
+	//	D3DXVec3TransformCoord( &vEye,&vEye,&matWorldInv );
+	//}
 
 	for( DWORD attrIdx = 0 ; attrIdx < attrNum ; attrIdx++ )
 	{
 		DWORD attrID = m_pMesh->GetAttributeID( attrIdx );
 
-		sPMDMaterial* pMaterial = &pMaterials[attrID];
-		ShaderPtr pShader = m_ppShaders[attrID];
-
-		//if( pShader )
-		//{
-		//	ID3DXEffectPtr pEffect = pShader->GetEffect();
-		//
-		//	pEffect->SetMatrix( "matWorldViewProj", &matWorldViewProj );
-		//	
-		//	pEffect->SetValue( "colorDiffuse",&pMaterial->colorDiffuse,sizeof(D3DXCOLOR) );
-		//	if( pMaterial->textureDiffuse )
-		//	{
-		//		pEffect->SetTexture( "textureDiffuse",pMaterial->textureDiffuse->GetTexture() );
-		//	}
-		//	else
-		//	{
-		//		pEffect->SetTexture( "textureDiffuse",NULL );
-		//	}
-		//	
-		//	pEffect->SetTechnique( "Tec_Default" );
-		//	UINT numPass;
-		//	pEffect->Begin( &numPass, 0 );
-		//	pEffect->BeginPass(0);
-
-		//	m_pMesh->Draw( attrIdx );
-
-		//	pEffect->EndPass();
-		//	pEffect->End();
-		//}
-		//else 
+		sMaterial* pMaterial = &pMaterials[attrID];
 		if( pDefaultShader )
 		{
 			ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
 		
 			pEffect->SetMatrix( "g_mWorldViewProjection",&matWorldViewProj );
 			pEffect->SetMatrix( "g_mWorldView",&matWorldView );
-			pEffect->SetMatrix( "g_mLightViewProjection", &matLightViewProj );
+			pEffect->SetMatrix( "g_mWorld",&matWorld );
+			pEffect->SetMatrix( "g_mView",&renderInfo.matView );
 
-			pEffect->SetValue( "g_materialAmbient" , &pMaterial->colorAmbient,sizeof(D3DXCOLOR) );
 			pEffect->SetValue( "g_materialDiffuse",&pMaterial->colorDiffuse,sizeof(D3DXCOLOR) );
-
+			pEffect->SetValue( "g_materialAmbient" , &pMaterial->colorAmbient,sizeof(D3DXCOLOR) );
+			pEffect->SetValue( "g_materialEmissive",&pMaterial->colorEmissive,sizeof(D3DXCOLOR) );
+			
 			pEffect->SetValue( "g_materialSpecular",&pMaterial->colorSpecular,sizeof(D3DXCOLOR) );
 			pEffect->SetFloat( "g_materialSpecularPower" , pMaterial->specularPower );
 
@@ -734,7 +689,6 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 			{
 				techName+="Texture";
 				pEffect->SetTexture( "g_Texture",pMaterial->textureDiffuse->GetTexture() );
-				pEffect->SetFloat( "g_texAlphaTestRef" , 0.0f );
 			}
 			if( pMaterial->textureSphere )
 			{
@@ -754,7 +708,9 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 				pEffect->SetTexture( "g_ToonTexture" , pMaterial->textureToon->GetTexture() );
 			}				
 
-			pEffect->SetValue( "g_lightColor", &renderInfo.lightColor,sizeof(D3DXCOLOR) );
+			pEffect->SetValue( "g_lightColorDiffuse", &D3DXCOLOR( 0xFFFFFFFF ),sizeof(D3DXCOLOR) );
+			pEffect->SetValue( "g_lightColorAmbient", &renderInfo.lightColor,sizeof(D3DXCOLOR) );
+			pEffect->SetValue( "g_lightColorSpecular", &renderInfo.lightColor,sizeof(D3DXCOLOR) );
 			pEffect->SetVector( "g_lightDir", &D3DXVECTOR4( vLight.x,vLight.y,vLight.z,1.0f) );
 			pEffect->SetVector( "g_eyePos" , &D3DXVECTOR4(vEye.x,vEye.y,vEye.z,1.0f) );
 
@@ -817,7 +773,7 @@ void PMDModelRenderer::RenderNonShader()
 
 	DWORD attrNum = m_pMesh->GetAttributeRangeNum();
 
-	sPMDMaterial* pMaterials = m_pModel->GetMaterials();
+	sMaterial* pMaterials = m_pModel->GetMaterials();
 
 	for( DWORD attrIdx = 0 ; attrIdx < attrNum ; attrIdx++ )
 	{

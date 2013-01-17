@@ -502,7 +502,7 @@ void PMDRelease(sPMD* pmd)
 	memset(pmd,0,sizeof(sPMD));
 }
 
-PMDModel::PMDModel( sPMD* pPmd,DWORD materialNum,sPMDMaterial* pMaterials )
+PMDModel::PMDModel( sPMD* pPmd,DWORD materialNum,sMaterial* pMaterials )
 	: m_pPmd(pPmd)
 	, m_materialNum(materialNum)
 	, m_pMaterials(pMaterials)
@@ -535,7 +535,7 @@ DWORD PMDModel::GetMaterialNum()
 	return m_materialNum;
 }
 
-sPMDMaterial* PMDModel::GetMaterials()
+sMaterial* PMDModel::GetMaterials()
 {
 	return m_pMaterials;
 }

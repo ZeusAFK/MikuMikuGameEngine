@@ -84,27 +84,32 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 		}
 	}
 
-	sPMDMaterial* pMaterials = new sPMDMaterial[pmd->material_list.material_count];
+	sMaterial* pMaterials = new sMaterial[pmd->material_list.material_count];
 
 	for( DWORD i=0;i<pmd->material_list.material_count;i++ )
 	{
 		sPMD_Material* pmdMat = &pmd->material_list.material[i];
-		sPMDMaterial* pMaterial = &pMaterials[i];
+		sMaterial* pMaterial = &pMaterials[i];
 
-		pMaterial->colorDiffuse.r = pmdMat->diffuse_color[0];
-		pMaterial->colorDiffuse.g = pmdMat->diffuse_color[1];
-		pMaterial->colorDiffuse.b = pmdMat->diffuse_color[2];
+		pMaterial->colorDiffuse.r = 0.0f;
+		pMaterial->colorDiffuse.g = 0.0f;
+		pMaterial->colorDiffuse.b = 0.0f;
 		pMaterial->colorDiffuse.a = pmdMat->alpha;
+
+		pMaterial->colorAmbient.r = pmdMat->diffuse_color[0];
+		pMaterial->colorAmbient.g = pmdMat->diffuse_color[1];
+		pMaterial->colorAmbient.b = pmdMat->diffuse_color[2];
+		pMaterial->colorAmbient.a = 0.0f;
 
 		pMaterial->colorSpecular.r = pmdMat->specular_color[0];
 		pMaterial->colorSpecular.g = pmdMat->specular_color[1];
 		pMaterial->colorSpecular.b = pmdMat->specular_color[2];
 		pMaterial->colorSpecular.a = 0.0f;
 
-		pMaterial->colorAmbient.r = pmdMat->ambient_color[0];
-		pMaterial->colorAmbient.g = pmdMat->ambient_color[1];
-		pMaterial->colorAmbient.b = pmdMat->ambient_color[2];
-		pMaterial->colorAmbient.a = 0.0f;
+		pMaterial->colorEmissive.r = pmdMat->ambient_color[0];
+		pMaterial->colorEmissive.g = pmdMat->ambient_color[1];
+		pMaterial->colorEmissive.b = pmdMat->ambient_color[2];
+		pMaterial->colorEmissive.a = 0.0f;
 
 		pMaterial->specularPower = pmdMat->specularity;
 

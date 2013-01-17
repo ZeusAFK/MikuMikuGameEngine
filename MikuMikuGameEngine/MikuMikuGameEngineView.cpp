@@ -106,29 +106,6 @@ GameObject* CMikuMikuGameEngineView::CreateGameObjectFromModelFrame( GameObject*
 
 		pModelRenderer->SetModel( pModelFrame->GetMeshContainer() );
 
-		tstring filePath = _T("project/assets/shader.fx");
-		ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-		if( !pShader )
-		{
-			pShader = ShaderPtr(new Shader);
-			if( pShader->CreateFromFile( filePath ) )
-			{
-				ResourceManager::GetInstance().AddResource( filePath,pShader );
-			}
-			else
-			{
-				pShader = ShaderPtr();
-			}
-		}
-
-		if( pShader )
-		{
-			DWORD materialNum = pModelRenderer->GetMaterialNum();
-			for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-			{
-				pModelRenderer->SetShader( matIdx,pShader );
-			}
-		}
 		gameObject->SetModelRenderer( pModelRenderer );
 	}
 
@@ -173,8 +150,8 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	m_initialized = true;
 
 	{
-		tstring xFilePath = _T("project\\assets\\stage01\\stage01.x");
-		//tstring xFilePath = _T("project\\assets\\Sample5.x");]
+		tstring xFilePath = _T("project\\assets\\Stage\\ƒQƒLƒhŠXv3.0.x");
+		//tstring xFilePath = _T("project\\assets\\Sample5.x");
 
 		TCHAR path[MAX_PATH];
 		_tcscpy_s( path,PathFindFileName( xFilePath.c_str() ) );
@@ -224,29 +201,6 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 			pmdModelRenderer->SetGameObject( gameObject );
 			pmdModelRenderer->SetModel( pModel );
 
-			//tstring filePath = _T("project/assets/shader.fx");
-			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			//if( !pShader )
-			//{
-			//	pShader = ShaderPtr(new Shader);
-			//	if( pShader->CreateFromFile( filePath ) )
-			//	{
-			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
-			//	}
-			//	else
-			//	{
-			//		pShader = ShaderPtr();
-			//	}
-			//}
-
-			//if( pShader )
-			//{
-			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-			//	{
-			//		pmdModelRenderer->SetShader( matIdx,pShader );
-			//	}
-			//}
 			gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
 			GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
@@ -296,29 +250,6 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 			pmdModelRenderer->SetGameObject( gameObject );
 			pmdModelRenderer->SetModel( pModel );
 
-			//tstring filePath = _T("project/assets/shader.fx");
-			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			//if( !pShader )
-			//{
-			//	pShader = ShaderPtr(new Shader);
-			//	if( pShader->CreateFromFile( filePath ) )
-			//	{
-			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
-			//	}
-			//	else
-			//	{
-			//		pShader = ShaderPtr();
-			//	}
-			//}
-
-			//if( pShader )
-			//{
-			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-			//	{
-			//		pmdModelRenderer->SetShader( matIdx,pShader );
-			//	}
-			//}
 			gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
 			gameObject->SetLocalPosition( D3DXVECTOR3(10.0f,0.0f,0.0f) );
@@ -370,29 +301,6 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 			pmdModelRenderer->SetGameObject( gameObject );
 			pmdModelRenderer->SetModel( pModel );
 
-			//tstring filePath = _T("project/assets/shader.fx");
-			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			//if( !pShader )
-			//{
-			//	pShader = ShaderPtr(new Shader);
-			//	if( pShader->CreateFromFile( filePath ) )
-			//	{
-			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
-			//	}
-			//	else
-			//	{
-			//		pShader = ShaderPtr();
-			//	}
-			//}
-
-			//if( pShader )
-			//{
-			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-			//	{
-			//		pmdModelRenderer->SetShader( matIdx,pShader );
-			//	}
-			//}
 			gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
 			gameObject->SetLocalPosition( D3DXVECTOR3(-10.0f,0.0f,0.0f) );
@@ -444,29 +352,6 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 			pmdModelRenderer->SetGameObject( gameObject );
 			pmdModelRenderer->SetModel( pModel );
 
-			//tstring filePath = _T("project/assets/shader.fx");
-			//ShaderPtr pShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-			//if( !pShader )
-			//{
-			//	pShader = ShaderPtr(new Shader);
-			//	if( pShader->CreateFromFile( filePath ) )
-			//	{
-			//		ResourceManager::GetInstance().AddResource( filePath,pShader );
-			//	}
-			//	else
-			//	{
-			//		pShader = ShaderPtr();
-			//	}
-			//}
-
-			//if( pShader )
-			//{
-			//	DWORD materialNum = pmdModelRenderer->GetMaterialNum();
-			//	for( DWORD matIdx = 0;matIdx<materialNum;matIdx++ )
-			//	{
-			//		pmdModelRenderer->SetShader( matIdx,pShader );
-			//	}
-			//}
 			gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
 			gameObject->SetLocalPosition( D3DXVECTOR3(-20.0f,0.0f,0.0f) );
@@ -531,12 +416,12 @@ void CMikuMikuGameEngineView::OnIdle()
 
 		sRenderInfo renderInfo;
 
-		D3DXMatrixPerspectiveFovLH( &renderInfo.matProj, D3DXToRadian(45.0f), (float)graphics->GetBackBufferWidth()/(float)graphics->GetBackBufferHeight(), 1.0f, 10000.0f);
+		D3DXMatrixPerspectiveFovLH( &renderInfo.matProj, D3DXToRadian(45.0f), (float)graphics->GetBackBufferWidth()/(float)graphics->GetBackBufferHeight(), 1.0f, 1000000.0f);
 
 		renderInfo.lightDir = D3DXVECTOR3(-0.5f,-1.0f,0.5f);
 		D3DXVec3Normalize( &renderInfo.lightDir,&renderInfo.lightDir );
 		renderInfo.lightColor = D3DXCOLOR( 0xFF9A9A9A );
-
+		
 		renderInfo.eyePos = D3DXVECTOR3(0.0f,0.0f,-1.0f);
 		{
 			D3DXVECTOR3 vecLookPt(0.0f,0.0f,1.0f);
@@ -576,9 +461,9 @@ void CMikuMikuGameEngineView::OnIdle()
 
 			graphics->Clear( 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB( 255, 255, 255 ), 1.0f, 0 );
 
-			{
-				m_coordinateAxis->Render( renderInfo.matView,renderInfo.matProj );
-			}
+			//{
+			//	m_coordinateAxis->Render( renderInfo.matView,renderInfo.matProj );
+			//}
 
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
 			graphics->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );

@@ -1,23 +1,26 @@
 float4x4 g_mWorldViewProjection;
 float4x4 g_mWorldView;
-float4x4 g_mLightViewProjection;
+float4x4 g_mWorld;
+float4x4 g_mView;
 float4 g_materialDiffuse;
-float4 g_materialSpecular;
 float4 g_materialAmbient;
+float4 g_materialEmissive;
+float4 g_materialSpecular;
 float4 g_materialToon;
 float g_materialSpecularPower;
-
-float g_texAlphaTestRef;
 
 float3 g_eyePos;
 
 float3 g_lightDir;
-float3 g_lightColor;
+float3 g_lightColorDiffuse;
+float3 g_lightColorAmbient;
+float3 g_lightColorSpecular;
 
 float4 g_edgeColor;
 
-static float4 DiffuseColor = saturate(g_materialDiffuse * float4(g_lightColor,1.0f) + g_materialAmbient);
-static float4 SpecularColor = g_materialSpecular*float4(g_lightColor,1.0f);
+static float4 DiffuseColor  = g_materialDiffuse * float4(g_lightColorDiffuse, 1.0f);
+static float3 AmbientColor  = saturate(g_materialAmbient.rgb * g_lightColorAmbient + g_materialEmissive.rgb);
+static float3 SpecularColor = g_materialSpecular.rgb * g_lightColorSpecular;
 
 ///////////// 定数 ////////////////
 #define SKII1	1500
@@ -44,12 +47,12 @@ sampler ToonSampler = sampler_state
 	texture = <g_ToonTexture>;
     
 	//フィルタ設定
-    MinFilter = POINT;
-    MagFilter = POINT;
-    MipFilter = POINT;    
+    MinFilter = LINEAR;
+    MagFilter = LINEAR;
+    MipFilter = LINEAR;
     //テクスチャラッピング
-    AddressU = Wrap;
-    AddressV = Wrap;
+    AddressU = Clamp;
+    AddressV = Clamp;
 };
 
 texture g_SphereMapTexture;
@@ -111,9 +114,7 @@ float4 ps_LightDiffuse(float3 N,float3 lightDir)
 {
 	float n = ps_Lambert(N,lightDir);
 	
-	float4 diffuse = float4(n,n,n,1.0f );
-	
-	return float4(diffuse.rgb,1.0f);
+	return float4(n,n,n,1.0f);
 }
 
 float4 ps_LightToonDiffuse(float3 N,float3 lightDir)
@@ -126,15 +127,15 @@ float4 ps_LightToonDiffuse(float3 N,float3 lightDir)
 	return float4(diffuse.rgb,1.0f);
 }
 
-float4 ps_Sphere( float3 N )
+float4 ps_Sphere( float2 SpTex )
 {
-	return tex2D( SphereMapSampler,float2(N.x,N.y)*0.5f+0.5f );
+	return tex2D( SphereMapSampler,SpTex );
 }
 
 float ps_BlinnPhong( float3 normal,float3 lightDir,float3 viewDir,float specularPower )
 {
-	float3 H = normalize( lightDir+viewDir );
-	return pow( max(0,dot(normal,H)),specularPower );
+	float3 H = normalize( viewDir+lightDir );
+	return pow( max(0,dot(H,normal)),specularPower );
 }
 
 struct sVS_Input
@@ -142,34 +143,40 @@ struct sVS_Input
 	float4 vPos : POSITION;
 	float3 vNormal : NORMAL;
 	float2 vTex : TEXCOORD0;
-	float edge : TEXCOORD1;
 };
 
 struct sVS_Output
 {
 	float4 vPos : POSITION;
 	float3 vNormal : TEXCOORD0;
-	float3 vViewPos : TEXCOORD1;
-	float2 vTex : TEXCOORD2;
-	float4 vZCalcTex : TEXCOORD3;
-	float4 vSpecularColor : COLOR0;
+	float2 vTex : TEXCOORD1;
+	float2 SpTex    : TEXCOORD2;
+	float4 Color : COLOR0;
+	float4 vSpecularColor : COLOR1;
 };
 
-sVS_Output VS_Scene( sVS_Input In )
+sVS_Output VS_Scene( sVS_Input In,uniform bool useToon,uniform bool useSphere )
 {
 	sVS_Output Out=(sVS_Output)0;
 	Out.vPos = mul( In.vPos,g_mWorldViewProjection );
-	Out.vNormal = mul( In.vNormal.xyz,g_mWorldView );
-	Out.vViewPos = mul( In.vPos.xyz-g_eyePos,g_mWorldView );
+	Out.vNormal = normalize( mul( In.vNormal.xyz,(float3x3)g_mWorld ) );
 	Out.vTex = In.vTex;
-	// ライトの目線によるワールドビュー射影変換をする
-	Out.vZCalcTex = mul( In.vPos, g_mLightViewProjection );
 
-	float3 N = normalize(Out.vNormal);
-	float3 lightDir = normalize(g_lightDir);
+	if( useSphere )
+	{
+		Out.SpTex = mul( Out.vNormal, (float3x3)g_mView );
+	}
 
-	float3 vViewDir = normalize(-Out.vViewPos);
-	float s = ps_BlinnPhong( N,lightDir,vViewDir,g_materialSpecularPower );
+	Out.Color.rgb=AmbientColor;
+	if( !useToon ) 
+	{
+		Out.Color.rgb += ps_LightDiffuse(Out.vNormal,-g_lightDir) * DiffuseColor.rgb;
+	}
+	Out.Color.a = DiffuseColor.a;
+	Out.Color = saturate( Out.Color );
+
+	float3 vViewDir = normalize( g_eyePos-mul( In.vPos.xyz,g_mWorld ) );
+	float s = ps_BlinnPhong( Out.vNormal,-g_lightDir,vViewDir,g_materialSpecularPower );
 	Out.vSpecularColor = saturate(float4(SpecularColor.rgb*s,0.0f));
 
 	return Out;
@@ -182,18 +189,17 @@ sVS_Output VS_Scene( sVS_Input In )
 struct sPS_Input
 {
 	float3 vNormal : TEXCOORD0;
-	float3 vViewPos : TEXCOORD1;
-	float2 tex : TEXCOORD2;
-	float4 vZCalcTex : TEXCOORD3;
-	float4 vSpecularColor : COLOR0;
+	float2 tex : TEXCOORD1;
+	float2 SpTex    : TEXCOORD2;
+	float4 Color : COLOR0;
+	float4 vSpecularColor : COLOR1;
 };
 
 float4 PS_Scene(sPS_Input In,uniform bool useToon,uniform bool useTexture,uniform bool useSphere,uniform bool useSphereAdd) : COLOR
 {
-	float4 color=DiffuseColor;
-
 	float3 N = normalize(In.vNormal);
-	float3 lightDir = normalize(g_lightDir);
+
+	float4 color = In.Color;
 
 	if( useTexture )
 	{
@@ -201,7 +207,12 @@ float4 PS_Scene(sPS_Input In,uniform bool useToon,uniform bool useTexture,unifor
 	}
 	if( useSphere )
 	{
-		float4 sphere = ps_Sphere(N);
+		// スフィアマップ座標計算
+		float2 SpTex = In.SpTex;
+		SpTex.x = SpTex.x * 0.5f + 0.5f;
+		SpTex.y = SpTex.y * -0.5f + 0.5f;
+
+		float4 sphere = ps_Sphere(SpTex);
 		if( useSphereAdd )
 		{
 			color.rgb += sphere.rgb;
@@ -214,13 +225,9 @@ float4 PS_Scene(sPS_Input In,uniform bool useToon,uniform bool useTexture,unifor
 
 	if( useToon )
 	{
-		color *= ps_LightToonDiffuse(N,lightDir);
+		color *= ps_LightToonDiffuse(N,-g_lightDir );
 	}
-	else
-	{
-		color *= ps_LightDiffuse(N,lightDir);
-	}
-
+	
 	color += In.vSpecularColor;
 
 	return color;
@@ -236,14 +243,14 @@ technique TechDiffuse
 	// useToon=false
 	pass P0
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(false,false);
 		PixelShader  = compile ps_2_0 PS_Scene(false,false,false,false);
 	}
 
 	// useToon=true
 	pass P1
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(true,false);
 		PixelShader  = compile ps_2_0 PS_Scene(true,false,false,false);
 	}
 }
@@ -254,14 +261,14 @@ technique TechDiffuseSphereMul
 	// useToon=false
 	pass P0
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(false,true);
 		PixelShader  = compile ps_2_0 PS_Scene(false,false,true,false);
 	}
 
 	// useToon=true
 	pass P1
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(true,true);
 		PixelShader  = compile ps_2_0 PS_Scene(true,false,true,false);
 	}
 }
@@ -272,14 +279,14 @@ technique TechDiffuseSphereAdd
 	// useToon=false
 	pass P0
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(false,true);
 		PixelShader  = compile ps_2_0 PS_Scene(false,false,true,true);
 	}
 
 	// useToon=true
 	pass P1
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(true,true);
 		PixelShader  = compile ps_2_0 PS_Scene(true,false,true,true);
 	}
 }
@@ -290,14 +297,14 @@ technique TechDiffuseTexture
 	// useToon=false
 	pass P0
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(false,false);
 		PixelShader  = compile ps_2_0 PS_Scene(false,true,false,false);
 	}
 
 	// useToon=true
 	pass P1
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(true,false);
 		PixelShader  = compile ps_2_0 PS_Scene(true,true,false,false);
 	}
 }
@@ -308,14 +315,14 @@ technique TechDiffuseTextureSphereMul
 	// useToon=false
 	pass P0
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(false,true);
 		PixelShader  = compile ps_2_0 PS_Scene(false,true,true,false);
 	}
 
 	// useToon=true
 	pass P1
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(true,true);
 		PixelShader  = compile ps_2_0 PS_Scene(true,true,true,false);
 	}
 }
@@ -326,91 +333,14 @@ technique TechDiffuseTextureSphereAdd
 	// useToon=false
 	pass P0
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(false,true);
 		PixelShader  = compile ps_2_0 PS_Scene(false,true,true,true);
 	}
 
 	// useToon=true
 	pass P1
 	{
-		VertexShader = compile vs_2_0 VS_Scene();
+		VertexShader = compile vs_2_0 VS_Scene(true,true);
 		PixelShader  = compile ps_2_0 PS_Scene(true,true,true,true);
-	}
-}
-
-//=========================================================================================
-// Debug
-//=========================================================================================
-
-struct sVS_Input_Line
-{
-	float4 vPos : POSITION;
-	float4 color : COLOR0;
-};
-
-struct sVS_Output_Line
-{
-	float4 vPos : POSITION;
-	float4 color : COLOR0;
-};
-
-sVS_Output_Line VS_PosLine( sVS_Input_Line In )
-{
-	sVS_Output_Line Out=(sVS_Output_Line)0;
-	Out.vPos = mul( In.vPos,g_mWorldViewProjection );
-	Out.color = In.color;
-
-	return Out;
-}
-
-float4 PS_Line( float4 color : COLOR0 ) : COLOR
-{
-	return color;
-}
-
-technique TechLine
-{
-	pass P0
-	{
-		VertexShader = compile vs_2_0 VS_PosLine();
-		PixelShader  = compile ps_2_0 PS_Line();
-	}
-}
-
-
-//=========================================================================================
-// technique 2D
-//=========================================================================================
-
-float4 PS_ScreenDiffuse() : COLOR
-{
-	return g_materialDiffuse;
-}
-
-float4 PS_ScreenDiffuseTexture(float2 tex : TEXCOORD0) : COLOR
-{
-	float4 texColor = tex2D( TextureSampler,tex );
-	if( texColor.a-g_texAlphaTestRef < 0 )
-	{
-		discard;
-	}
-	
-	float4 color = texColor * g_materialDiffuse;
-	return color;
-}
-
-technique TechScreenDiffuse
-{
-	pass P0
-	{
-		PixelShader  = compile ps_2_0 PS_ScreenDiffuse();
-	}
-}
-
-technique TechScreenDiffuseTexture
-{
-	pass P0
-	{
-		PixelShader  = compile ps_2_0 PS_ScreenDiffuseTexture();
 	}
 }
