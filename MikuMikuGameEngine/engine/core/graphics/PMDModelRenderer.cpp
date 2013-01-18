@@ -516,7 +516,7 @@ void PMDModelRenderer::SetSkinWeight( int index,float weight )
 	m_skinWeights[index].changed = true;
 }
 
-void PMDModelRenderer::UpdateSkinMesh()
+void PMDModelRenderer::UpdateSkinMesh( const D3DXVECTOR3& cameraPos )
 {
 	if( !m_pMesh || !m_ppBoneList )
 	{
@@ -620,7 +620,8 @@ void PMDModelRenderer::UpdateSkinMesh()
 		edgeVertex->normal = vertex->normal;
 		if( pmdVertex->edge_flag==0 )
 		{
-			edgeVertex->position += vertex->normal*0.01f;
+			float length = D3DXVec3Length( &(edgeVertex->position-cameraPos) );
+			edgeVertex->position += vertex->normal * 0.0015f * length;
 		}
 	}
 
@@ -635,7 +636,7 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 		return;
 	}
 
-	UpdateSkinMesh();
+	UpdateSkinMesh(renderInfo.eyePos);
 
 	D3DXMATRIX matWorldView = matWorld * renderInfo.matView;
 	D3DXMATRIX matWorldViewProj = matWorldView * renderInfo.matProj;

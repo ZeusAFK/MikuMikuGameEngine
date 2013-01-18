@@ -52,7 +52,7 @@ public:
 
 	void UpdateBone();
 
-	void UpdateSkinMesh();
+	void UpdateSkinMesh(const D3DXVECTOR3& cameraPos);
 
 	void Render( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo );
 

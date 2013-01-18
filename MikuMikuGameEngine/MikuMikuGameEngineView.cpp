@@ -150,7 +150,8 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	m_initialized = true;
 
 	{
-		tstring xFilePath = _T("project\\assets\\Stage\\ÉQÉLÉhäXv3.0.x");
+		//tstring xFilePath = _T("project\\assets\\Stage\\ÉQÉLÉhäXv3.0.x");
+		tstring xFilePath = _T("project\\assets\\stage01\\stage01.x");
 		//tstring xFilePath = _T("project\\assets\\Sample5.x");
 
 		TCHAR path[MAX_PATH];
