@@ -516,12 +516,17 @@ void PMDModelRenderer::SetSkinWeight( int index,float weight )
 	m_skinWeights[index].changed = true;
 }
 
-void PMDModelRenderer::UpdateSkinMesh( const D3DXVECTOR3& cameraPos )
+void PMDModelRenderer::UpdateMesh( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo )
 {
 	if( !m_pMesh || !m_ppBoneList )
 	{
 		return;
 	}
+
+	D3DXVECTOR3 cameraPos = renderInfo.camera.GetPosition();
+	D3DXMATRIX matWorldInv = matWorld;
+	D3DXMatrixInverse( &matWorldInv,NULL,&matWorld );
+	D3DXVec3TransformCoord( &cameraPos,&cameraPos,&matWorldInv );
 
 	DWORD vertexNum = m_pMesh->GetVertexNum();
 	sVertex* vertices = m_pMesh->GetVertices();
@@ -629,6 +634,52 @@ void PMDModelRenderer::UpdateSkinMesh( const D3DXVECTOR3& cameraPos )
 	delete[] pBoneMatrix;
 }
 
+void PMDModelRenderer::RenderZPlot( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo )
+{
+	if( !m_pMesh )
+	{
+		return;
+	}
+
+	D3DXMATRIX matShadowWorldViewProj = matWorld * renderInfo.matShadow;
+	
+	DWORD attrNum = m_pMesh->GetAttributeRangeNum();
+
+	sMaterial* pMaterials = m_pModel->GetMaterials();
+
+	Graphics* graphics = Graphics::GetInstance();
+
+	ShaderPtr pDefaultShader = graphics->GetDefaultShader();
+
+	graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_CCW );
+
+	for( DWORD attrIdx = 0 ; attrIdx < attrNum ; attrIdx++ )
+	{
+		DWORD attrID = m_pMesh->GetAttributeID( attrIdx );
+
+		sMaterial* pMaterial = &pMaterials[attrID];
+		if( pDefaultShader && pMaterial->edge && pMaterial->colorDiffuse.a != 0.98f )
+		{
+			ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
+		
+			pEffect->SetMatrix( "g_mShadowWorldViewProjection",&matShadowWorldViewProj );
+
+			int cpass = 0;
+
+			pEffect->SetTechnique( "TechZPlot" );
+
+			UINT numPass;
+			pEffect->Begin( &numPass, 0 );
+			pEffect->BeginPass(cpass);
+
+			m_pMesh->Draw( attrIdx );
+
+			pEffect->EndPass();
+			pEffect->End();
+		}
+	}
+}
+
 void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo )
 {
 	if( !m_pMesh )
@@ -636,13 +687,13 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 		return;
 	}
 
-	UpdateSkinMesh(renderInfo.eyePos);
+	const D3DXMATRIX& matView = renderInfo.camera.GetViewMatrix();
+	const D3DXMATRIX& matProj = renderInfo.camera.GetProjMatrix();
 
-	D3DXMATRIX matWorldView = matWorld * renderInfo.matView;
-	D3DXMATRIX matWorldViewProj = matWorldView * renderInfo.matProj;
+	D3DXMATRIX matWorldView = matWorld * matView;
+	D3DXMATRIX matWorldViewProj = matWorldView * matProj;
 
-	D3DXMATRIX matLightView = matWorld * renderInfo.matLightView;
-	D3DXMATRIX matLightViewProj = matLightView * renderInfo.matLightProj;
+	D3DXMATRIX matShadowWorldViewProj = matWorld * renderInfo.matShadow;
 	
 	DWORD attrNum = m_pMesh->GetAttributeRangeNum();
 
@@ -653,12 +704,12 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 	ShaderPtr pDefaultShader = graphics->GetDefaultShader();
 
 	D3DXVECTOR3 vLight = renderInfo.lightDir;
-	D3DXVECTOR3 vEye = renderInfo.eyePos;
+	D3DXVECTOR3 vEye = renderInfo.camera.GetPosition();
 	//{
 	//	D3DXMATRIX matWorldInv;
 	//	D3DXMatrixInverse( &matWorldInv,NULL,&matWorld );
 
-	//	D3DXVec3TransformNormal( &vLight,&vLight,&renderInfo.matView );
+	//	D3DXVec3TransformNormal( &vLight,&vLight,&matView );
 	//	vLight = -vLight;
 
 	//	D3DXVec3TransformCoord( &vEye,&vEye,&matWorldInv );
@@ -676,7 +727,7 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 			pEffect->SetMatrix( "g_mWorldViewProjection",&matWorldViewProj );
 			pEffect->SetMatrix( "g_mWorldView",&matWorldView );
 			pEffect->SetMatrix( "g_mWorld",&matWorld );
-			pEffect->SetMatrix( "g_mView",&renderInfo.matView );
+			pEffect->SetMatrix( "g_mView",&matView );
 
 			pEffect->SetValue( "g_materialDiffuse",&pMaterial->colorDiffuse,sizeof(D3DXCOLOR) );
 			pEffect->SetValue( "g_materialAmbient" , &pMaterial->colorAmbient,sizeof(D3DXCOLOR) );
@@ -707,7 +758,14 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 			if( pMaterial->textureToon )
 			{
 				pEffect->SetTexture( "g_ToonTexture" , pMaterial->textureToon->GetTexture() );
-			}				
+			}
+			if( renderInfo.shadowMap )
+			{
+				techName += "Shadow";
+				pEffect->SetTexture( "g_ShadowMapTexture" , renderInfo.shadowMapTexture->GetTexture() );
+
+				pEffect->SetMatrix( "g_mShadowWorldViewProjection",&matShadowWorldViewProj );
+			}
 
 			pEffect->SetValue( "g_lightColorDiffuse", &D3DXCOLOR( 0xFFFFFFFF ),sizeof(D3DXCOLOR) );
 			pEffect->SetValue( "g_lightColorAmbient", &renderInfo.lightColor,sizeof(D3DXCOLOR) );
@@ -737,32 +795,45 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 
 			pEffect->EndPass();
 			pEffect->End();
-
-			if( pMaterial->edge )
-			{
-				graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_CW );
-
-				std::string techName = "TechEdge";
-
-				pEffect->SetTechnique( techName.c_str() );
-				
-				UINT passes;
-				pEffect->Begin( &passes,0 );
-				
-				pEffect->SetVector( "g_edgeColor" , &D3DXVECTOR4(0.0f,0.0f,0.0f,1.0f) );
-				
-				pEffect->BeginPass( 0 );
-
-				m_pEdgeMesh->Draw( attrIdx );
-
-				pEffect->EndPass();
-				
-				pEffect->End();
-
-				graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_NONE );
-			}
 		}
 	}
+
+	graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_CW );
+
+	for( DWORD attrIdx = 0 ; attrIdx < attrNum ; attrIdx++ )
+	{
+		DWORD attrID = m_pMesh->GetAttributeID( attrIdx );
+
+		sMaterial* pMaterial = &pMaterials[attrID];
+		if( pDefaultShader && pMaterial->edge )
+		{
+			ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
+		
+			pEffect->SetMatrix( "g_mWorldViewProjection",&matWorldViewProj );
+			pEffect->SetMatrix( "g_mWorldView",&matWorldView );
+			pEffect->SetMatrix( "g_mWorld",&matWorld );
+			pEffect->SetMatrix( "g_mView",&matView );
+
+			pEffect->SetVector( "g_edgeColor" , &D3DXVECTOR4(0.0f,0.0f,0.0f,1.0f) );
+
+			std::string techName = "TechEdge";
+
+			pEffect->SetTechnique( techName.c_str() );
+			
+			UINT passes;
+			pEffect->Begin( &passes,0 );
+			
+			pEffect->BeginPass( 0 );
+
+			m_pEdgeMesh->Draw( attrIdx );
+
+			pEffect->EndPass();
+			
+			pEffect->End();
+		}
+	}
+
+	graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_CCW );
 }
 
 void PMDModelRenderer::RenderNonShader()

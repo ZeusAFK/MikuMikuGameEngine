@@ -268,7 +268,7 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 			D3DLOCKED_RECT lockRect;
 			pD3DTexture->LockRect(0, &lockRect, NULL, 0);
 
-			int x = desc.Width-1;
+			int x = 0;
 			int y = desc.Height-1;
 
 			DWORD color;

@@ -3,19 +3,24 @@
 #include "core/graphics/ModelRenderer.h"
 #include "core/graphics/PMDModelRenderer.h"
 #include "core/graphics/VMDAnimationClip.h"
+#include "core/graphics/RenderTexture.h"
 
 #include "core/util/TreeNode.h"
 
+#include "Camera.h"
+
 struct sRenderInfo
 {
-	D3DXMATRIX matView;
-	D3DXMATRIX matProj;
-	D3DXVECTOR3 eyePos;
+	Camera camera;
+
 	D3DXVECTOR3 lightDir;
 	D3DXCOLOR lightColor;
 
-	D3DXMATRIX matLightView;
-	D3DXMATRIX matLightProj;
+	bool shadowMap;
+
+	RenderTexturePtr shadowMapTexture;
+
+	D3DXMATRIX matShadow;
 };
 
 class GameObject : public TreeNode<GameObject>
@@ -70,6 +75,9 @@ public:
 	void UpdateAnimation( float elapsedTime );
 
 public:
+	void UpdateMesh( const sRenderInfo& renderInfo );
+
+	void RenderZPlot( const sRenderInfo& renderInfo );
 	void Render( const sRenderInfo& renderInfo );
 
 	void RenderNonShader();

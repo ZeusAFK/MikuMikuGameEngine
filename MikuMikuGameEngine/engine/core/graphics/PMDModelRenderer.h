@@ -52,8 +52,9 @@ public:
 
 	void UpdateBone();
 
-	void UpdateSkinMesh(const D3DXVECTOR3& cameraPos);
+	void UpdateMesh( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo );
 
+	void RenderZPlot( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo );
 	void Render( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo );
 
 	void RenderNonShader();

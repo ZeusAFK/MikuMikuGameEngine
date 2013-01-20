@@ -38,6 +38,58 @@ DWORD ModelRenderer::GetMaterialNum()
 	return 0;
 }
 
+void ModelRenderer::RenderZPlot( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo )
+{
+	if( !m_pMeshContainer )
+	{
+		return;
+	}
+
+	Mesh* pMesh = m_pMeshContainer->pMesh;
+
+	if( !pMesh )
+	{
+		return;
+	}
+
+	D3DXMATRIX matShadowWorldViewProj = matWorld * renderInfo.matShadow;
+
+	DWORD attrNum = pMesh->GetAttributeRangeNum();
+
+	Graphics* graphics = Graphics::GetInstance();
+
+	graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_CCW );
+
+	ShaderPtr pDefaultShader = graphics->GetDefaultShader();
+
+	for( DWORD attrIdx = 0 ; attrIdx < attrNum ; attrIdx++ )
+	{
+		DWORD attrID = pMesh->GetAttributeID( attrIdx );
+
+		sMaterial* pMaterial = &m_pMeshContainer->pMaterials[ attrID ];
+
+		if( pDefaultShader && pMaterial->colorDiffuse.a != 0.98f )
+		{
+			ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
+		
+			pEffect->SetMatrix( "g_mShadowWorldViewProjection",&matShadowWorldViewProj );
+
+			int cpass = 0;
+
+			pEffect->SetTechnique( "TechZPlot" );
+		
+			UINT numPass;
+			pEffect->Begin( &numPass, 0 );
+			pEffect->BeginPass( cpass );
+
+			pMesh->Draw( attrIdx );
+
+			pEffect->EndPass();
+			pEffect->End();
+		}
+	}
+}
+
 void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo )
 {
 	if( !m_pMeshContainer )
@@ -52,8 +104,13 @@ void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& render
 		return;
 	}
 
-	D3DXMATRIX matWorldView = matWorld * renderInfo.matView;
-	D3DXMATRIX matWorldViewProj = matWorldView * renderInfo.matProj;
+	const D3DXMATRIX& matView = renderInfo.camera.GetViewMatrix();
+	const D3DXMATRIX& matProj = renderInfo.camera.GetProjMatrix();
+
+	D3DXMATRIX matWorldView = matWorld * matView;
+	D3DXMATRIX matWorldViewProj = matWorldView * matProj;
+
+	D3DXMATRIX matShadowWorldViewProj = matWorld * renderInfo.matShadow;
 
 	DWORD attrNum = pMesh->GetAttributeRangeNum();
 
@@ -64,12 +121,12 @@ void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& render
 	ShaderPtr pDefaultShader = graphics->GetDefaultShader();
 
 	D3DXVECTOR3 vLight = renderInfo.lightDir;
-	D3DXVECTOR3 vEye = renderInfo.eyePos;
+	D3DXVECTOR3 vEye = renderInfo.camera.GetPosition();
 	//{
 	//	D3DXMATRIX matWorldInv;
 	//	D3DXMatrixInverse( &matWorldInv,NULL,&matWorld );
 
-	//	D3DXVec3TransformNormal( &vLight,&vLight,&renderInfo.matView );
+	//	D3DXVec3TransformNormal( &vLight,&vLight,&matView );
 	//	vLight = -vLight;
 
 	//	D3DXVec3TransformCoord( &vEye,&vEye,&matWorldInv );
@@ -88,7 +145,7 @@ void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& render
 			pEffect->SetMatrix( "g_mWorldViewProjection",&matWorldViewProj );
 			pEffect->SetMatrix( "g_mWorldView",&matWorldView );
 			pEffect->SetMatrix( "g_mWorld",&matWorld );
-			pEffect->SetMatrix( "g_mView",&renderInfo.matView );
+			pEffect->SetMatrix( "g_mView",&matView );
 
 			pEffect->SetValue( "g_materialDiffuse",&pMaterial->colorDiffuse,sizeof(D3DXCOLOR) );
 			pEffect->SetValue( "g_materialAmbient" , &pMaterial->colorAmbient,sizeof(D3DXCOLOR) );
@@ -117,6 +174,13 @@ void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& render
 					break;
 				}
 				pEffect->SetTexture( "g_SphereMapTexture" , pMaterial->textureSphere->GetTexture() );
+			}
+			if( renderInfo.shadowMap )
+			{
+				techName += "Shadow";
+				pEffect->SetTexture( "g_ShadowMapTexture" , renderInfo.shadowMapTexture->GetTexture() );
+
+				pEffect->SetMatrix( "g_mShadowWorldViewProjection",&matShadowWorldViewProj );
 			}
 
 			D3DXCOLOR lightColorAmbient = renderInfo.lightColor;

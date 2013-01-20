@@ -6,6 +6,7 @@
 #pragma once
 
 #include "engine/core/graphics/Shader.h"
+#include "engine/core/graphics/RenderTexture.h"
 #include "engine/GameObject.h"
 
 #include "engine/CoordinateAxis.h"
@@ -38,6 +39,8 @@ private:
 	ShaderPtr m_editorShader;
 
 	CoordinateAxis* m_coordinateAxis;
+
+	RenderTexturePtr m_shadowMap;
 
 // オーバーライド
 public:

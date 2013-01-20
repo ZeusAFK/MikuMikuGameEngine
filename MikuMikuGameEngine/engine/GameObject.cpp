@@ -371,6 +371,48 @@ void GameObject::UpdateAnimation( float elapsedTime )
 	}
 }
 
+void GameObject::UpdateMesh( const sRenderInfo& renderInfo )
+{
+	//if( m_pModelRenderer )
+	//{
+	//	m_pModelRenderer->UpdateMesh( m_matWorld,renderInfo );
+	//}
+
+	if( m_pPMDModelRenderer )
+	{
+		m_pPMDModelRenderer->UpdateMesh( m_matWorld,renderInfo );
+	}
+
+	GameObject* child = GetChild();
+	while( child )
+	{
+		child->UpdateMesh( renderInfo );
+
+		child = child->GetSiblingNext();
+	}
+}
+
+void GameObject::RenderZPlot( const sRenderInfo& renderInfo )
+{
+	if( m_pModelRenderer )
+	{
+		m_pModelRenderer->RenderZPlot( m_matWorld,renderInfo );
+	}
+
+	if( m_pPMDModelRenderer )
+	{
+		m_pPMDModelRenderer->RenderZPlot( m_matWorld,renderInfo );
+	}
+
+	GameObject* child = GetChild();
+	while( child )
+	{
+		child->RenderZPlot( renderInfo );
+
+		child = child->GetSiblingNext();
+	}
+}
+
 void GameObject::Render( const sRenderInfo& renderInfo )
 {
 	if( m_pModelRenderer )

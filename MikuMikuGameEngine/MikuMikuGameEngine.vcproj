@@ -416,6 +416,14 @@
 			Name="engine"
 			>
 			<File
+				RelativePath=".\engine\Camera.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\engine\Camera.h"
+				>
+			</File>
+			<File
 				RelativePath=".\engine\CoordinateAxis.cpp"
 				>
 			</File>
@@ -530,6 +538,14 @@
 						>
 					</File>
 					<File
+						RelativePath=".\engine\core\graphics\RenderTexture.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\graphics\RenderTexture.h"
+						>
+					</File>
+					<File
 						RelativePath=".\engine\core\graphics\Shader.cpp"
 						>
 					</File>
@@ -629,6 +645,50 @@
 					</File>
 					<File
 						RelativePath=".\engine\core\util\util.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="math"
+					>
+					<File
+						RelativePath=".\engine\core\math\BoundingBox.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\BoundingBox.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\BoundingCone.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\BoundingCone.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\BoundingFrustum.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\BoundingFrustum.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\BoundingSphere.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\BoundingSphere.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\Ray.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\Ray.h"
 						>
 					</File>
 				</Filter>
