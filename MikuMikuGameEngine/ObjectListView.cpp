@@ -31,8 +31,6 @@ BEGIN_MESSAGE_MAP(ObjectListView, CDockablePane)
 	ON_COMMAND(ID_CLASS_DEFINITION, OnClassDefinition)
 	ON_COMMAND(ID_CLASS_PROPERTIES, OnClassProperties)
 	ON_COMMAND(ID_NEW_FOLDER, OnNewFolder)
-	ON_NOTIFY(TVN_BEGINLABELEDIT,2,OnBeginLabelEdit)
-	ON_NOTIFY(TVN_ENDLABELEDIT,2,OnEndLabelEdit)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
 	ON_COMMAND(ID_ADD_OBJECT, &ObjectListView::OnAddObject)
@@ -59,16 +57,9 @@ int ObjectListView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;      // 作成できない場合
 	}
 
+	m_wndClassView.SetCallBack( this );
+
 	return 0;
-}
-
-CMikuMikuGameEngineDoc* ObjectListView::GetDocument() const // デバッグ以外のバージョンはインラインです。
-{
-	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
-
-	CDocument* pDocument = pMainFrame->GetActiveDocument();
-	ASSERT(pDocument->IsKindOf(RUNTIME_CLASS(CMikuMikuGameEngineDoc)));
-	return (CMikuMikuGameEngineDoc*)pDocument;
 }
 
 void ObjectListView::OnSize(UINT nType, int cx, int cy)
@@ -81,23 +72,53 @@ void ObjectListView::SetObjectName( GameObject* obj,const tstring& name )
 {
 	HTREEITEM hItem = m_wndClassView.GetRootItem();
 
-	hItem = m_wndClassView.SearchItem( obj,hItem );
+	hItem = m_wndClassView.SearchItem( (DWORD_PTR)obj,hItem );
 	if( hItem )
 	{
 		m_wndClassView.SetItemText(hItem,name.c_str());
 	}
 }
 
+void ObjectListView::AddGameObject( GameObject* obj,HTREEITEM hItemParent,bool select )
+{
+	HTREEITEM hObjItem = NULL;
+	if( hItemParent )
+	{
+		hObjItem = m_wndClassView.InsertItem(obj->GetName().c_str(), 3, 3,hItemParent);
+	}
+	else
+	{
+		hObjItem = m_wndClassView.InsertItem(obj->GetName().c_str(), 3, 3);
+	}
+
+	m_wndClassView.SetItemData( hObjItem,(DWORD_PTR)obj );
+	
+	GameObject* child = obj->GetChild();
+	while( child )
+	{
+		AddGameObject( child,hObjItem,false );
+
+		child = child->GetSiblingNext();
+	}
+
+	if( select )
+	{ 
+		m_wndClassView.SelectItem( hObjItem );
+	}
+
+	//EditLabel( hObjItem );
+}
+
 void ObjectListView::AddGameObject( GameObject* obj,GameObject* parent,bool select )
 {
-	m_wndClassView.AddGameObject( obj,m_wndClassView.SearchItem( parent,m_wndClassView.GetRootItem() ),select  );
+	AddGameObject( obj,m_wndClassView.SearchItem( (DWORD_PTR)parent,m_wndClassView.GetRootItem() ),select  );
 }
 
 void ObjectListView::DeleteObject( GameObject* obj )
 {
 	HTREEITEM hItem = m_wndClassView.GetRootItem();
 
-	hItem = m_wndClassView.SearchItem( obj,hItem );
+	hItem = m_wndClassView.SearchItem( (DWORD_PTR)obj,hItem );
 	if( hItem )
 	{
 		m_wndClassView.DeleteItem( hItem );
@@ -107,13 +128,42 @@ void ObjectListView::DeleteObject( GameObject* obj )
 void ObjectListView::SetObjectParent( GameObject* obj,GameObject* parent )
 {
 	HTREEITEM hRootItem = m_wndClassView.GetRootItem();
-	HTREEITEM hItem = m_wndClassView.SearchItem( obj,hRootItem );
-	HTREEITEM hParentItem = m_wndClassView.SearchItem( parent,hRootItem );
+	HTREEITEM hItem = m_wndClassView.SearchItem( (DWORD_PTR)obj,hRootItem );
+	HTREEITEM hParentItem = m_wndClassView.SearchItem( (DWORD_PTR)parent,hRootItem );
 
 	HTREEITEM hRetItem = m_wndClassView.CopyItem( hItem,hParentItem );
 	m_wndClassView.DeleteItem( hItem );
 
 	m_wndClassView.SelectItem( hRetItem );
+}
+
+void ObjectListView::OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetItem )
+{
+	// アイテムをコピーし、コピー元アイテムを削除
+	GameObject* obj = (GameObject*)m_wndClassView.GetItemData(hDragItem);
+	GameObject* parent = NULL;
+	if( hDropTargetItem )
+	{
+		parent = (GameObject*)m_wndClassView.GetItemData(hDropTargetItem);
+	}
+
+	theApp.GetDocument()->SetObjectParent( obj,parent );
+}
+
+void ObjectListView::OnTreeSelectChanged( HTREEITEM hItem )
+{
+	GameObject* obj = NULL;
+	if( hItem )
+	{
+		obj = (GameObject*)m_wndClassView.GetItemData( hItem );
+	}
+	theApp.GetDocument()->SetSelectObject( obj );
+}
+
+void ObjectListView::OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text )
+{
+	GameObject* obj = (GameObject*)m_wndClassView.GetItemData( hItem );
+	theApp.GetDocument()->SetObjectName( obj,text );
 }
 
 void ObjectListView::OnContextMenu(CWnd* pWnd, CPoint point)
@@ -253,30 +303,6 @@ void ObjectListView::OnSetFocus(CWnd* pOldWnd)
 	m_wndClassView.SetFocus();
 }
 
-void ObjectListView::OnBeginLabelEdit(NMHDR* pNMHDR, LRESULT* pResult)    
-{   
-    TV_DISPINFO* pTVDI = (TV_DISPINFO*)pNMHDR;
-    if(pTVDI->item.lParam==0)
-	{
-        *pResult = 1;   
-	}
-    else
-	{
-        *pResult = 0;
-	}
-}   
-
-void ObjectListView::OnEndLabelEdit(NMHDR* pNMHDR, LRESULT* pResult)    
-{   
-    TV_DISPINFO* pTVDI = (TV_DISPINFO*)pNMHDR;
-    if(pTVDI->item.pszText!=NULL)
-    {   
-		GameObject* obj = (GameObject*)m_wndClassView.GetItemData( pTVDI->item.hItem );
-		GetDocument()->SetObjectName( obj,pTVDI->item.pszText );
-    }   
-    *pResult = 0;   
-}
-
 void ObjectListView::OnAddObject()
 {
 	// TODO: ここにコマンド ハンドラ コードを追加します。
@@ -288,7 +314,7 @@ void ObjectListView::OnAddObject()
 		parent = (GameObject*)m_wndClassView.GetItemData(hItem);
 	}
 
-	GetDocument()->AddGameObject( new GameObject,parent,true );
+	theApp.GetDocument()->AddGameObject( new GameObject,parent,true );
 }
 
 void ObjectListView::OnDeleteObject()
@@ -306,7 +332,7 @@ void ObjectListView::OnDeleteObject()
 	{
 		if( MessageBox( _T("削除しますか?"),_T("確認"),MB_YESNO | MB_ICONQUESTION ) == IDYES )
 		{
-			GetDocument()->DeleteObject( obj );
+			theApp.GetDocument()->DeleteObject( obj );
 		}
 	}
 

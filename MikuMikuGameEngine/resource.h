@@ -38,6 +38,7 @@
 #define ID_PROPERTIES2                  153
 #define ID_EXPAND_ALL                   154
 #define IDS_FILE_VIEW                   155
+#define IDS_ASSETEXPLORER               155
 #define IDS_CLASS_VIEW                  156
 #define IDS_OUTPUT_WND                  157
 #define IDS_PROPERTIES_WND              158
@@ -53,7 +54,9 @@
 #define IDB_EXPLORER_24                 170
 #define IDI_OBJECTLIST_VIEW_HC          170
 #define IDR_SORT                        171
+#define IDI_ASSETEXPLORER               171
 #define IDB_SORT_24                     172
+#define IDI_ASSETEXPLORER_HC            172
 #define IDR_POPUP_SORT                  173
 #define IDR_POPUP_EXPLORER              174
 #define IDB_FILE_VIEW                   175
@@ -84,18 +87,26 @@
 #define IDS_EDIT_MENU                   306
 #define ID_VIEW_OBJECTLISTVIEW          310
 #define IDR_POPUP_OBJECTLIST            310
+#define ID_VIEW_ASSETEXPLORER           311
 #define ID_POPUP_32771                  32771
 #define ID_POPUP_32772                  32772
 #define ID_ADD_OBJECT                   32773
 #define ID_DELETE_OBJECT                32774
+#define ID_32775                        32775
+#define ID_32776                        32776
+#define ID_32777                        32777
+#define ID_ADD_FOLDER                   32778
+#define ID_OPEN_ASSET                   32779
+#define ID_32780                        32780
+#define ID_32781                        32781
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        311
-#define _APS_NEXT_COMMAND_VALUE         32775
+#define _APS_NEXT_COMMAND_VALUE         32782
 #define _APS_NEXT_CONTROL_VALUE         1000
-#define _APS_NEXT_SYMED_VALUE           311
+#define _APS_NEXT_SYMED_VALUE           312
 #endif
 #endif

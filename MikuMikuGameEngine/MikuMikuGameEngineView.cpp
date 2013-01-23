@@ -152,30 +152,30 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	m_shadowMap=RenderTexturePtr( new RenderTexture );
 	m_shadowMap->Create( 2048,2048,D3DFMT_R32F );
 
-	{
-		//tstring xFilePath = _T("project\\assets\\Stage\\ゲキド街v3.0.x");
-		tstring xFilePath = _T("project\\assets\\stage01\\stage01.x");
-		//tstring xFilePath = _T("project\\assets\\Sample5.x");
+	//{
+	//	//tstring xFilePath = _T("project\\assets\\Stage\\ゲキド街v3.0.x");
+	//	tstring xFilePath = _T("project\\assets\\stage01\\stage01.x");
+	//	//tstring xFilePath = _T("project\\assets\\Sample5.x");
 
-		TCHAR path[MAX_PATH];
-		_tcscpy_s( path,PathFindFileName( xFilePath.c_str() ) );
+	//	TCHAR path[MAX_PATH];
+	//	_tcscpy_s( path,PathFindFileName( xFilePath.c_str() ) );
 
-		PathRemoveExtension( path );
+	//	PathRemoveExtension( path );
 
-		ModelPtr pModel = ResourceManager::GetInstance().GetResource<Model>( xFilePath );
-		if( !pModel )
-		{
-			XFileLoader xFileLoader;
-			pModel = xFileLoader.Open( xFilePath,10.0f );
+	//	ModelPtr pModel = ResourceManager::GetInstance().GetResource<Model>( xFilePath );
+	//	if( !pModel )
+	//	{
+	//		XFileLoader xFileLoader;
+	//		pModel = xFileLoader.Open( xFilePath,10.0f );
 
-			ResourceManager::GetInstance().AddResource( xFilePath,pModel );
-		}
+	//		ResourceManager::GetInstance().AddResource( xFilePath,pModel );
+	//	}
 
-		if( pModel )
-		{
-			GameObject* gameObject = CreateGameObjectFromModelFrame( GetDocument()->GetRootGameObject(),pModel->GetFrame(),true );
-		}
-	}
+	//	if( pModel )
+	//	{
+	//		GameObject* gameObject = CreateGameObjectFromModelFrame( GetDocument()->GetRootGameObject(),pModel->GetFrame(),true );
+	//	}
+	//}
 
 	{
 		//tstring pmdFilePath = _T("project\\assets\\Model\\Lat式ミクVer2.3\\Lat式ミクVer2.3_Normal.pmd");
@@ -224,6 +224,39 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 			//{
 			//	gameObject->SetVMDAnimationClip( pAnimationClip );
 			//}
+		}
+	}
+
+	{
+		tstring pmdFilePath = _T("project\\assets\\ShadowTest.pmd");
+
+		TCHAR path[MAX_PATH];
+		_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
+
+		PathRemoveExtension( path );
+
+		PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
+		if( !pModel )
+		{
+			PMDFileLoader pmdFileLoader;
+			pModel = pmdFileLoader.Open( pmdFilePath );
+
+			ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
+		}
+
+		if( pModel )
+		{
+			GameObject* gameObject = new GameObject;
+
+			gameObject->SetName( path );
+
+			PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
+			pmdModelRenderer->SetGameObject( gameObject );
+			pmdModelRenderer->SetModel( pModel );
+
+			gameObject->SetPMDModelRenderer( pmdModelRenderer );
+
+			GetDocument()->AddGameObject( gameObject,GetDocument()->GetRootGameObject(),true );
 		}
 	}
 
@@ -408,313 +441,47 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 
 //D3DXMATRIX CalcShadowMatrix( sRenderInfo& renderInfo )
 //{
-//	const float ZFAR_MAX = 800.0f;
-//	const float Z_EPSILON=0.0001f;
-//	const float ZNEAR_MIN = 1.0f;
-//	const float W_EPSILON = 0.001f;
-//
-//	float fMinInfinityZ = 1.5f;
-//	bool bSlideBack = true;
-//	bool bUnitCubeClip = true;
-//
-//	D3DXMATRIX lightView, lightProj, virtualCameraViewProj, virtualCameraView, virtualCameraProj;
-//
-//	const D3DXVECTOR3 yAxis  ( 0.f, 1.f, 0.f);
-//	const D3DXVECTOR3 zAxis  ( 0.f, 0.f, 1.f);
+//	//表示行列設定
+//	D3DXVECTOR3 lightDir = renderInfo.lightDir;
+//	D3DXVECTOR3 viewDir = renderInfo.camera.GetLookDir();
 //
 //	const D3DXMATRIX& matView = renderInfo.camera.GetViewMatrix();
 //
-//	D3DXVECTOR3 frustumCorners[ BoundingFrustum::CornerCount ];
-//	renderInfo.camera.GetFrustumCorners( 10.0f, frustumCorners);
-//	for(int index = 0; index < BoundingFrustum::CornerCount; index++ )
+//	const D3DXMATRIX& matProj = renderInfo.camera.GetViewMatrix();
+//
+//	D3DXVECTOR3 vUp;
+//	D3DXVec3Cross( &vUp,&viewDir,&(-lightDir) );
+//	if( D3DXVec3LengthSq( &vUp ) < FLT_EPSILON )
 //	{
-//		D3DXVec3TransformCoord( &frustumCorners[index],&frustumCorners[index], &matView );
+//		// 
+//		// 通常のシャドウマップ
+//		// MMDだと影が消える？
+//
+//		return matView * matProj;
 //	}
 //
-//	BoundingBox lightBox = BoundingBox::CreateFromPoints(frustumCorners,BoundingFrustum::CornerCount);
+//	float d = (1.0f-D3DXVec3Dot( &viewDir,&lightDir ))*0.5f;
 //
-//	float zNear = std::min<float>( lightBox.GetMin().z,FLT_MAX );
-//	float zFar = std::max<float>( lightBox.GetMax().z,0.0f );
+//	D3DXVec3Normalize( &vUp,&vUp );
+//	D3DXVec3Cross( &vUp,&vUp,&viewDir );
+//	D3DXVec3Normalize( &vUp,&vUp );
 //
-//	zNear = std::max<float>( ZNEAR_MIN, zNear );
-//    zFar = std::min<float>( ZFAR_MAX, zFar );
+//	float shadowDistance = 8875*0.01f;
 //
-//	float slideBack = 0.0f;
-//	
-//	//  compute a slideback, that force some distance between the infinity plane and the view-box
-//    float infinity = zFar/(zFar-zNear);
-//    float fInfinityZ = fMinInfinityZ;
-//    if ( (infinity<=fInfinityZ) && bSlideBack )
-//    {
-//        float additionalSlide = fInfinityZ*(zFar-zNear) - zFar + Z_EPSILON;
-//        slideBack = additionalSlide;
-//        zFar += additionalSlide;
-//        zNear += additionalSlide;
-//    }
-//
-//	if( bSlideBack )
-//    {
-//        //  clamp the view-cube to the slid back objects...
-//		const D3DXVECTOR3 eyePt(0.f, 0.f, 0.f);
-//        const D3DXVECTOR3 eyeDir(0.f, 0.f, 1.f);
-//        D3DXMatrixTranslation(&virtualCameraView, 0.f, 0.f, slideBack);
-//
-//        if ( bUnitCubeClip )
-//        {
-//            BoundingCone bc( lightBox, virtualCameraView, eyePt, eyeDir );
-//            D3DXMatrixPerspectiveLH( &virtualCameraProj, 2.f*tanf(bc.GetFovX())*zNear, 2.f*tanf(bc.GetFovY())*zNear, zNear, zFar );
-//        }
-//        else
-//        {
-//            const float viewHeight = ZFAR_MAX * 0.57735026919f;  // tan(0.5f*VIEW_ANGLE)*ZFAR_MAX       
-//			float viewWidth  = viewHeight * renderInfo.camera.GetAspect();
-//            float halfFovy = atanf( viewHeight / (ZFAR_MAX+slideBack) );
-//            float halfFovx = atanf( viewWidth  / (ZFAR_MAX+slideBack) );
-//
-//            D3DXMatrixPerspectiveLH( &virtualCameraProj, 2.f*tanf(halfFovx)*zNear, 2.f*tanf(halfFovy)*zNear, zNear, zFar );
-//        }
-////		D3DXMatrixPerspectiveFovLH( &virtualCameraProj, 2.f*halfFovy, halfFovx/halfFovy, m_zNear, m_zFar);
-//    }
-//    else
-//    {
-//        D3DXMatrixIdentity( &virtualCameraView );
-//        D3DXMatrixPerspectiveFovLH( &virtualCameraProj, D3DXToRadian(60.f), renderInfo.camera.GetAspect(), zNear, zFar );
-//    }
-//
-//	D3DXMatrixMultiply(&virtualCameraViewProj, &matView, &virtualCameraView);
-//	D3DXMatrixMultiply(&virtualCameraViewProj, &virtualCameraViewProj, &virtualCameraProj);
-//   
-//	D3DXMATRIX eyeToPostProjectiveVirtualCamera;
-//	D3DXMatrixMultiply(&eyeToPostProjectiveVirtualCamera, &virtualCameraView, &virtualCameraProj);
-//
-//	D3DXVECTOR3 eyeLightDir;
-//	D3DXVec3TransformNormal(&eyeLightDir, &(-renderInfo.lightDir), &matView );
-//
-//	//  directional light becomes a point on infinity plane in post-projective space
-//	D3DXVECTOR4 lightDirW( eyeLightDir.x, eyeLightDir.y, eyeLightDir.z, 0.f );
-//	D3DXVECTOR4 ppLight;
-//
-//	D3DXVec4Transform( &ppLight, &lightDirW, &virtualCameraProj );
-//
-//	bool bShadowTestInverted = (ppLight.w < 0.f);
-//
-//	 //  compute the projection matrix...
-//    //  if the light is >= 1000 units away from the unit box, use an ortho matrix (standard shadow mapping)
-//    if( (fabsf(ppLight.w) <= W_EPSILON) )  // orthographic matrix; uniform shadow mapping
-//    {
-//        D3DXVECTOR3 ppLightDirection(ppLight.x, ppLight.y, ppLight.z);
-//        D3DXVec3Normalize(&ppLightDirection, &ppLightDirection);
-//
-//        BoundingBox ppUnitBox( D3DXVECTOR3(-1, -1, 0),D3DXVECTOR3(1, 1, 1) );
-//        D3DXVECTOR3 cubeCenter = (ppUnitBox.GetMax() + ppUnitBox.GetMin())*0.5f;
-//        float t;
-//
-//		Ray ray( cubeCenter, ppLightDirection );
-//
-//        ppUnitBox.Intersect( ray,&t );
-//        D3DXVECTOR3 lightPos = cubeCenter + 2.f*t*ppLightDirection;
-//        D3DXVECTOR3 axis = yAxis;
-//        
-//        //  if the yAxis and the view direction are aligned, choose a different up vector, to avoid singularity
-//        //  artifacts
-//        if ( fabsf(D3DXVec3Dot(&ppLightDirection, &yAxis))>0.99f )
-//            axis = zAxis;
-//
-//        D3DXMatrixLookAtLH(&lightView, &lightPos, &cubeCenter, &axis);
-//		ppUnitBox.Transform( lightView);
-//
-//		const D3DXVECTOR3& vMin = ppUnitBox.GetMin();
-//		const D3DXVECTOR3& vMax = ppUnitBox.GetMax();
-//        D3DXMatrixOrthoOffCenterLH(&lightProj, vMin.x, vMax.x, vMin.y, vMax.y, vMin.z, vMax.z);
-//    }
-//    else  // otherwise, use perspective shadow mapping
-//    {
-//        D3DXVECTOR3 ppLightPos;
-//        float wRecip = 1.0f / ppLight.w;
-//        ppLightPos.x = ppLight.x * wRecip;
-//        ppLightPos.y = ppLight.y * wRecip;
-//        ppLightPos.z = ppLight.z * wRecip;
-//
-//        D3DXMATRIX eyeToPostProjectiveLightView;
-//
-//        const float ppCubeRadius = 1.5f;  // the post-projective view box is [-1,-1,0]..[1,1,1] in DirectX, so its radius is 1.5
-//        const D3DXVECTOR3 ppCubeCenter(0.f, 0.f, 0.5f);
-//
-//        if( bShadowTestInverted )  // use the inverse projection matrix
-//        {
-//			//  project the entire unit cube into the shadow map  
-//			BoundingBox unitCube( D3DXVECTOR3(-1.f, -1.f, 0.f),D3DXVECTOR3( 1.f, 1.f, 1.f ) );
-//
-//			D3DXMATRIX tmpProjection;
-//			D3DXMatrixIdentity(&tmpProjection);
-//
-//			if( bUnitCubeClip )
-//            {
-//                //  clip the shadow map to just the used portions of the unit box.
-//				unitCube = lightBox;
-//				tmpProjection = eyeToPostProjectiveVirtualCamera;
-//            }
-//
-//			BoundingCone viewCone( unitCube, tmpProjection, ppLightPos );
-//            
-//            //  construct the inverse projection matrix -- clamp the fNear value for sanity (clamping at too low
-//            //  a value causes significant underflow in a 24-bit depth buffer)
-//            //  the multiplication is necessary since I'm not checking shadow casters
-//
-//			float fFar , fNear;
-//            fFar  = max(0.001f, viewCone.GetNear()*0.3f);
-//            fNear = -fFar;
-//            lightView = viewCone.GetLookAt();
-//            D3DXMatrixPerspectiveLH( &lightProj, 2.f*tanf(viewCone.GetFovX())*fNear, 2.f*tanf(viewCone.GetFovY())*fNear, fNear, fFar );
-//            //D3DXMatrixPerspectiveFovLH(&lightProj, 2.f*viewCone.fovy, viewCone.fovx/viewCone.fovy, m_ppNear, m_ppFar);
-//        }
-//        else  // regular projection matrix
-//        {
-//            float fFovy, fAspect, fFar, fNear;
-//            if( !bUnitCubeClip )
-//            {
-//                D3DXVECTOR3 lookAt = ppCubeCenter - ppLightPos;
-//                
-//                float distance = D3DXVec3Length(&lookAt);
-//                lookAt = lookAt / distance;
-//                
-//                D3DXVECTOR3 axis = yAxis;
-//                //  if the yAxis and the view direction are aligned, choose a different up vector, to avoid singularity
-//                //  artifacts
-//                if ( fabsf(D3DXVec3Dot(&yAxis, &lookAt))>0.99f )
-//				{
-//                    axis = zAxis;
-//				}
-//
-//                //  this code is super-cheese.  treats the unit-box as a sphere
-//                //  lots of problems, looks like hell, and requires that MinInfinityZ >= 2
-//                D3DXMatrixLookAtLH(&lightView, &ppLightPos, &ppCubeCenter, &axis);
-//                fFovy = 2.f*atanf(ppCubeRadius/distance);
-//                fAspect = 1.f;
-//                fNear = max(0.001f, distance - 2.f*ppCubeRadius);
-//                fFar = distance + 2.f*ppCubeRadius;
-//                D3DXMatrixMultiply(&eyeToPostProjectiveLightView, &eyeToPostProjectiveVirtualCamera, &lightView);
-//            }
-//            else
-//            {
-//                //  unit cube clipping
-//                //  fit a cone to the bounding geometries of all shadow receivers (incl. terrain) in the scene
-//                BoundingCone bc( lightBox, eyeToPostProjectiveVirtualCamera, ppLightPos );
-//                lightView = bc.GetLookAt();
-//                D3DXMatrixMultiply(&eyeToPostProjectiveLightView, &eyeToPostProjectiveVirtualCamera, &lightView);
-//                float fDistance = D3DXVec3Length(&(ppLightPos-ppCubeCenter));
-//                fFovy = 2.f * bc.GetFovY();
-//                fAspect = bc.GetFovX() / bc.GetFovY();
-//                fFar = bc.GetFar();
-//                //  hack alert!  adjust the near-plane value a little bit, to avoid clamping problems
-//                fNear = bc.GetNear() * 0.6f;
-//            }
-//           
-//            fNear = max(0.001f, fNear);
-//            D3DXMatrixPerspectiveFovLH(&lightProj, fFovy, fAspect, fNear, fFar);
-//        }
-//    }
-//
-//	D3DXMATRIX matLightViewProj;
-//
-//    //  build the composite matrix that transforms from world space into post-projective light space
-//    D3DXMatrixMultiply(&matLightViewProj, &lightView, &lightProj);
-//    D3DXMatrixMultiply(&matLightViewProj, &virtualCameraViewProj, &matLightViewProj);
-//
-//	return matLightViewProj;
-//}
+//	// シャドウ距離の位置がファークリップ面
 
-//D3DXMATRIX CalcShadowMatrix( sRenderInfo& renderInfo )
-//{
-//	D3DXMATRIX matLightViewProj( 
-//		0.0201246124f, 0.0041079191f,0.0003380607f, 0.0020539595f, 
-//		-0.0100623062f, 0.0082158381f,0.0006761214f, 0.0041079191f, 
-//		0.0000000000f,0.0205395948f,0.0058238176f, 0.0102697974f, 
-//		0.1006230563f,-0.3632724881f,0.3004102707f, 1.3183637857f );
+//	float nearClip = 10.0f + shadowDistance;
 //
-//	D3DXVECTOR3 cameraCenter( 0.0f,10.0f,0.0f);
-//	D3DXQUATERNION cameraRotation( 0.0f,0.0f,0.0f,1.0f );
-//	float cameraRadius = 35.0f;
-//
-//	D3DXVECTOR3 lookDir(0.0f,0.0f,1.0f);
-//
-//	D3DXMATRIX matView;
-//	{
-//		D3DXVECTOR3 cameraPos(0.0f,0.0f,-1.0f);
-//		D3DXVECTOR3 vecLookPt(0.0f,0.0f,1.0f);
-//		D3DXVECTOR3 vecUpVec(0.0f,1.0f,0.0f);
-//
-//		D3DXMATRIX matCameraRotate;
-//
-//		D3DXMatrixRotationQuaternion( &matCameraRotate,&cameraRotation );
-//
-//		D3DXVec3TransformNormal( &vecLookPt,&vecLookPt,&matCameraRotate );
-//		D3DXVec3TransformNormal( &lookDir,&cameraPos,&matCameraRotate );
-//		D3DXVec3TransformNormal( &vecUpVec,&vecUpVec,&matCameraRotate );
-//
-//		D3DXVec3Scale( &cameraPos,&cameraPos,cameraRadius );
-//		D3DXVec3Add( &cameraPos,&cameraCenter,&cameraPos );
-//
-//		D3DXVec3Add( &vecLookPt,&cameraPos,&vecLookPt );
-//
-//		D3DXMatrixLookAtLH( &matView, &cameraPos, &vecLookPt, &vecUpVec );
-//	}
-//
-//	float screenWidth = 1280.0f;
-//	float screenHeight = 768.0f;
-//
-//	float fov = D3DXToRadian( 45.0f );
-//
-//	D3DXMATRIX matProj;
-//	{
-//		D3DXMatrixPerspectiveFovLH( &matProj, fov, screenWidth/screenHeight, 1.0f, 1000000.0f);
-//	}
-//
-//	D3DXMATRIX virtualCameraView;
-//	D3DXMATRIX virtualCameraProj;
-//	D3DXMATRIX virtualCameraViewProj;
-//
-//	D3DXMATRIX matViewInv = matView * matProj;
-//	D3DXMatrixInverse( &matViewInv,NULL,&matViewInv );
-//
-//	virtualCameraViewProj = matViewInv * matLightViewProj;
-//
-//	D3DXVECTOR3 lightDir( -0.5f,-1.0f,0.5f );
+//	const D3DXVECTOR3& camPos = renderInfo.camera.GetPosition() + viewDir * d * 50.0f;
+//	D3DXVECTOR3 lightPos = camPos - lightDir * nearClip;
 //
 //	D3DXMATRIX matLightView;
-//	{
-//		D3DXVECTOR3 vLook = lookDir;
-//		D3DXVECTOR3 vUp;
-//		D3DXVec3Cross( &vUp,&vLook,&(-lightDir) );
-//		D3DXVec3Normalize( &vUp,&vUp );
-//		D3DXVec3Cross( &vUp,&vUp,&vLook );
-//		D3DXVec3Normalize( &vUp,&vUp );
+//	D3DXMatrixLookAtLH( &matLightView,&lightPos,&(lightPos + lightDir),&vUp );
 //
-//		//ライトの位置を元にしたビューマトリックス生成
-//		//ライトのプロジェクションマトリックスを使う
-//		//パースペクティブシャドウマップの場合は視錐台のプロジェクションを使う。これによりパースペクティブシャドウマップになる
-//		
-//		D3DXMatrixLookAtLH( &matLightView,&D3DXVECTOR3(0.0f,0.0f,0.0f),&lightDir,&vUp );
-//	}
+//	D3DXMATRIX matLightProj;
+//	D3DXMatrixPerspectiveFovLH( &matLightProj,D3DXToRadian(10.0f),1.0f,nearClip,nearClip+1500.0f );
 //
-//	D3DXMATRIX matLightViewInv;
-//	D3DXMatrixInverse( &matLightViewInv,NULL,&matLightView );
-//
-//	virtualCameraViewProj = matLightViewInv * virtualCameraViewProj;
-//	
-//	//D3DXMatrixMultiply(&virtualCameraViewProj, &matView, &virtualCameraView);
-//    //D3DXMatrixMultiply(&virtualCameraViewProj, &virtualCameraViewProj, &virtualCameraProj);
-// 
-//	bool shadowMode1 = true;
-//
-//	float shadowDistance = 8875.0f;
-//
-//	float shadowTexWidth = 2048.0f;
-//	float shadowTexHeight = 2048.0f;
-//
-//	const float SKII1 = 1500.0f;
-//
-//	return matLightViewProj;
+//	return matLightView * matLightProj;
 //}
 
 D3DXMATRIX CalcShadowMatrix( sRenderInfo& renderInfo )
@@ -846,9 +613,9 @@ void CMikuMikuGameEngineView::OnIdle()
 
 			graphics->Clear( 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB( 255, 255, 255 ), 1.0f, 0 );
 
-			//{
-			//	m_coordinateAxis->Render( renderInfo.camera.GetViewMatrix(),renderInfo.camera.GetProjMatrix() );
-			//}
+			{
+				m_coordinateAxis->Render( renderInfo.camera.GetViewMatrix(),renderInfo.camera.GetProjMatrix() );
+			}
 
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
 			graphics->SetRenderState( D3DRS_SRCBLEND, D3DBLEND_SRCALPHA );
@@ -924,59 +691,106 @@ void CMikuMikuGameEngineView::OnIdle()
 			//	pEffect->End();
 			//}
 
-			ShaderPtr pDefaultShader = graphics->GetDefaultShader();
-			if( pDefaultShader )
-			{
-				ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
+			//// Debug Shadow Map
+			//ShaderPtr pDefaultShader = graphics->GetDefaultShader();
+			//if( pDefaultShader )
+			//{
+			//	ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
 
-				graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+			//	graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
 
-				graphics->SetFVF( D3DFVF_XYZRHW|D3DFVF_TEX1 );
+			//	{
+			//		graphics->SetFVF( D3DFVF_XYZ );
 
-				pEffect->SetTechnique( "TechScreenDiffuseTexture" );
-				
-				UINT passes;
-				pEffect->Begin( &passes,0 );
-				
-				struct sVertex
-				{
-					float x;
-					float y;
-					float z;
-					float rhw;
-					float u;
-					float v;
-				};
+			//		pEffect->SetTechnique( "TechEdge" );
+			//		
+			//		UINT passes;
+			//		pEffect->Begin( &passes,0 );
 
-				float right = (float)graphics->GetBackBufferWidth();
-				float left = right-400.0f;
-				float top = 0.0f;
-				float bottom = top+400.0f;
+			//		BoundingFrustum frustum( renderInfo.matShadow );
 
-				sVertex v[4]={
-					{  left,   top,0.0f,1.0f,0.0f,0.0f},
-					{ right,   top,0.0f,1.0f,1.0f,0.0f},
-					{  left,bottom,0.0f,1.0f,0.0f,1.0f},
-					{ right,bottom,0.0f,1.0f,1.0f,1.0f},
-				};
+			//		DWORD indices[] =
+			//		{
+			//			0,1, // top,near,
+			//			0,2, // left,near,
+			//			1,3, // right,near,
+			//			2,3, // botom,near,
 
-				D3DXVECTOR4 color( 1.0f,1.0f,1.0f,1.0f );
-				pEffect->SetVector( "g_materialDiffuse" , &color );
-				pEffect->SetTexture( "g_Texture",m_shadowMap->GetTexture() );
+			//			0,4, // left,top
+			//			1,5, // right,top
+			//			2,6, // left,bottom
+			//			3,7, // right,bottom
 
-				for( UINT cpass = 0; cpass<passes; cpass++ )
-				{
-					pEffect->BeginPass( cpass );
+			//			4,5, // top,near,
+			//			4,6, // left,near,
+			//			5,7, // right,near,
+			//			6,7, // botom,near,
+			//		};
+			//		
+			//		D3DXVECTOR4 color( 0.0f,0.0f,0.0f,1.0f );
+			//		pEffect->SetVector( "g_edgeColor" , &color );
+			//		pEffect->SetTexture( "g_Texture",m_shadowMap->GetTexture() );
 
-					graphics->DrawPrimitiveUP( D3DPT_TRIANGLESTRIP,2,v,sizeof(sVertex) );
+			//		for( UINT cpass = 0; cpass<passes; cpass++ )
+			//		{
+			//			pEffect->BeginPass( cpass );
 
-					pEffect->EndPass();
-				}
+			//			graphics->DrawIndexedPrimitiveUP( D3DPT_LINELIST,0,BoundingFrustum::CornerCount,12,indices,D3DFMT_INDEX32,frustum.GetCorners(),sizeof(D3DXVECTOR3) );
 
-				pEffect->End();
+			//			pEffect->EndPass();
+			//		}
 
-				graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
-			}
+			//		pEffect->End();
+			//	}
+
+			//	{
+			//		graphics->SetFVF( D3DFVF_XYZRHW|D3DFVF_TEX1 );
+
+			//		pEffect->SetTechnique( "TechScreenDiffuseTexture" );
+			//		
+			//		UINT passes;
+			//		pEffect->Begin( &passes,0 );
+			//		
+			//		struct sVertex
+			//		{
+			//			float x;
+			//			float y;
+			//			float z;
+			//			float rhw;
+			//			float u;
+			//			float v;
+			//		};
+
+			//		float right = (float)graphics->GetBackBufferWidth();
+			//		float left = right-400.0f;
+			//		float top = 0.0f;
+			//		float bottom = top+400.0f;
+
+			//		sVertex v[4]={
+			//			{  left,   top,0.0f,1.0f,0.0f,0.0f},
+			//			{ right,   top,0.0f,1.0f,1.0f,0.0f},
+			//			{  left,bottom,0.0f,1.0f,0.0f,1.0f},
+			//			{ right,bottom,0.0f,1.0f,1.0f,1.0f},
+			//		};
+
+			//		D3DXVECTOR4 color( 1.0f,1.0f,1.0f,1.0f );
+			//		pEffect->SetVector( "g_materialDiffuse" , &color );
+			//		pEffect->SetTexture( "g_Texture",m_shadowMap->GetTexture() );
+
+			//		for( UINT cpass = 0; cpass<passes; cpass++ )
+			//		{
+			//			pEffect->BeginPass( cpass );
+
+			//			graphics->DrawPrimitiveUP( D3DPT_TRIANGLESTRIP,2,v,sizeof(sVertex) );
+
+			//			pEffect->EndPass();
+			//		}
+
+			//		pEffect->End();
+			//	}
+
+			//	graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
+			//}
 
 			graphics->EndScene();
 		}

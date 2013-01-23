@@ -109,7 +109,14 @@ BOOL CMikuMikuGameEngineApp::InitInstance()
 	return TRUE;
 }
 
+CMikuMikuGameEngineDoc* CMikuMikuGameEngineApp::GetDocument() const // デバッグ以外のバージョンはインラインです。
+{
+	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(m_pMainWnd);
 
+	CDocument* pDocument = pMainFrame->GetActiveDocument();
+	ASSERT(pDocument->IsKindOf(RUNTIME_CLASS(CMikuMikuGameEngineDoc)));
+	return (CMikuMikuGameEngineDoc*)pDocument;
+}
 
 // アプリケーションのバージョン情報に使われる CAboutDlg ダイアログ
 

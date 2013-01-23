@@ -41,6 +41,10 @@ CMainFrame::CMainFrame()
 {
 	// TODO: メンバ初期化コードをここに追加してください。
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
+
+#if !defined(DEBUG)
+	EnableLoadDockState(FALSE);
+#endif
 }
 
 CMainFrame::~CMainFrame()
@@ -117,11 +121,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return -1;
 	}
 
-	m_wndObjectListView.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&m_wndObjectListView);
+	m_wndAssetExplorer.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&m_wndAssetExplorer);
 
 	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndOutput);
+
+	m_wndObjectListView.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&m_wndObjectListView);
 
 	// ツール バーとドッキング ウィンドウ メニューの配置変更を有効にします
 	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR);
@@ -187,13 +194,13 @@ BOOL CMainFrame::CreateDockingWindows()
 {
 	BOOL bNameValid;
 
-	// オブジェクト リスト ビューを作成します
-	CString strObjectListView;
-	bNameValid = strObjectListView.LoadString(IDS_OBJECT_LIST_VIEW);
+	// アセットエクスプローラを作成します
+	CString strAssetExplorer;
+	bNameValid = strAssetExplorer.LoadString(IDS_ASSETEXPLORER);
 	ASSERT(bNameValid);
-	if (!m_wndObjectListView.Create(strObjectListView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_OBJECTLISTVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
+	if (!m_wndAssetExplorer.Create(strAssetExplorer, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_ASSETEXPLORER, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT | CBRS_FLOAT_MULTI))
 	{
-		TRACE0("ファイル ビュー ウィンドウを作成できませんでした\n");
+		TRACE0("アセットエクスプローラ ウィンドウを作成できませんでした\n");
 		return FALSE; // 作成できませんでした
 	}
 
@@ -207,17 +214,30 @@ BOOL CMainFrame::CreateDockingWindows()
 		return FALSE; // 作成できませんでした
 	}
 
+	// オブジェクト リスト ビューを作成します
+	CString strObjectListView;
+	bNameValid = strObjectListView.LoadString(IDS_OBJECT_LIST_VIEW);
+	ASSERT(bNameValid);
+	if (!m_wndObjectListView.Create(strObjectListView, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_OBJECTLISTVIEW, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_LEFT| CBRS_FLOAT_MULTI))
+	{
+		TRACE0("ファイル ビュー ウィンドウを作成できませんでした\n");
+		return FALSE; // 作成できませんでした
+	}
+
 	SetDockingWindowIcons(theApp.m_bHiColorIcons);
 	return TRUE;
 }
 
 void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 {
-	HICON hObjectListViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_OBJECTLIST_VIEW_HC : IDI_OBJECTLIST_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
-	m_wndObjectListView.SetIcon(hObjectListViewIcon, FALSE);
+	HICON hAssetExplorerIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_ASSETEXPLORER_HC : IDI_ASSETEXPLORER ), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+	m_wndAssetExplorer.SetIcon(hAssetExplorerIcon, FALSE);
 
 	HICON hOutputBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_OUTPUT_WND_HC : IDI_OUTPUT_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
 	m_wndOutput.SetIcon(hOutputBarIcon, FALSE);
+
+	HICON hObjectListViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_OBJECTLIST_VIEW_HC : IDI_OBJECTLIST_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+	m_wndObjectListView.SetIcon(hObjectListViewIcon, FALSE);
 }
 
 // CMainFrame 診断

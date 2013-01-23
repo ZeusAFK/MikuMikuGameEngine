@@ -6,6 +6,7 @@
 #pragma once
 
 #include "engine/GameObject.h"
+#include "engine/AssetNode.h"
 
 
 class CMikuMikuGameEngineDoc : public CDocument
@@ -17,24 +18,29 @@ protected: // シリアル化からのみ作成します。
 // 属性
 private:
 	GameObject* m_pRoot;
-
 	GameObject* m_pSelectObject;
+
+	AssetNode* m_pAssetRoot;
+	AssetNode* m_pSelectAsset;
 
 // 操作
 public:
 	GameObject* GetRootGameObject();
-
 	GameObject* GetSelectGameObject();
-
 	void AddGameObject( GameObject* obj,GameObject* parent,bool select );
-
 	void SetObjectName( GameObject* obj, const tstring& name );
-
 	void DeleteObject( GameObject* obj );
-
 	void SetObjectParent( GameObject* obj,GameObject* parent );
-
 	void SetSelectObject( GameObject* obj );
+
+	AssetNode* GetRootAsset();
+	AssetNode* GetSelectAsset();
+	void AddAsset( AssetNode* asset,AssetNode* parent,bool select );
+	void AddAssetFolder( const tstring& folderName,AssetNode* parent,bool select );
+	void SetAssetName( AssetNode* asset, const tstring& name );
+	void DeleteAsset( AssetNode* asset );
+	void SetAssetParent( AssetNode* asset,AssetNode* parent );
+	void SetSelectAsset( AssetNode* asset );
 
 // オーバーライド
 public:

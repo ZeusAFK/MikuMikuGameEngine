@@ -1,7 +1,13 @@
 #pragma once
 #include "viewtree.h"
 
-#include "MikuMikuGameEngineDoc.h"
+class TreeCallbackInterface
+{
+public:
+	virtual void OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetItem ){};
+	virtual void OnTreeSelectChanged( HTREEITEM hItem ){};
+	virtual void OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text ){};
+};
 
 class ObjectListTree : public CViewTree
 {
@@ -15,15 +21,17 @@ private:
 	UINT_PTR	m_idTimer;
 	BOOL		m_bEditLabelPending;
 
+	TreeCallbackInterface* m_callBack;
+
 // ëÆê´
 public:
-	CMikuMikuGameEngineDoc* GetDocument() const;
-
 	CImageList* CreateDragImageEx(HTREEITEM hItem);
 
 public:
-	HTREEITEM SearchItem( GameObject* target,HTREEITEM hItem );
-	void AddGameObject( GameObject* obj,HTREEITEM hItemParent,bool select );
+	void SetCallBack( TreeCallbackInterface* callBack );
+
+public:
+	HTREEITEM SearchItem( DWORD_PTR target,HTREEITEM hItem );
 
 	HTREEITEM CopyItem( HTREEITEM hItem, HTREEITEM hParent );
 
@@ -40,4 +48,7 @@ public:
 	afx_msg void OnTvnSelchanging(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+
+	afx_msg void OnTvnBeginlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
 };

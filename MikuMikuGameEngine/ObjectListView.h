@@ -6,7 +6,7 @@
 
 // ObjectListView
 
-class ObjectListView : public CDockablePane
+class ObjectListView : public CDockablePane , public TreeCallbackInterface
 {
 	DECLARE_DYNAMIC(ObjectListView)
 
@@ -17,11 +17,11 @@ public:
 	void AdjustLayout();
 
 // 属性
-public:
-	CMikuMikuGameEngineDoc* GetDocument() const;
-
 protected:
 	ObjectListTree m_wndClassView;
+
+private:
+	void AddGameObject( GameObject* obj,HTREEITEM hItemParent,bool select );
 
 public:
 	void SetObjectName( GameObject* obj,const tstring& name );
@@ -29,6 +29,11 @@ public:
 	void DeleteObject( GameObject* obj );
 
 	void SetObjectParent( GameObject* obj,GameObject* parent );
+
+public:
+	void OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetItem );
+	void OnTreeSelectChanged( HTREEITEM hItem );
+	void OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text );
 
 // オーバーライド
 public:
@@ -47,9 +52,6 @@ protected:
 	afx_msg void OnSetFocus(CWnd* pOldWnd);
 	afx_msg LRESULT OnChangeActiveTab(WPARAM, LPARAM);
 
-	afx_msg void OnBeginLabelEdit(NMHDR* pNMHDR, LRESULT* pResult);
-	afx_msg void OnEndLabelEdit(NMHDR* pNMHDR, LRESULT* pResult);
-	
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnAddObject();

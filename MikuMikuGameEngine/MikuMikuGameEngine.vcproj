@@ -188,6 +188,10 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\AssetExplorer.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrm.cpp"
 				>
 			</File>
@@ -245,6 +249,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath=".\AssetExplorer.h"
+				>
+			</File>
 			<File
 				RelativePath=".\MainFrm.h"
 				>
@@ -324,6 +332,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\res\file_vie.ico"
+				>
+			</File>
+			<File
 				RelativePath=".\res\file_view.ico"
 				>
 			</File>
@@ -341,6 +353,10 @@
 			</File>
 			<File
 				RelativePath=".\res\ico00001.ico"
+				>
+			</File>
+			<File
+				RelativePath=".\res\ico00002.ico"
 				>
 			</File>
 			<File
@@ -415,6 +431,14 @@
 		<Filter
 			Name="engine"
 			>
+			<File
+				RelativePath=".\engine\AssetNode.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\engine\AssetNode.h"
+				>
+			</File>
 			<File
 				RelativePath=".\engine\Camera.cpp"
 				>

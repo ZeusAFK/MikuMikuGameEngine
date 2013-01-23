@@ -4,6 +4,7 @@
 
 #pragma once
 #include "ObjectListView.h"
+#include "AssetExplorer.h"
 #include "OutputWnd.h"
 
 class CMainFrame : public CFrameWndEx
@@ -38,9 +39,11 @@ protected:  // コントロール バー用メンバ
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
 	ObjectListView    m_wndObjectListView;
+	CAssetExplorer     m_wndAssetExplorer;
 	COutputWnd        m_wndOutput;
 
 public:
+	CAssetExplorer*    GetAssetExplorer(){ return &m_wndAssetExplorer; }
 	ObjectListView*   GetObjectListView(){ return &m_wndObjectListView; }
 
 // 生成された、メッセージ割り当て関数

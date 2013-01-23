@@ -9,6 +9,7 @@
 
 #include "resource.h"       // メイン シンボル
 
+class CMikuMikuGameEngineDoc;
 
 // CMikuMikuGameEngineApp:
 // このクラスの実装については、MikuMikuGameEngine.cpp を参照してください。
@@ -23,6 +24,8 @@ public:
 // オーバーライド
 public:
 	virtual BOOL InitInstance();
+
+	CMikuMikuGameEngineDoc* GetDocument() const;
 
 // 実装
 	UINT  m_nAppLook;

@@ -1,9 +1,6 @@
 #include "StdAfx.h"
-#include "MikuMikuGameEngine.h"
 
 #include "ObjectListTree.h"
-
-#include "MainFrm.h"
 
 #define TCEX_EDITLABEL 1        // Edit label timer event
 
@@ -16,29 +13,26 @@ ObjectListTree::ObjectListTree(void)
 	m_hitemMouseDown = NULL;
 	m_idTimer = NULL;
 	m_bEditLabelPending = FALSE;
+
+	m_callBack = NULL;
 }
 
 ObjectListTree::~ObjectListTree(void)
 {
 }
 
-CMikuMikuGameEngineDoc* ObjectListTree::GetDocument() const // デバッグ以外のバージョンはインラインです。
+void ObjectListTree::SetCallBack( TreeCallbackInterface* callBack )
 {
-	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
-
-	CDocument* pDocument = pMainFrame->GetActiveDocument();
-	ASSERT(pDocument->IsKindOf(RUNTIME_CLASS(CMikuMikuGameEngineDoc)));
-	return (CMikuMikuGameEngineDoc*)pDocument;
+	m_callBack = callBack;
 }
 
-
-HTREEITEM ObjectListTree::SearchItem( GameObject* target,HTREEITEM hItem )
+HTREEITEM ObjectListTree::SearchItem( DWORD_PTR target,HTREEITEM hItem )
 {
 	while( hItem )
 	{
-		GameObject* pObj = (GameObject*)GetItemData( hItem );
+		DWORD_PTR itemData = GetItemData( hItem );
 
-		if( pObj == target )
+		if( itemData == target )
 		{
 			return hItem;
 		}
@@ -55,37 +49,6 @@ HTREEITEM ObjectListTree::SearchItem( GameObject* target,HTREEITEM hItem )
 
 	return NULL;
 }
-
-void ObjectListTree::AddGameObject( GameObject* obj,HTREEITEM hItemParent,bool select )
-{
-	HTREEITEM hObjItem = NULL;
-	if( hItemParent )
-	{
-		hObjItem = InsertItem(obj->GetName().c_str(), 3, 3,hItemParent);
-	}
-	else
-	{
-		hObjItem = InsertItem(obj->GetName().c_str(), 3, 3);
-	}
-
-	SetItemData( hObjItem,(DWORD_PTR)obj );
-	
-	GameObject* child = obj->GetChild();
-	while( child )
-	{
-		AddGameObject( child,hObjItem,false );
-
-		child = child->GetSiblingNext();
-	}
-
-	if( select )
-	{ 
-		SelectItem( hObjItem );
-	}
-
-	//EditLabel( hObjItem );
-}
-
 
 // ツリーアイテムをドロップ先へコピーする関数
 HTREEITEM ObjectListTree::CopyItem( HTREEITEM hItem, HTREEITEM hParent )
@@ -140,6 +103,8 @@ BEGIN_MESSAGE_MAP(ObjectListTree, CViewTree)
 	ON_NOTIFY_REFLECT(TVN_SELCHANGING, &ObjectListTree::OnTvnSelchanging)
 	ON_WM_TIMER()
 	ON_WM_LBUTTONDBLCLK()
+	ON_NOTIFY_REFLECT(TVN_BEGINLABELEDIT, &ObjectListTree::OnTvnBeginlabeledit)
+	ON_NOTIFY_REFLECT(TVN_ENDLABELEDIT, &ObjectListTree::OnTvnEndlabeledit)
 END_MESSAGE_MAP()
 
 // http://www.vchome.net/tech/document/control/DragWithoutImage.htm
@@ -239,7 +204,7 @@ void ObjectListTree::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		if( m_hitemMouseDown )
 		{
-			CSize sizeMoved = m_mouseDownPoint-point;   
+			CSize sizeMoved = m_mouseDownPoint-point;
    
 			if ( abs(sizeMoved.cx) > GetSystemMetrics( SM_CXDRAG ) || abs(sizeMoved.cy) > GetSystemMetrics( SM_CYDRAG ) )   
 			{   
@@ -324,15 +289,10 @@ void ObjectListTree::OnLButtonUp(UINT nFlags, CPoint point)
 			}
 		}
 
-		// アイテムをコピーし、コピー元アイテムを削除
-		GameObject* obj = (GameObject*)GetItemData(m_hitemDrag);
-		GameObject* parent = NULL;
-		if( hItemDrop )
+		if( m_callBack )
 		{
-			parent = (GameObject*)GetItemData(hItemDrop);
+			m_callBack->OnTreeDropItem( m_hitemDrag,hItemDrop );
 		}
-
-		GetDocument()->SetObjectParent( obj,parent );
 
 		m_hitemDrag = NULL;
 	}
@@ -439,12 +399,10 @@ void ObjectListTree::OnTvnSelchanged(NMHDR *pNMHDR, LRESULT *pResult)
 	LPNMTREEVIEW pNMTreeView = reinterpret_cast<LPNMTREEVIEW>(pNMHDR);
 	// TODO: ここにコントロール通知ハンドラ コードを追加します。
 
-	GameObject* obj = NULL;
-	if( pNMTreeView->itemNew.hItem )
+	if( m_callBack )
 	{
-		obj = (GameObject*)GetItemData( pNMTreeView->itemNew.hItem );
+		m_callBack->OnTreeSelectChanged( pNMTreeView->itemNew.hItem );
 	}
-	GetDocument()->SetSelectObject( obj );
 
 	*pResult = 0;
 }
@@ -487,4 +445,32 @@ void ObjectListTree::OnLButtonDblClk(UINT nFlags, CPoint point)
 	m_bEditLabelPending = FALSE; 
 
 	CViewTree::OnLButtonDblClk(nFlags, point);
+}
+
+void ObjectListTree::OnTvnBeginlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	// TODO: ここにコントロール通知ハンドラ コードを追加します。
+	 if(pTVDispInfo->item.lParam==0)
+	{
+        *pResult = 1;   
+	}
+    else
+	{
+        *pResult = 0;
+	}
+}
+
+void ObjectListTree::OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTVDISPINFO pTVDispInfo = reinterpret_cast<LPNMTVDISPINFO>(pNMHDR);
+	// TODO: ここにコントロール通知ハンドラ コードを追加します。
+	 if(pTVDispInfo->item.pszText!=NULL)
+    {   
+		if( m_callBack )
+		{
+			m_callBack->OnTreeLabelChanged( pTVDispInfo->item.hItem,pTVDispInfo->item.pszText );
+		}
+    }   
+    *pResult = 0;  
 }
