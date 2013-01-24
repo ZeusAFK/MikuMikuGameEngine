@@ -40,6 +40,14 @@ private:
 	void AddAsset( AssetNode* asset,HTREEITEM hItemParent,bool select );
 public:
 	void AddAsset( AssetNode* asset,AssetNode* parent,bool select );
+	void SetAssetName( AssetNode* asset,const tstring& name );
+	void DeleteAsset( AssetNode* asset );
+	void SetAssetParent( AssetNode* asset,AssetNode* parent );
+
+public:
+	void OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text );
+	void OnTreeDeleteItem( HTREEITEM hItem );
+	void OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetItem );
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

@@ -63,6 +63,8 @@ int CAssetExplorer::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_AssetExplorerImages.Create(IDB_FILE_VIEW, 16, 0, RGB(255, 0, 255));
 	m_wndFileView.SetImageList(&m_AssetExplorerImages, TVSIL_NORMAL);
 
+	m_wndFileView.SetCallBack( this );
+
 	m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_EXPLORER);
 	m_wndToolBar.LoadToolBar(IDR_EXPLORER, 0, 0, TRUE /* ロックされています*/);
 
@@ -216,6 +218,71 @@ void CAssetExplorer::AddAsset( AssetNode* asset,AssetNode* parent,bool select )
 	AddAsset( asset,m_wndFileView.SearchItem( (DWORD_PTR)parent,m_wndFileView.GetRootItem() ),select  );
 }
 
+void CAssetExplorer::SetAssetName( AssetNode* asset,const tstring& name )
+{
+	HTREEITEM hItem = m_wndFileView.GetRootItem();
+
+	hItem = m_wndFileView.SearchItem( (DWORD_PTR)asset,hItem );
+	if( hItem )
+	{
+		m_wndFileView.SetItemText(hItem,name.c_str());
+	}
+}
+
+void CAssetExplorer::DeleteAsset( AssetNode* asset )
+{
+	HTREEITEM hItem = m_wndFileView.GetRootItem();
+
+	hItem = m_wndFileView.SearchItem( (DWORD_PTR)asset,hItem );
+	if( hItem )
+	{
+		m_wndFileView.DeleteItem( hItem );
+	}
+}
+
+void CAssetExplorer::SetAssetParent( AssetNode* asset,AssetNode* parent )
+{
+	HTREEITEM hRootItem = m_wndFileView.GetRootItem();
+	HTREEITEM hItem = m_wndFileView.SearchItem( (DWORD_PTR)asset,hRootItem );
+	HTREEITEM hParentItem = m_wndFileView.SearchItem( (DWORD_PTR)parent,hRootItem );
+
+	HTREEITEM hRetItem = m_wndFileView.CopyItem( hItem,hParentItem );
+	m_wndFileView.DeleteItem( hItem );
+
+	m_wndFileView.SelectItem( hRetItem );
+}
+
+void CAssetExplorer::OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text )
+{
+	AssetNode* asset = (AssetNode*)m_wndFileView.GetItemData( hItem );
+	theApp.GetDocument()->SetAssetName( asset,text );
+}
+
+void CAssetExplorer::OnTreeDeleteItem( HTREEITEM hItem )
+{
+	AssetNode* asset = (AssetNode*)m_wndFileView.GetItemData(hItem);
+	if( asset )
+	{
+		if( MessageBox( _T("削除しますか?"),_T("確認"),MB_YESNO | MB_ICONQUESTION ) == IDYES )
+		{
+			theApp.GetDocument()->DeleteAsset( asset );
+		}
+	}
+}
+
+void CAssetExplorer::OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetItem )
+{
+	// アイテムをコピーし、コピー元アイテムを削除
+	AssetNode* asset = (AssetNode*)m_wndFileView.GetItemData(hDragItem);
+	AssetNode* parent = NULL;
+	if( hDropTargetItem )
+	{
+		parent = (AssetNode*)m_wndFileView.GetItemData(hDropTargetItem);
+	}
+
+	theApp.GetDocument()->SetAssetParent( asset,parent );
+}
+
 void CAssetExplorer::OnProperties()
 {
 	AfxMessageBox(_T("プロパティ..."));
@@ -323,5 +390,5 @@ void CAssetExplorer::OnAddFolder()
 		}
 	}
 
-	theApp.GetDocument()->AddAssetFolder( _T("新しいフォルダー"),parentAsset,true );
+	theApp.GetDocument()->AddAssetFolder( _T("NewFolder"),parentAsset,true );
 }

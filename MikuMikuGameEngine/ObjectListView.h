@@ -34,11 +34,9 @@ public:
 	void OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetItem );
 	void OnTreeSelectChanged( HTREEITEM hItem );
 	void OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text );
+	void OnTreeDeleteItem( HTREEITEM hItem );
 
 // オーバーライド
-public:
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
 	afx_msg void OnSize(UINT nType, int cx, int cy);
@@ -55,5 +53,4 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnAddObject();
-	afx_msg void OnDeleteObject();
 };

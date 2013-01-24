@@ -166,6 +166,18 @@ void ObjectListView::OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text )
 	theApp.GetDocument()->SetObjectName( obj,text );
 }
 
+void ObjectListView::OnTreeDeleteItem( HTREEITEM hItem )
+{
+	GameObject* obj = (GameObject*)m_wndClassView.GetItemData(hItem);
+	if( obj )
+	{
+		if( MessageBox( _T("削除しますか?"),_T("確認"),MB_YESNO | MB_ICONQUESTION ) == IDYES )
+		{
+			theApp.GetDocument()->DeleteObject( obj );
+		}
+	}
+}
+
 void ObjectListView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	CTreeCtrl* pWndTree = (CTreeCtrl*)&m_wndClassView;
@@ -223,40 +235,6 @@ void ObjectListView::AdjustLayout()
 	GetClientRect(rectClient);
 
 	m_wndClassView.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), rectClient.Height(), SWP_NOACTIVATE | SWP_NOZORDER);
-}
-
-BOOL ObjectListView::PreTranslateMessage(MSG* pMsg)
-{
-	if( m_wndClassView.GetEditControl() )
-	{  
-		if( m_wndClassView.SendMessage(WM_GETDLGCODE) & (DLGC_WANTALLKEYS | DLGC_WANTCHARS | DLGC_WANTMESSAGE) )
-		{
-			::TranslateMessage(pMsg);  
-			::DispatchMessage(pMsg);  
-
-			return TRUE;  
-		}
-	}
-	else
-	{
-		if ( pMsg->message == WM_KEYUP )
-		{
-			HTREEITEM hItem = m_wndClassView.GetSelectedItem();
-			if( hItem!=NULL )
-			{
-				if( pMsg->wParam == VK_F2 )
-				{
-					m_wndClassView.EditLabel(hItem);
-				}
-				else if( pMsg->wParam == VK_DELETE )
-				{
-					OnDeleteObject();
-				}
-			}
-		} 
-	}
-
-	return CDockablePane::PreTranslateMessage(pMsg);
 }
 
 void ObjectListView::OnClassAddMemberFunction()
@@ -317,24 +295,3 @@ void ObjectListView::OnAddObject()
 	theApp.GetDocument()->AddGameObject( new GameObject,parent,true );
 }
 
-void ObjectListView::OnDeleteObject()
-{
-	// TODO: ここにコマンド ハンドラ コードを追加します。
-
-	HTREEITEM hItem = m_wndClassView.GetSelectedItem();
-	if( hItem==NULL )
-	{
-		return;
-	}
-
-	GameObject* obj = (GameObject*)m_wndClassView.GetItemData(hItem);
-	if( obj )
-	{
-		if( MessageBox( _T("削除しますか?"),_T("確認"),MB_YESNO | MB_ICONQUESTION ) == IDYES )
-		{
-			theApp.GetDocument()->DeleteObject( obj );
-		}
-	}
-
-	SetFocus();
-}

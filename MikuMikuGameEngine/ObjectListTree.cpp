@@ -105,6 +105,8 @@ BEGIN_MESSAGE_MAP(ObjectListTree, CViewTree)
 	ON_WM_LBUTTONDBLCLK()
 	ON_NOTIFY_REFLECT(TVN_BEGINLABELEDIT, &ObjectListTree::OnTvnBeginlabeledit)
 	ON_NOTIFY_REFLECT(TVN_ENDLABELEDIT, &ObjectListTree::OnTvnEndlabeledit)
+	ON_NOTIFY_REFLECT(NM_CLICK, &ObjectListTree::OnNMClick)
+	ON_NOTIFY_REFLECT(NM_CUSTOMDRAW, &ObjectListTree::OnNMCustomdraw)
 END_MESSAGE_MAP()
 
 // http://www.vchome.net/tech/document/control/DragWithoutImage.htm
@@ -383,7 +385,12 @@ void ObjectListTree::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	else
 	{
-		SelectItem(NULL);
+		HTREEITEM hItem = GetRootItem();
+		SelectItem(hItem);
+		SetItemState(hItem, (UINT)~TVIS_SELECTED, TVIS_SELECTED);
+
+		//SelectItem(NULL);
+
 		//HTREEITEM hSelItem = GetSelectedItem();
 		//if( hSelItem )
 		//{
@@ -473,4 +480,121 @@ void ObjectListTree::OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult)
 		}
     }   
     *pResult = 0;  
+}
+
+BOOL ObjectListTree::PreTranslateMessage(MSG* pMsg)
+{
+	// TODO: ここに特定なコードを追加するか、もしくは基本クラスを呼び出してください。
+	if( GetEditControl() )
+	{  
+		if( SendMessage(WM_GETDLGCODE) & (DLGC_WANTALLKEYS | DLGC_WANTCHARS | DLGC_WANTMESSAGE) )
+		{
+			::TranslateMessage(pMsg);  
+			::DispatchMessage(pMsg);  
+
+			return TRUE;  
+		}
+	}
+	else
+	{
+		if ( pMsg->message == WM_KEYUP )
+		{
+			HTREEITEM hItem = GetSelectedItem();
+			if( hItem!=NULL )
+			{
+				if( pMsg->wParam == VK_F2 )
+				{
+					EditLabel(hItem);
+				}
+				else if( pMsg->wParam == VK_DELETE )
+				{
+					if( m_callBack )
+					{
+						m_callBack->OnTreeDeleteItem( hItem );
+					}
+				}
+			}
+		} 
+	}
+
+	return CViewTree::PreTranslateMessage(pMsg);
+}
+
+void ObjectListTree::OnNMClick(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	// TODO: ここにコントロール通知ハンドラ コードを追加します。
+	UINT flags=0;
+	CPoint point(::GetMessagePos());
+	ScreenToClient(&point);
+
+	HTREEITEM hItem = HitTest(point, &flags);
+
+	UINT checkFlags = TVHT_ONITEM;
+
+	if( GetStyle() & TVS_FULLROWSELECT )
+	{
+		checkFlags |= TVHT_ONITEMINDENT | TVHT_ONITEMRIGHT;
+	}
+
+	if( (flags & checkFlags)==0 )
+	{
+		HTREEITEM hItem = GetRootItem();
+		SelectItem(hItem);
+		SetItemState(hItem, (UINT)~TVIS_SELECTED, TVIS_SELECTED);
+
+		if( m_callBack )
+		{
+			m_callBack->OnTreeSelectChanged( NULL );
+		}
+
+		//SelectItem(NULL);
+
+		//HTREEITEM hSelItem = GetSelectedItem();
+		//if( hSelItem )
+		//{
+		//	SetItemState( hSelItem,0,TVIS_SELECTED );
+		//}
+	}
+	else if( hItem )
+	{
+		SetFocus();
+
+		SelectItem(hItem);
+		SetItemState(hItem, (UINT)TVIS_SELECTED, TVIS_SELECTED);
+	}
+	
+	*pResult = 0;
+}
+
+void ObjectListTree::OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult)
+{
+	LPNMTVCUSTOMDRAW pNMTVCD = reinterpret_cast<LPNMTVCUSTOMDRAW>(pNMHDR);
+	CWnd* focusWnd = GetFocus();
+	switch( pNMTVCD->nmcd.dwDrawStage )
+    {
+    case CDDS_PREPAINT:
+        *pResult = CDRF_NOTIFYITEMDRAW;
+        return;
+
+   case CDDS_ITEMPREPAINT:
+	   if( !focusWnd || focusWnd->m_hWnd != GetSafeHwnd() )
+	   {
+		   if( pNMTVCD->nmcd.uItemState & CDIS_SELECTED )
+		   {
+			   pNMTVCD->clrTextBk = GetSysColor( COLOR_HIGHLIGHT );
+			   pNMTVCD->clrText = GetSysColor( COLOR_HIGHLIGHTTEXT );
+
+			   *pResult = CDRF_NEWFONT;
+
+			   return;
+		   }
+	   }
+	   break;
+
+    default:
+        break;
+    }
+
+    *pResult = CDRF_DODEFAULT;
+
 }

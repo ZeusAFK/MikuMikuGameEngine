@@ -7,6 +7,7 @@ public:
 	virtual void OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetItem ){};
 	virtual void OnTreeSelectChanged( HTREEITEM hItem ){};
 	virtual void OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text ){};
+	virtual void OnTreeDeleteItem( HTREEITEM hItem ){};
 };
 
 class ObjectListTree : public CViewTree
@@ -51,4 +52,7 @@ public:
 
 	afx_msg void OnTvnBeginlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
 	afx_msg void OnTvnEndlabeledit(NMHDR *pNMHDR, LRESULT *pResult);
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	afx_msg void OnNMClick(NMHDR *pNMHDR, LRESULT *pResult);
+	afx_msg void OnNMCustomdraw(NMHDR *pNMHDR, LRESULT *pResult);
 };

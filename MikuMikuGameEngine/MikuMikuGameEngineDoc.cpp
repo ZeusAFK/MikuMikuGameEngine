@@ -176,9 +176,34 @@ void CMikuMikuGameEngineDoc::AddAssetFolder( const tstring& folderName,AssetNode
 
 void CMikuMikuGameEngineDoc::SetAssetName( AssetNode* asset, const tstring& name )
 {
-	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
+	if( name.empty() )
+	{
+		return;
+	}
 
-	//pMainFrame->GetAssetExplorer()->SetAssetName( obj,name );
+	AssetNode* parent = asset->GetParent();
+
+	bool duplicate = false;
+
+	AssetNode* child = parent->GetChild();
+
+	while( child )
+	{
+		if( child != asset && child->GetType() == asset->GetType() && child->GetName() == name )
+		{
+			duplicate = true;
+			break;
+		}
+		child = child->GetSiblingNext();
+	}
+
+	if( duplicate )
+	{
+		return;
+	}
+
+	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
+	pMainFrame->GetAssetExplorer()->SetAssetName( asset,name );
 
 	asset->SetName( name );
 }
@@ -187,7 +212,7 @@ void CMikuMikuGameEngineDoc::DeleteAsset( AssetNode* asset )
 {
 	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
 
-	//pMainFrame->GetAssetExplorer()->DeleteAsset( obj );
+	pMainFrame->GetAssetExplorer()->DeleteAsset( asset );
 
 	if( m_pSelectAsset == asset )
 	{
@@ -201,7 +226,35 @@ void CMikuMikuGameEngineDoc::SetAssetParent( AssetNode* asset,AssetNode* parent 
 {
 	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
 
-	//pMainFrame->GetAssetExplorer()->SetAssetParent( obj,parent );
+	bool duplicate = false;
+
+	AssetNode* child = NULL;
+
+	if( parent )
+	{	
+		child = parent->GetChild();
+	}
+	else
+	{
+		child = m_pAssetRoot->GetChild();
+	}
+
+	while( child )
+	{
+		if( child != asset && child->GetType() == asset->GetType() && child->GetName() == asset->GetName() )
+		{
+			duplicate = true;
+			break;
+		}
+		child = child->GetSiblingNext();
+	}
+
+	if( duplicate )
+	{
+		return;
+	}
+
+	pMainFrame->GetAssetExplorer()->SetAssetParent( asset,parent );
 
 	if( parent==NULL )
 	{
