@@ -10,8 +10,13 @@ class AssetNode : public TreeNode<AssetNode>
 public:
 	enum Type
 	{
-		FILE,
-		DIRECTORY,
+		Directory,
+		PMDFile,
+		VMDFile,
+		XFile,
+		EffectFile,
+		NutFile,
+		UnknownFile,
 	};
 
 private:

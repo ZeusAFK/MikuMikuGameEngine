@@ -30,7 +30,7 @@ CMikuMikuGameEngineDoc::CMikuMikuGameEngineDoc()
 	// TODO: この位置に 1 度だけ呼ばれる構築用のコードを追加してください。
 
 	m_pRoot = new GameObject();
-	m_pAssetRoot = new AssetNode(AssetNode::DIRECTORY);
+	m_pAssetRoot = new AssetNode(AssetNode::Directory);
 }
 
 CMikuMikuGameEngineDoc::~CMikuMikuGameEngineDoc()
@@ -134,6 +134,82 @@ void CMikuMikuGameEngineDoc::AddAsset( AssetNode* asset,AssetNode* parent,bool s
 	asset->SetParent( parent );
 }
 
+void CMikuMikuGameEngineDoc::AddAssetFiles( const std::vector<tstring>& filePaths,AssetNode* parent,bool select )
+{
+	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
+
+	if( !parent )
+	{
+		parent = m_pAssetRoot;
+	}
+
+	for( std::vector<tstring>::const_iterator it = filePaths.begin();it!=filePaths.end();++it )
+	{
+		int count = 0;
+
+		TCHAR fileName[MAX_PATH];
+		_tcscpy_s( fileName,PathFindFileName( (*it).c_str() ) );
+
+		TCHAR fileExt[MAX_PATH];
+		_tcscpy_s( fileExt,PathFindExtension( fileName ) );
+
+		PathRemoveExtension( fileName );
+
+		AssetNode::Type type = AssetNode::UnknownFile;
+
+		if( _tcscmp( fileExt,_T(".pmd") ) == 0 )
+		{
+			type = AssetNode::PMDFile;
+		}
+		else if( _tcscmp( fileExt,_T(".vmd") ) == 0 )
+		{
+			type = AssetNode::VMDFile;
+		}
+		else if( _tcscmp( fileExt,_T(".x") ) == 0 )
+		{
+			type = AssetNode::XFile;
+		}
+		else if( _tcscmp( fileExt,_T(".fx") ) == 0 )
+		{
+			type = AssetNode::EffectFile;
+		}
+		else if( _tcscmp( fileExt,_T(".nut") ) == 0 )
+		{
+			type = AssetNode::NutFile;
+		}
+
+		tstring searchFileName = fileName;
+		bool duplicate = false;
+		do
+		{
+			AssetNode* child = parent->GetChild();
+
+			duplicate = false;
+
+			while( child )
+			{
+				if( child->GetType() == type && child->GetName() == searchFileName )
+				{
+					count++;
+					tstring_format( searchFileName,_T("%s(%d)"),fileName,count );
+					duplicate = true;
+					break;
+				}
+				child = child->GetSiblingNext();
+			}
+		}while( duplicate );
+
+		AssetNode* asset = new AssetNode(type);
+
+		asset->SetName( fileName );
+		asset->SetPath( (*it) );
+		asset->SetParent( parent );
+
+		pMainFrame->GetAssetExplorer()->AddAsset( asset,parent,select,false );
+	}
+}
+
+
 void CMikuMikuGameEngineDoc::AddAssetFolder( const tstring& folderName,AssetNode* parent,bool select )
 {
 	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
@@ -155,7 +231,7 @@ void CMikuMikuGameEngineDoc::AddAssetFolder( const tstring& folderName,AssetNode
 
 		while( child )
 		{
-			if( child->GetType() == AssetNode::DIRECTORY && child->GetName() == searchFolderName )
+			if( child->GetType() == AssetNode::Directory && child->GetName() == searchFolderName )
 			{
 				count++;
 				tstring_format( searchFolderName,_T("%s(%d)"),folderName.c_str(),count );
@@ -166,12 +242,12 @@ void CMikuMikuGameEngineDoc::AddAssetFolder( const tstring& folderName,AssetNode
 		}
 	}while( duplicate );
 
-	AssetNode* asset = new AssetNode(AssetNode::DIRECTORY);
+	AssetNode* asset = new AssetNode(AssetNode::Directory);
 
 	asset->SetName( searchFolderName );
 	asset->SetParent( parent );
 
-	pMainFrame->GetAssetExplorer()->AddAsset( asset,parent,select );
+	pMainFrame->GetAssetExplorer()->AddAsset( asset,parent,select,true );
 }
 
 void CMikuMikuGameEngineDoc::SetAssetName( AssetNode* asset, const tstring& name )

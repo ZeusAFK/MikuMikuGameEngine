@@ -36,6 +36,7 @@ BEGIN_MESSAGE_MAP(CAssetExplorer, CDockablePane)
 	ON_WM_PAINT()
 	ON_WM_SETFOCUS()
 	ON_COMMAND(ID_ADD_FOLDER, &CAssetExplorer::OnAddFolder)
+	ON_COMMAND(ID_OPEN_ASSET, &CAssetExplorer::OnOpenAsset)
 END_MESSAGE_MAP()
 
 /////////////////////////////////////////////////////////////////////////////
@@ -170,16 +171,31 @@ void CAssetExplorer::AdjustLayout()
 	m_wndFileView.SetWindowPos(NULL, rectClient.left + 1, rectClient.top + cyTlb + 1, rectClient.Width() - 2, rectClient.Height() - cyTlb - 2, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
-void CAssetExplorer::AddAsset( AssetNode* asset,HTREEITEM hItemParent,bool select )
+void CAssetExplorer::AddAsset( AssetNode* asset,HTREEITEM hItemParent,bool select,bool editLabel )
 {
 	int imageID = 0;
 	switch( asset->GetType() )
 	{
-	case AssetNode::DIRECTORY:
+	case AssetNode::Directory:
 		imageID = 0;
 		break;
-	case AssetNode::FILE:
+	case AssetNode::PMDFile:
+		imageID = 1;
+		break;
+	case AssetNode::VMDFile:
+		imageID = 3;
+		break;
+	case AssetNode::XFile:
 		imageID = 2;
+		break;
+	case AssetNode::EffectFile:
+		imageID = 4;
+		break;
+	case AssetNode::NutFile:
+		imageID = 5;
+		break;
+	case AssetNode::UnknownFile:
+		imageID = 6;
 		break;
 	}
 
@@ -195,12 +211,12 @@ void CAssetExplorer::AddAsset( AssetNode* asset,HTREEITEM hItemParent,bool selec
 
 	m_wndFileView.SetItemData( hObjItem,(DWORD_PTR)asset );
 	
-	if( asset->GetType() == AssetNode::DIRECTORY )
+	if( asset->GetType() == AssetNode::Directory )
 	{
 		AssetNode* child = asset->GetChild();
 		while( child )
 		{
-			AddAsset( child,hObjItem,false );
+			AddAsset( child,hObjItem,false,false );
 
 			child = child->GetSiblingNext();
 		}
@@ -209,13 +225,16 @@ void CAssetExplorer::AddAsset( AssetNode* asset,HTREEITEM hItemParent,bool selec
 	if( select )
 	{ 
 		m_wndFileView.SelectItem( hObjItem );
-		m_wndFileView.EditLabel( hObjItem );
+		if( editLabel )
+		{
+			m_wndFileView.EditLabel( hObjItem );
+		}
 	}
 }
 
-void CAssetExplorer::AddAsset( AssetNode* asset,AssetNode* parent,bool select )
+void CAssetExplorer::AddAsset( AssetNode* asset,AssetNode* parent,bool select,bool editLabel )
 {
-	AddAsset( asset,m_wndFileView.SearchItem( (DWORD_PTR)parent,m_wndFileView.GetRootItem() ),select  );
+	AddAsset( asset,m_wndFileView.SearchItem( (DWORD_PTR)parent,m_wndFileView.GetRootItem() ),select,editLabel );
 }
 
 void CAssetExplorer::SetAssetName( AssetNode* asset,const tstring& name )
@@ -379,7 +398,7 @@ void CAssetExplorer::OnAddFolder()
 		AssetNode* selectAsset = (AssetNode*)m_wndFileView.GetItemData(hItem);
 		if( selectAsset )
 		{
-			if( selectAsset->GetType() == AssetNode::DIRECTORY )
+			if( selectAsset->GetType() == AssetNode::Directory )
 			{
 				parentAsset = selectAsset;
 			}
@@ -391,4 +410,63 @@ void CAssetExplorer::OnAddFolder()
 	}
 
 	theApp.GetDocument()->AddAssetFolder( _T("NewFolder"),parentAsset,true );
+}
+
+void CAssetExplorer::OnOpenAsset()
+{
+	// TODO: ここにコマンド ハンドラ コードを追加します。
+	CFileDialog fileDialog( TRUE,NULL,NULL,OFN_HIDEREADONLY | OFN_ALLOWMULTISELECT,_T("Asset files(*.pmd;*.vmd;*.x;*.fx;*.nut)|*.pmd;*.vmd;*.x;*.fx;*.nut|Pmd files(*.pmd)|*.pmd|Vocaloid Motion Data files(*.vmd)|*.vmd|x files(*.x)|*.x|Effect files(*.fx)|*.fx|Script files(*.nut)|*.nut|All files(*.*)|*.*||") );
+
+	TCHAR lpstrFile[MAX_PATH *100] = {0};
+
+	try
+	{
+		OPENFILENAME& ofn = fileDialog.GetOFN();
+		ofn.lpstrFile = lpstrFile;
+		ofn.nMaxFile = MAX_PATH *100;
+	}
+	catch (...)
+	{
+		return;
+	}
+
+	if( fileDialog.DoModal() != IDOK)
+	{
+		return;
+	}
+
+	POSITION pos = fileDialog.GetStartPosition();
+	if( pos == NULL)
+	{
+		return;
+	}
+
+	std::vector<tstring> fileList;
+
+	while (pos)
+	{
+		tstring filePath = static_cast<LPCTSTR>(fileDialog.GetNextPathName(pos));
+		fileList.push_back( filePath );
+	}
+
+	HTREEITEM hItem = m_wndFileView.GetSelectedItem();
+
+	AssetNode* parentAsset = NULL;
+	if( hItem )
+	{
+		AssetNode* selectAsset = (AssetNode*)m_wndFileView.GetItemData(hItem);
+		if( selectAsset )
+		{
+			if( selectAsset->GetType() == AssetNode::Directory )
+			{
+				parentAsset = selectAsset;
+			}
+			else
+			{
+				parentAsset = selectAsset->GetParent();
+			}
+		}
+	}
+
+	theApp.GetDocument()->AddAssetFiles( fileList,parentAsset,true );
 }

@@ -37,9 +37,9 @@ public:
 	virtual ~CAssetExplorer();
 
 private:
-	void AddAsset( AssetNode* asset,HTREEITEM hItemParent,bool select );
+	void AddAsset( AssetNode* asset,HTREEITEM hItemParent,bool select,bool editLabel );
 public:
-	void AddAsset( AssetNode* asset,AssetNode* parent,bool select );
+	void AddAsset( AssetNode* asset,AssetNode* parent,bool select,bool editLabel );
 	void SetAssetName( AssetNode* asset,const tstring& name );
 	void DeleteAsset( AssetNode* asset );
 	void SetAssetParent( AssetNode* asset,AssetNode* parent );
@@ -66,5 +66,6 @@ protected:
 	DECLARE_MESSAGE_MAP()
 public:
 	afx_msg void OnAddFolder();
+	afx_msg void OnOpenAsset();
 };
 
