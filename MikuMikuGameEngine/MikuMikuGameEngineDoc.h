@@ -42,6 +42,7 @@ public:
 	void DeleteAsset( AssetNode* asset );
 	void SetAssetParent( AssetNode* asset,AssetNode* parent );
 	void SetSelectAsset( AssetNode* asset );
+	void DropAsset( AssetNode* asset,CWnd* pDropWnd,const POINT& pt );
 
 // オーバーライド
 public:

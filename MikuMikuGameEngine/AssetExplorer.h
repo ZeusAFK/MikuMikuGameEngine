@@ -48,6 +48,7 @@ public:
 	void OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text );
 	void OnTreeDeleteItem( HTREEITEM hItem );
 	void OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetItem );
+	void OnTreeDropItem( HTREEITEM hDragItem,CWnd* pDropWnd,const POINT& pt );
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

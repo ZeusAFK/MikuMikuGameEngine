@@ -9,14 +9,13 @@ class ModelRenderer
 {
 private:
 	ModelPtr m_pModel;
-	MeshContainer* m_pMeshContainer;
 
 public:
 	ModelRenderer();
 	virtual ~ModelRenderer();
 
 public:
-	void SetModel( MeshContainer* pMeshContainer );
+	void SetModel( ModelPtr pModel );
 	
 	DWORD GetMaterialNum();
 

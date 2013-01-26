@@ -268,6 +268,10 @@ void ObjectListTree::OnLButtonUp(UINT nFlags, CPoint point)
 		CWnd* pDropWnd = CWnd::WindowFromPoint(pt);
 		if( pDropWnd != this )
 		{
+			if( m_callBack )
+			{
+				m_callBack->OnTreeDropItem( m_hitemDrag,pDropWnd,pt );
+			}
 			return;
 		}
 

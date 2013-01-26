@@ -7,42 +7,21 @@
 #define new DEBUG_NEW
 #endif
 
-Model::Model( ModelFrame* pModelFrame )
-	: m_pModelFrame(pModelFrame)
+Model::Model( MeshContainer* pMeshContainer )
+	: m_pMeshContainer(pMeshContainer)
 {
 }
 
 Model::~Model()
 {
-	if( m_pModelFrame )
+	if( m_pMeshContainer )
 	{
-		delete m_pModelFrame;
-		m_pModelFrame = NULL;
+		delete m_pMeshContainer;
+		m_pMeshContainer = NULL;
 	}
 }
 
-ModelFrame* Model::GetFrame()
+MeshContainer* Model::GetMeshContainer()
 {
-	return m_pModelFrame;
-}
-
-void SetModelRef( ModelPtr pModel,ModelFrame* pModelFrame )
-{
-	MeshContainer* pMeshContainer = pModelFrame->GetMeshContainer();
-	if( pMeshContainer )
-	{
-		pMeshContainer->pModel = pModel;
-	}
-
-	ModelFrame* childFrame = pModelFrame->GetChild();
-	if( childFrame )
-	{
-		SetModelRef( pModel,childFrame );
-	}
-
-	ModelFrame* nextFrame = pModelFrame->GetSiblingNext();
-	if( nextFrame )
-	{
-		SetModelRef( pModel,nextFrame );
-	}
+	return m_pMeshContainer;
 }

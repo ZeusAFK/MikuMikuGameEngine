@@ -9,30 +9,24 @@
 #endif
 
 ModelRenderer::ModelRenderer()
-	: m_pMeshContainer(NULL)
 {
 }
 
 ModelRenderer::~ModelRenderer()
 {
-	m_pMeshContainer = NULL;
 }
 
-void ModelRenderer::SetModel( MeshContainer* pMeshContainer )
+void ModelRenderer::SetModel( ModelPtr pModel )
 {
-	m_pMeshContainer = pMeshContainer;
-	if( m_pMeshContainer )
-	{
-		m_pModel = m_pMeshContainer->pModel.lock();
-	}
+	m_pModel = pModel;
 }
 
 
 DWORD ModelRenderer::GetMaterialNum()
 {
-	if( m_pMeshContainer )
+	if( m_pModel && m_pModel->GetMeshContainer() )
 	{
-		return m_pMeshContainer->materialNum;
+		return m_pModel->GetMeshContainer()->materialNum;
 	}
 
 	return 0;
@@ -40,12 +34,14 @@ DWORD ModelRenderer::GetMaterialNum()
 
 void ModelRenderer::RenderZPlot( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo )
 {
-	if( !m_pMeshContainer )
+	if( !m_pModel || !m_pModel->GetMeshContainer() )
 	{
 		return;
 	}
 
-	Mesh* pMesh = m_pMeshContainer->pMesh;
+	MeshContainer* pMeshContainer = m_pModel->GetMeshContainer();
+
+	Mesh* pMesh = pMeshContainer->pMesh;
 
 	if( !pMesh )
 	{
@@ -66,7 +62,7 @@ void ModelRenderer::RenderZPlot( const D3DXMATRIX& matWorld,const sRenderInfo& r
 	{
 		DWORD attrID = pMesh->GetAttributeID( attrIdx );
 
-		sMaterial* pMaterial = &m_pMeshContainer->pMaterials[ attrID ];
+		sMaterial* pMaterial = &pMeshContainer->pMaterials[ attrID ];
 
 		if( pDefaultShader && pMaterial->colorDiffuse.a != 0.98f )
 		{
@@ -92,12 +88,14 @@ void ModelRenderer::RenderZPlot( const D3DXMATRIX& matWorld,const sRenderInfo& r
 
 void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo )
 {
-	if( !m_pMeshContainer )
+	if( !m_pModel || !m_pModel->GetMeshContainer() )
 	{
 		return;
 	}
 
-	Mesh* pMesh = m_pMeshContainer->pMesh;
+	MeshContainer* pMeshContainer = m_pModel->GetMeshContainer();
+
+	Mesh* pMesh = pMeshContainer->pMesh;
 
 	if( !pMesh )
 	{
@@ -136,7 +134,7 @@ void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& render
 	{
 		DWORD attrID = pMesh->GetAttributeID( attrIdx );
 
-		sMaterial* pMaterial = &m_pMeshContainer->pMaterials[ attrID ];
+		sMaterial* pMaterial = &pMeshContainer->pMaterials[ attrID ];
 
 		if( pDefaultShader )
 		{
@@ -212,12 +210,14 @@ void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& render
 
 void ModelRenderer::RenderNonShader()
 {
-	if( !m_pMeshContainer )
+	if( !m_pModel || !m_pModel->GetMeshContainer() )
 	{
 		return;
 	}
 
-	Mesh* pMesh = m_pMeshContainer->pMesh;
+	MeshContainer* pMeshContainer = m_pModel->GetMeshContainer();
+
+	Mesh* pMesh = pMeshContainer->pMesh;
 
 	if( !pMesh )
 	{

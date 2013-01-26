@@ -64,9 +64,19 @@ XFileLoader::~XFileLoader()
 {
 }
 
-HRESULT XFileLoader::LoadMeshContainer( LPD3DXFILEDATA pXofData,MeshContainer* meshContainer )
+ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
 {
 	HRESULT hr = S_OK;
+
+	m_fileName = filePath;
+
+	TCHAR path[MAX_PATH];
+	_tcscpy_s( path,MAX_PATH,filePath.c_str() );
+	PathRemoveFileSpec( path );
+	PathAddBackslash( path );
+	m_path = path;
+
+	m_scale = scale;
 
 	Graphics* graphics = Graphics::GetInstance();
 	IDirect3DDevice9Ptr pD3DDevice = graphics->GetDirect3DDevice();
@@ -77,7 +87,10 @@ HRESULT XFileLoader::LoadMeshContainer( LPD3DXFILEDATA pXofData,MeshContainer* m
 	DWORD Materials = 0;
 	LPD3DXMESH pD3DMesh = NULL;
 
-	hr = D3DXLoadMeshFromXof( pXofData,
+	ModelPtr pModel;
+
+	hr = D3DXLoadMeshFromX(
+		m_fileName.c_str(),
 		D3DXMESH_SYSTEMMEM,
 		pD3DDevice,
 		&pAdjacencyBuf,
@@ -85,6 +98,7 @@ HRESULT XFileLoader::LoadMeshContainer( LPD3DXFILEDATA pXofData,MeshContainer* m
 		&pEffectInstancesBuf,
 		&Materials,
 		&pD3DMesh );
+
 	if( FAILED(hr) )
 	{
 		goto exit;
@@ -196,6 +210,8 @@ HRESULT XFileLoader::LoadMeshContainer( LPD3DXFILEDATA pXofData,MeshContainer* m
 
 	D3DXATTRIBUTERANGE *attrList = new D3DXATTRIBUTERANGE[attrNum];
 	pD3DMesh->GetAttributeTable(attrList, &attrNum);
+
+	MeshContainer* meshContainer = new MeshContainer;
 
 	meshContainer->pMesh = new Mesh;
 	meshContainer->pMesh->Create( vertexNum,faceNum,attrNum );
@@ -335,6 +351,8 @@ HRESULT XFileLoader::LoadMeshContainer( LPD3DXFILEDATA pXofData,MeshContainer* m
 		}
 	}
 
+	pModel = ModelPtr( new Model(meshContainer) );
+
 exit:
 	if( pMaterialBuf )
 	{
@@ -357,171 +375,90 @@ exit:
 		pD3DMesh = NULL;
 	}
 
-	return hr;
-}
-
-HRESULT XFileLoader::LoadFrameNode( LPD3DXFILEDATA pXofData,ModelFrame* frame )
-{
-	HRESULT hr = S_OK;
-
-	GUID type;
-	hr = pXofData->GetType(&type);
-	if( FAILED(hr) )
-	{
-		return hr;
-	}
-
-	tstring szName;
-	hr = GetXFileDataName( szName,pXofData );
-	if( FAILED(hr) )
-	{
-		return hr;
-	}
-
-	if( type == TID_D3DRMFrame )
-	{
-		ModelFrame* childFrame = new ModelFrame;
-		childFrame->SetParent( frame );
-
-		childFrame->SetName( szName );
-
-		SIZE_T counts;
-		pXofData->GetChildren( &counts );
-		for( SIZE_T i = 0; i < counts; i++ )
-		{
-			LPD3DXFILEDATA pXofDataChild = NULL;
-			pXofData->GetChild(i, &pXofDataChild);
-
-			hr = LoadFrameNode( pXofDataChild,childFrame );
-
-			pXofDataChild->Release();
-		}
-	}
-	else if( type == TID_D3DRMFrameTransformMatrix )
-	{
-		SIZE_T cbSize;
-		const D3DXMATRIX* transform;
-		hr = pXofData->Lock(&cbSize, (const void **)&transform);
-		if( SUCCEEDED(hr) )
-		{
-			D3DXVECTOR3 position;
-			D3DXQUATERNION rotation;
-			D3DXVECTOR3 scale;
-
-			D3DXMatrixDecompose( &scale,&rotation,&position,transform );
-			position = position * m_scale;
-
-			D3DXMATRIX matTrans;
-			D3DXMatrixTranslation( &matTrans,position.x,position.y,position.z );
-
-			D3DXMATRIX matRotation;
-			D3DXMatrixRotationQuaternion( &matRotation,&rotation );
-
-			D3DXMATRIX matScale;
-			D3DXMatrixScaling( &matScale,scale.x,scale.y,scale.z );
-
-			frame->SetTransform( matScale * matRotation * matTrans );
-			pXofData->Unlock();
-		}
-	}
-	else if( type == TID_D3DRMMesh )
-	{
-		MeshContainer* meshContainer = new MeshContainer;
-		
-		hr = LoadMeshContainer( pXofData,meshContainer );
-		if( FAILED(hr) )
-		{
-			delete meshContainer;
-			return hr;
-		}
-
-		frame->SetMeshContainer( meshContainer );
-	}
-
-	return hr;
-}
-
-ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
-{
-	ModelPtr pModel;
-
-	m_fileName = filePath;
-
-	TCHAR path[MAX_PATH];
-	_tcscpy_s( path,MAX_PATH,filePath.c_str() );
-	PathRemoveFileSpec( path );
-	PathAddBackslash( path );
-	m_path = path;
-
-	m_scale = scale;
-
-	LPD3DXFILE pXof = NULL;
-	LPD3DXFILEENUMOBJECT pXofEnum = NULL;
-
-	HRESULT hr = D3DXFileCreate( &pXof );
-
-	if( FAILED(hr) )
-	{
-		goto exit;
-	}
-
-	hr = pXof->RegisterTemplates((void *)D3DRM_XTEMPLATES, D3DRM_XTEMPLATE_BYTES);
-	if( FAILED(hr) )
-	{
-		goto exit;
-	}
-	hr = pXof->RegisterTemplates((void *)SKINEXP_XTEMPLATES, sizeof(SKINEXP_XTEMPLATES) - 1);
-	if( FAILED(hr) )
-	{
-		goto exit;
-	}
-	hr = pXof->RegisterTemplates((void *)XEXTENSIONS_XTEMPLATES, sizeof(XEXTENSIONS_XTEMPLATES) - 1);
-	if( FAILED(hr) )
-	{
-		goto exit;
-	}
-
-	hr = pXof->CreateEnumObject( (void*)to_string(m_fileName).c_str(),DXFILELOAD_FROMFILE,&pXofEnum );
-	if( FAILED(hr) )
-	{
-		goto exit;
-	}
-
-	TCHAR filename[MAX_PATH];
-	_tcscpy_s( filename,PathFindFileName( filePath.c_str() ) );
-	PathRemoveExtension( filename );
-
-	ModelFrame* pFrame = new ModelFrame;
-	pFrame->SetName( filename );
-
-	SIZE_T counts = 0;
-	pXofEnum->GetChildren(&counts);
-	for( SIZE_T i = 0; i < counts; i++ )
-	{
-		LPD3DXFILEDATA pXofData = NULL;
-		pXofEnum->GetChild(i, &pXofData);
-
-		LoadFrameNode( pXofData,pFrame );
-
-		pXofData->Release();
-	}
-
-	pModel = ModelPtr( new Model(pFrame) );
-
-	SetModelRef( pModel,pFrame );
-
-exit:
-
-	if( pXofEnum )
-	{
-		pXofEnum->Release();
-		pXofEnum = NULL;
-	}
-	if( pXof )
-	{
-		pXof->Release();
-		pXof = NULL;
-	}
-
 	return pModel;
 }
+
+//ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
+//{
+//	ModelPtr pModel;
+//
+//	m_fileName = filePath;
+//
+//	TCHAR path[MAX_PATH];
+//	_tcscpy_s( path,MAX_PATH,filePath.c_str() );
+//	PathRemoveFileSpec( path );
+//	PathAddBackslash( path );
+//	m_path = path;
+//
+//	m_scale = scale;
+//
+//	LPD3DXFILE pXof = NULL;
+//	LPD3DXFILEENUMOBJECT pXofEnum = NULL;
+//
+//	HRESULT hr = D3DXFileCreate( &pXof );
+//
+//	if( FAILED(hr) )
+//	{
+//		goto exit;
+//	}
+//
+//	hr = pXof->RegisterTemplates((void *)D3DRM_XTEMPLATES, D3DRM_XTEMPLATE_BYTES);
+//	if( FAILED(hr) )
+//	{
+//		goto exit;
+//	}
+//	hr = pXof->RegisterTemplates((void *)SKINEXP_XTEMPLATES, sizeof(SKINEXP_XTEMPLATES) - 1);
+//	if( FAILED(hr) )
+//	{
+//		goto exit;
+//	}
+//	hr = pXof->RegisterTemplates((void *)XEXTENSIONS_XTEMPLATES, sizeof(XEXTENSIONS_XTEMPLATES) - 1);
+//	if( FAILED(hr) )
+//	{
+//		goto exit;
+//	}
+//
+//	hr = pXof->CreateEnumObject( (void*)to_string(m_fileName).c_str(),DXFILELOAD_FROMFILE,&pXofEnum );
+//	if( FAILED(hr) )
+//	{
+//		goto exit;
+//	}
+//
+//	TCHAR filename[MAX_PATH];
+//	_tcscpy_s( filename,PathFindFileName( filePath.c_str() ) );
+//	PathRemoveExtension( filename );
+//
+//	ModelFrame* pFrame = new ModelFrame;
+//	pFrame->SetName( filename );
+//
+//	SIZE_T counts = 0;
+//	pXofEnum->GetChildren(&counts);
+//	for( SIZE_T i = 0; i < counts; i++ )
+//	{
+//		LPD3DXFILEDATA pXofData = NULL;
+//		pXofEnum->GetChild(i, &pXofData);
+//
+//		LoadFrameNode( pXofData,pFrame );
+//
+//		pXofData->Release();
+//	}
+//
+//	pModel = ModelPtr( new Model(pFrame) );
+//
+//	SetModelRef( pModel,pFrame );
+//
+//exit:
+//
+//	if( pXofEnum )
+//	{
+//		pXofEnum->Release();
+//		pXofEnum = NULL;
+//	}
+//	if( pXof )
+//	{
+//		pXof->Release();
+//		pXof = NULL;
+//	}
+//
+//	return pModel;
+//}

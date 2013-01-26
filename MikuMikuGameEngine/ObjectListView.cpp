@@ -178,6 +178,11 @@ void ObjectListView::OnTreeDeleteItem( HTREEITEM hItem )
 	}
 }
 
+bool ObjectListView::IsDropTarget( CWnd* pDropWnd )
+{
+	return pDropWnd == &m_wndClassView;
+}
+
 void ObjectListView::OnContextMenu(CWnd* pWnd, CPoint point)
 {
 	CTreeCtrl* pWndTree = (CTreeCtrl*)&m_wndClassView;

@@ -5,6 +5,7 @@ class TreeCallbackInterface
 {
 public:
 	virtual void OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetItem ){};
+	virtual void OnTreeDropItem( HTREEITEM hDragItem,CWnd* pDropWnd,const POINT& pt ){};
 	virtual void OnTreeSelectChanged( HTREEITEM hItem ){};
 	virtual void OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text ){};
 	virtual void OnTreeDeleteItem( HTREEITEM hItem ){};

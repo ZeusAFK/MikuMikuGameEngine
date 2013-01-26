@@ -302,6 +302,13 @@ void CAssetExplorer::OnTreeDropItem( HTREEITEM hDragItem,HTREEITEM hDropTargetIt
 	theApp.GetDocument()->SetAssetParent( asset,parent );
 }
 
+void CAssetExplorer::OnTreeDropItem( HTREEITEM hDragItem,CWnd* pDropWnd,const POINT& pt )
+{
+	AssetNode* asset = (AssetNode*)m_wndFileView.GetItemData(hDragItem);
+
+	theApp.GetDocument()->DropAsset( asset,pDropWnd,pt );
+}
+
 void CAssetExplorer::OnProperties()
 {
 	AfxMessageBox(_T("プロパティ..."));

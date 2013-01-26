@@ -36,6 +36,9 @@ public:
 	void OnTreeLabelChanged( HTREEITEM hItem,LPCTSTR text );
 	void OnTreeDeleteItem( HTREEITEM hItem );
 
+public:
+	bool IsDropTarget( CWnd* pDropWnd );
+
 // オーバーライド
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

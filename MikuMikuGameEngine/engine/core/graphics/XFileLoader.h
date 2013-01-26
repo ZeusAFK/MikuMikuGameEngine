@@ -16,10 +16,6 @@ public:
 	XFileLoader();
 	virtual ~XFileLoader();
 
-private:
-	HRESULT LoadMeshContainer( LPD3DXFILEDATA pXofData,MeshContainer* meshContainer ); 
-	HRESULT LoadFrameNode( LPD3DXFILEDATA pXofData,ModelFrame* frame );
-
 public:
 	ModelPtr Open( const tstring& filePath,float scale );
 };

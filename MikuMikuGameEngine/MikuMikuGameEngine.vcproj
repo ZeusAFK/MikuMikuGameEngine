@@ -514,14 +514,6 @@
 						>
 					</File>
 					<File
-						RelativePath=".\engine\core\graphics\ModelFrame.cpp"
-						>
-					</File>
-					<File
-						RelativePath=".\engine\core\graphics\ModelFrame.h"
-						>
-					</File>
-					<File
 						RelativePath=".\engine\core\graphics\ModelRenderer.cpp"
 						>
 					</File>

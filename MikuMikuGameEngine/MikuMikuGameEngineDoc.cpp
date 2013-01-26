@@ -9,6 +9,10 @@
 
 #include "MainFrm.h"
 
+#include "engine/core/graphics/XFileLoader.h"
+#include "engine/core/graphics/PMDFileLoader.h"
+#include "engine/core/graphics/VMDFileLoader.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -342,6 +346,104 @@ void CMikuMikuGameEngineDoc::SetAssetParent( AssetNode* asset,AssetNode* parent 
 void CMikuMikuGameEngineDoc::SetSelectAsset( AssetNode* asset )
 {
 	m_pSelectAsset = asset;
+}
+
+void CMikuMikuGameEngineDoc::DropAsset( AssetNode* asset,CWnd* pDropWnd,const POINT& pt )
+{
+	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
+
+	if( pMainFrame->GetObjectListView()->IsDropTarget(pDropWnd) )
+	{
+		AssetNode::Type type = asset->GetType();
+		switch( type )
+		{
+		case AssetNode::XFile:
+			{
+				tstring xFilePath = asset->GetPath();
+				
+				TCHAR path[MAX_PATH];
+				_tcscpy_s( path,PathFindFileName( xFilePath.c_str() ) );
+
+				PathRemoveExtension( path );
+
+				ModelPtr pModel = ResourceManager::GetInstance().GetResource<Model>( xFilePath );
+				if( !pModel )
+				{
+					XFileLoader xFileLoader;
+					pModel = xFileLoader.Open( xFilePath,10.0f );
+
+					ResourceManager::GetInstance().AddResource( xFilePath,pModel );
+				}
+
+				if( pModel )
+				{
+					GameObject* gameObject = new GameObject;
+
+					gameObject->SetName( asset->GetName() );
+
+					ModelRenderer* modelRenderer = new ModelRenderer;
+					modelRenderer->SetModel( pModel );
+
+					gameObject->SetModelRenderer( modelRenderer );
+
+					AddGameObject( gameObject,GetRootGameObject(),true );
+				}
+			}
+			break;
+		case AssetNode::PMDFile:
+			{
+				tstring pmdFilePath = asset->GetPath();
+
+				TCHAR path[MAX_PATH];
+				_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
+
+				PathRemoveExtension( path );
+
+				PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
+				if( !pModel )
+				{
+					PMDFileLoader pmdFileLoader;
+					pModel = pmdFileLoader.Open( pmdFilePath );
+
+					ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
+				}
+
+				if( pModel )
+				{
+					GameObject* gameObject = new GameObject;
+
+					gameObject->SetName( asset->GetName() );
+
+					PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
+					pmdModelRenderer->SetGameObject( gameObject );
+					pmdModelRenderer->SetModel( pModel );
+
+					gameObject->SetPMDModelRenderer( pmdModelRenderer );
+
+					AddGameObject( gameObject,GetRootGameObject(),true );
+
+					//tstring vmdFilePath = _T("project\\assets\\love_and_joy.vmd");
+
+					//VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
+					//if( !pAnimationClip )
+					//{
+					//	VMDFileLoader vmdFileLoader;
+					//	pAnimationClip = vmdFileLoader.Open( vmdFilePath );
+
+					//	ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
+					//}
+
+					//if( pAnimationClip )
+					//{
+					//	gameObject->SetVMDAnimationClip( pAnimationClip );
+					//}
+				}
+			}
+			break;
+		default:
+			break;
+		}
+	}
 }
 
 BOOL CMikuMikuGameEngineDoc::OnNewDocument()

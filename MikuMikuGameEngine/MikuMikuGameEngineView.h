@@ -59,9 +59,6 @@ public:
 private:
 	bool m_initialized;
 
-protected:
-	GameObject* CreateGameObjectFromModelFrame( GameObject* parent,ModelFrame* pModelFrame,bool select );
-
 // 生成された、メッセージ割り当て関数
 protected:
 	virtual void OnInitialUpdate();
