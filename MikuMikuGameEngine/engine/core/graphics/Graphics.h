@@ -6,6 +6,9 @@
 class Shader;
 typedef std::tr1::shared_ptr< Shader > ShaderPtr;
 
+class Texture;
+typedef std::tr1::shared_ptr< Texture > TexturePtr;
+
 #define WM_USER_LOSTDEVICE (WM_APP+0)
 #define WM_USER_RESETDEVICE (WM_APP+1)
 
@@ -114,7 +117,9 @@ private:
 
 public:
 	ShaderPtr GetDefaultShader();
+	TexturePtr GetDefaultToonTexture( int index );
 
 private:
 	ShaderPtr m_defaultShader;
+	TexturePtr m_defaultToonTextures[10];
 };

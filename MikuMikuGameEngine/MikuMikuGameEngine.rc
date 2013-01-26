@@ -105,6 +105,16 @@ IDR_MENU_IMAGES         BITMAP                  "res\\menuimages.bmp"
 IDB_MENU_IMAGES_24      BITMAP                  "res\\menuimages_hc.bmp"
 IDR_PROPERTIES          BITMAP                  "res\\properties.bmp"
 IDB_PROPERTIES_HC       BITMAP                  "res\\properties_hc.bmp"
+IDB_TOON01              BITMAP                  "res\\Toon\\toon01.bmp"
+IDB_TOON02              BITMAP                  "res\\Toon\\toon02.bmp"
+IDB_TOON03              BITMAP                  "res\\Toon\\toon03.bmp"
+IDB_TOON04              BITMAP                  "res\\Toon\\toon04.bmp"
+IDB_TOON05              BITMAP                  "res\\Toon\\toon05.bmp"
+IDB_TOON06              BITMAP                  "res\\Toon\\toon06.bmp"
+IDB_TOON07              BITMAP                  "res\\Toon\\toon07.bmp"
+IDB_TOON08              BITMAP                  "res\\Toon\\toon08.bmp"
+IDB_TOON09              BITMAP                  "res\\Toon\\toon09.bmp"
+IDB_TOON10              BITMAP                  "res\\Toon\\toon10.bmp"
 
 /////////////////////////////////////////////////////////////////////////////
 //

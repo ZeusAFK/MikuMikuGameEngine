@@ -66,16 +66,6 @@ CoordinateAxis::CoordinateAxis()
 	m_vertices[2].color = 0xFFFFFFFF;
 	m_vertices[3].position = D3DXVECTOR3(50.0f,0.0f,-50.0f);
 	m_vertices[3].color = 0xFFFFFFFF;
-
-	tstring filePath = _T("project/assets/editor.fx");
-	m_editorShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-	if( !m_editorShader )
-	{
-		m_editorShader = ShaderPtr(new Shader);
-		m_editorShader->CreateFromFile( filePath );
-
-		ResourceManager::GetInstance().AddResource( filePath,m_editorShader );
-	}
 }
 
 CoordinateAxis::~CoordinateAxis()
@@ -88,22 +78,17 @@ void CoordinateAxis::Render( const D3DXMATRIX& matView,const D3DXMATRIX& matProj
 
 	graphics->SetFVF( D3DFVF_XYZ | D3DFVF_DIFFUSE );
 
-	D3DXMATRIX matWorld;
-	D3DXMatrixIdentity( &matWorld );
+	D3DXMATRIX matWorldViewProj = matView * matProj;
 
-	matWorld = matWorld * matView * matProj;
+	ShaderPtr pShader = graphics->GetDefaultShader();
 
-	ID3DXEffectPtr pEffect = m_editorShader->GetEffect();
+	ID3DXEffectPtr pEffect = pShader->GetEffect();
 
-	pEffect->SetMatrix( "matWorldViewProj", &matWorld );
+	pEffect->SetMatrix( "g_mWorldViewProjection", &matWorldViewProj );
 
-	pEffect->SetTechnique( "Tec_Default" );
+	pEffect->SetTechnique( "TechVertexColorUnlit" );
 	UINT numPass;
 	pEffect->Begin( &numPass, 0 );
-
-	D3DXCOLOR color(1.0f,1.0f,1.0f,1.0f);
-				
-	pEffect->SetValue( "colorDiffuse",&color,sizeof(D3DXCOLOR) );
 
 	pEffect->BeginPass(0);
 
@@ -112,8 +97,6 @@ void CoordinateAxis::Render( const D3DXMATRIX& matView,const D3DXMATRIX& matProj
 	pEffect->EndPass();
 	
 	graphics->SetRenderState( D3DRS_COLORWRITEENABLE,0 );
-
-	pEffect->SetValue( "colorDiffuse",&color,sizeof(D3DXCOLOR) );
 
 	pEffect->BeginPass(0);
 

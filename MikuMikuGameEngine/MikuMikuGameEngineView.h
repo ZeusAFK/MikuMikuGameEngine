@@ -36,8 +36,6 @@ private:
 	POINT m_ptCursorDown;
 	int m_cameraState;
 
-	ShaderPtr m_editorShader;
-
 	CoordinateAxis* m_coordinateAxis;
 
 	RenderTexturePtr m_shadowMap;

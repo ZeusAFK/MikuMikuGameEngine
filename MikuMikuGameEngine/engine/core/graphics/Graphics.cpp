@@ -3,10 +3,13 @@
 #include "../Thread.h"
 #include "Graphics.h"
 #include "Shader.h"
+#include "Texture.h"
 
 #include "../util/Charset.h"
 
 #include "effect/DefaultEffect.h"
+
+#include "../../../resource.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -157,6 +160,28 @@ HRESULT Graphics::Initialize( HWND window )
 	if( !m_defaultShader->CreateFromMemory( g_DefaultEffect,sizeof(g_DefaultEffect)/sizeof(BYTE) ) )
 	{
 		m_defaultShader = ShaderPtr();
+	}
+
+	int resourceIDs[10] = {
+		IDB_TOON01,
+		IDB_TOON02,
+		IDB_TOON03,
+		IDB_TOON04,
+		IDB_TOON05,
+		IDB_TOON06,
+		IDB_TOON07,
+		IDB_TOON08,
+		IDB_TOON09,
+		IDB_TOON10,
+	};
+
+	for( int index=0;index<10;index++ )
+	{
+		m_defaultToonTextures[index] = TexturePtr( new Texture );
+		if( !m_defaultToonTextures[index]->CreateFromResource( resourceIDs[index] ) )
+		{
+			m_defaultToonTextures[index].reset();
+		}
 	}
 
 	m_init = true;
@@ -606,4 +631,14 @@ void Graphics::EnableRender( bool enable )
 ShaderPtr Graphics::GetDefaultShader()
 {
 	return m_defaultShader;
+}
+
+TexturePtr Graphics::GetDefaultToonTexture( int index )
+{
+	if( index < 0 || 10 <= index )
+	{
+		return TexturePtr();
+	}
+
+	return m_defaultToonTextures[index];
 }

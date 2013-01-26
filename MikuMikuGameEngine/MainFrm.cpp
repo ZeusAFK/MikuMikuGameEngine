@@ -136,15 +136,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// ツール バーのクイック (Alt キーを押しながらドラッグ) カスタマイズを有効にします
 	CMFCToolBar::EnableQuickCustomization();
 
-	if (CMFCToolBar::GetUserImages() == NULL)
-	{
-		// ユーザー定義のツール バー イメージを読み込みます
-		if (m_UserImages.Load(_T(".\\UserImages.bmp")))
-		{
-			m_UserImages.SetImageSize(CSize(16, 16), FALSE);
-			CMFCToolBar::SetUserImages(&m_UserImages);
-		}
-	}
+	//if (CMFCToolBar::GetUserImages() == NULL)
+	//{
+	//	// ユーザー定義のツール バー イメージを読み込みます
+	//	if (m_UserImages.Load(_T(".\\UserImages.bmp")))
+	//	{
+	//		m_UserImages.SetImageSize(CSize(16, 16), FALSE);
+	//		CMFCToolBar::SetUserImages(&m_UserImages);
+	//	}
+	//}
 
 	// メニューのパーソナル化 (最近使用されたコマンド) を有効にします
 	// TODO: ユーザー固有の基本コマンドを定義し、各メニューをクリックしたときに基本コマンドが 1 つ以上表示されるようにします。

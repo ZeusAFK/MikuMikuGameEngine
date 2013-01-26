@@ -21,7 +21,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfMFC="1"
+			UseOfMFC="2"
 			CharacterSet="1"
 			>
 			<Tool
@@ -48,7 +48,7 @@
 				PreprocessorDefinitions="WIN32;_WINDOWS;_DEBUG"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
-				RuntimeLibrary="1"
+				RuntimeLibrary="3"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
 				DebugInformationFormat="4"
@@ -100,7 +100,7 @@
 			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			UseOfMFC="1"
+			UseOfMFC="2"
 			CharacterSet="1"
 			WholeProgramOptimization="1"
 			>
@@ -128,7 +128,7 @@
 				EnableIntrinsicFunctions="true"
 				PreprocessorDefinitions="WIN32;_WINDOWS;NDEBUG"
 				MinimalRebuild="false"
-				RuntimeLibrary="0"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				UsePrecompiledHeader="2"
 				WarningLevel="3"
@@ -192,6 +192,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\LocalSettingsStore.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\MainFrm.cpp"
 				>
 			</File>
@@ -251,6 +255,10 @@
 			>
 			<File
 				RelativePath=".\AssetExplorer.h"
+				>
+			</File>
+			<File
+				RelativePath=".\LocalSettingsStore.h"
 				>
 			</File>
 			<File
@@ -427,6 +435,50 @@
 				RelativePath=".\UserImages.bmp"
 				>
 			</File>
+			<Filter
+				Name="Toon"
+				>
+				<File
+					RelativePath=".\res\Toon\toon01.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Toon\toon02.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Toon\toon03.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Toon\toon04.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Toon\toon05.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Toon\toon06.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Toon\toon07.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Toon\toon08.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Toon\toon09.bmp"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Toon\toon10.bmp"
+					>
+				</File>
+			</Filter>
 		</Filter>
 		<Filter
 			Name="engine"

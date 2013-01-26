@@ -582,6 +582,40 @@ technique TechDiffuseTextureSphereAddShadow
 }
 
 //=========================================================================================
+// VertexColor
+//=========================================================================================
+
+struct sVS_VertexColorOutput
+{
+	float4 vPos : POSITION;
+	float4 color : COLOR0;
+};
+
+sVS_VertexColorOutput VS_VertexColorUnlit( float4 vPos : POSITION,float4 color : COLOR0 )
+{
+	sVS_VertexColorOutput Out=(sVS_VertexColorOutput)0;
+
+	Out.vPos = mul(vPos,g_mWorldViewProjection);
+	Out.color = color;
+	
+	return Out;
+}
+
+float4 PS_VertexColorUnlit( float4 color : COLOR0 ) : COLOR
+{
+	return color;
+}
+
+technique TechVertexColorUnlit
+{
+	pass P0
+	{
+		VertexShader = compile vs_1_1 VS_VertexColorUnlit();
+		PixelShader  = compile ps_2_0 PS_VertexColorUnlit();
+	}
+}
+
+//=========================================================================================
 // technique 2D
 //=========================================================================================
 

@@ -16,6 +16,7 @@ public:
 public:
 	bool CreateFromFile( const tstring& filePath );
 	bool CreateDotColor( D3DXCOLOR color );
+	bool CreateFromResource( int resourceID );
 
 	IDirect3DTexture9Ptr GetTexture();
 };

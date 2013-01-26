@@ -352,16 +352,6 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	m_cameraRadius = 35.0f;
 	m_cameraState = 0;
 
-	tstring filePath = _T("project/assets/editor.fx");
-	m_editorShader = ResourceManager::GetInstance().GetResource<Shader>( filePath );
-	if( !m_editorShader )
-	{
-		m_editorShader = ShaderPtr(new Shader);
-		m_editorShader->CreateFromFile( filePath );
-
-		ResourceManager::GetInstance().AddResource( filePath,m_editorShader );
-	}
-
 	m_coordinateAxis = new CoordinateAxis;
 
 	m_nowTime = timeGetTime();
@@ -564,65 +554,11 @@ void CMikuMikuGameEngineView::OnIdle()
 			graphics->SetRenderState( D3DRS_SEPARATEALPHABLENDENABLE,FALSE );
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 
-			//GameObject* selectObject = GetDocument()->GetSelectGameObject();
-			//if( selectObject )
-			//{
-			//	D3DXMATRIX matWorldViewProj = selectObject->GetWorldMatrix() * renderInfo.camera.GetViewMatrix() * renderInfo.camera.GetProjMatrix();
-
-			//	ID3DXEffectPtr pEffect = m_editorShader->GetEffect();
-
-			//	pEffect->SetTechnique( "Tec_Default" );
-			//	UINT numPass;
-			//	pEffect->Begin( &numPass, 0 );
-
-			//	pEffect->SetMatrix( "matWorldViewProj", &matWorldViewProj );
-
-			//	D3DXCOLOR color(0xFFB4B4B4);
-			//	pEffect->SetValue( "colorDiffuse",&color,sizeof(D3DXCOLOR) );
-
-			//	graphics->SetRenderState( D3DRS_FILLMODE,D3DFILL_WIREFRAME );
-
-			//	pEffect->BeginPass(0);
-
-			//	selectObject->RenderNonShader();
-
-			//	pEffect->EndPass();
-
-			//	graphics->SetRenderState( D3DRS_FILLMODE,D3DFILL_SOLID );
-
-			//	graphics->SetRenderState( D3DRS_ZENABLE,D3DZB_FALSE );
-
-			//	struct sVertex
-			//	{
-			//		D3DXVECTOR3 position;
-			//		D3DCOLOR color;
-			//	};
-
-			//	sVertex vertices[] =
-			//	{
-			//		{ D3DXVECTOR3( 0.0f, 0.0f, 0.0f),0xFFFF0000 },
-			//		{ D3DXVECTOR3(10.0f, 0.0f, 0.0f),0xFFFF0000 },
-			//		{ D3DXVECTOR3( 0.0f, 0.0f, 0.0f),0xFF00FF00 },
-			//		{ D3DXVECTOR3( 0.0f,10.0f, 0.0f),0xFF00FF00 },
-			//		{ D3DXVECTOR3( 0.0f, 0.0f, 0.0f),0xFF0000FF },
-			//		{ D3DXVECTOR3( 0.0f, 0.0f,10.0f),0xFF0000FF },
-			//	};
-
-			//	graphics->SetFVF( D3DFVF_XYZ | D3DFVF_DIFFUSE );
-
-			//	color=0xFFFFFFFF;
-			//	pEffect->SetValue( "colorDiffuse",&color,sizeof(D3DXCOLOR) );
-
-			//	pEffect->BeginPass(0);
-
-			//	graphics->DrawPrimitiveUP( D3DPT_LINELIST,3,&vertices[0],sizeof(sVertex) );
-
-			//	pEffect->EndPass();
-
-			//	graphics->SetRenderState( D3DRS_ZENABLE,D3DZB_TRUE );
-
-			//	pEffect->End();
-			//}
+			GameObject* selectObject = GetDocument()->GetSelectGameObject();
+			if( selectObject )
+			{
+				// TODO:Draw Select Object
+			}
 
 			//// Debug Shadow Map
 			//ShaderPtr pDefaultShader = graphics->GetDefaultShader();
@@ -749,8 +685,6 @@ void CMikuMikuGameEngineView::OnDestroy()
 	delete m_coordinateAxis;
 
 	m_shadowMap.reset();
-
-	m_editorShader.reset();
 
 	Graphics::GetInstance()->Cleanup();
 }

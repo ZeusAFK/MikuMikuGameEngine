@@ -70,6 +70,26 @@ bool Texture::CreateDotColor( D3DXCOLOR color )
 	return true;
 }
 
+bool Texture::CreateFromResource( int resourceID )
+{
+	if( m_pTexture )
+	{
+		m_pTexture.Release();
+	}
+
+	Graphics* graphics = Graphics::GetInstance();
+	IDirect3DDevice9Ptr d3dDevice = graphics->GetDirect3DDevice();
+
+	HRESULT hr = D3DXCreateTextureFromResource( d3dDevice, NULL, MAKEINTRESOURCE( resourceID ), &m_pTexture );
+
+	if( FAILED(hr) )
+	{
+		return false;
+	}
+
+	return true;
+}
+
 IDirect3DTexture9Ptr Texture::GetTexture()
 {
 	return m_pTexture;

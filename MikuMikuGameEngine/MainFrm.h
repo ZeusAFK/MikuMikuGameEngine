@@ -37,7 +37,7 @@ protected:  // コントロール バー用メンバ
 	CMFCMenuBar       m_wndMenuBar;
 	CMFCToolBar       m_wndToolBar;
 	CMFCStatusBar     m_wndStatusBar;
-	CMFCToolBarImages m_UserImages;
+	//CMFCToolBarImages m_UserImages;
 	ObjectListView    m_wndObjectListView;
 	CAssetExplorer     m_wndAssetExplorer;
 	COutputWnd        m_wndOutput;

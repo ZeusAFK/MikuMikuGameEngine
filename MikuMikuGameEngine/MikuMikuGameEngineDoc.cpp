@@ -421,22 +421,6 @@ void CMikuMikuGameEngineDoc::DropAsset( AssetNode* asset,CWnd* pDropWnd,const PO
 					gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
 					AddGameObject( gameObject,GetRootGameObject(),true );
-
-					//tstring vmdFilePath = _T("project\\assets\\love_and_joy.vmd");
-
-					//VMDAnimationClipPtr pAnimationClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
-					//if( !pAnimationClip )
-					//{
-					//	VMDFileLoader vmdFileLoader;
-					//	pAnimationClip = vmdFileLoader.Open( vmdFilePath );
-
-					//	ResourceManager::GetInstance().AddResource( vmdFilePath,pAnimationClip );
-					//}
-
-					//if( pAnimationClip )
-					//{
-					//	gameObject->SetVMDAnimationClip( pAnimationClip );
-					//}
 				}
 			}
 			break;

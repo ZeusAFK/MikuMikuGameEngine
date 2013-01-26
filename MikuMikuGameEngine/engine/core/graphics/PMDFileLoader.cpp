@@ -84,6 +84,8 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 		}
 	}
 
+	Graphics* graphics = Graphics::GetInstance();
+
 	sMaterial* pMaterials = new sMaterial[pmd->material_list.material_count];
 
 	for( DWORD i=0;i<pmd->material_list.material_count;i++ )
@@ -220,36 +222,26 @@ PMDModelPtr PMDFileLoader::Open( const tstring& filePath )
 				pTex = TexturePtr(new Texture);
 				if( !pTex->CreateFromFile( toonTexPath ) )
 				{
-					TCHAR _path[MAX_PATH] = _T("project\\assets\\Data\\");
-
-					PathAppend( _path,toonTexName.c_str() );
-
-					toonTexPath = _path;
-
-					pTex = ResourceManager::GetInstance().GetResource<Texture>( toonTexPath );
-					if( !pTex )
-					{
-						pTex = TexturePtr(new Texture);
-						if( !pTex->CreateFromFile( toonTexPath ) )
-						{
-							pTex.reset();
-						}
-					}
+					pTex.reset();
 				}
 			}
 		}
 
 		if( !pTex )
 		{
-			toonTexPath = _T("<FFFFFFFF>");
-
-			pTex = ResourceManager::GetInstance().GetResource<Texture>( toonTexPath );
+			pTex = graphics->GetDefaultToonTexture( pmdMat->toon_index );
 			if( !pTex )
 			{
-				pTex = TexturePtr(new Texture);
-				if( !pTex->CreateDotColor( 0xFFFFFFFF ) )
+				toonTexPath = _T("<FFFFFFFF>");
+
+				pTex = ResourceManager::GetInstance().GetResource<Texture>( toonTexPath );
+				if( !pTex )
 				{
-					pTex.reset();
+					pTex = TexturePtr(new Texture);
+					if( !pTex->CreateDotColor( 0xFFFFFFFF ) )
+					{
+						pTex.reset();
+					}
 				}
 			}
 		}

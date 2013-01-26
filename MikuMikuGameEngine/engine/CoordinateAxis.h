@@ -14,8 +14,6 @@ private:
 	std::vector<sVertex> m_lines;
 	sVertex m_vertices[4];
 
-	ShaderPtr m_editorShader;
-
 public:
 	CoordinateAxis();
 	virtual ~CoordinateAxis();

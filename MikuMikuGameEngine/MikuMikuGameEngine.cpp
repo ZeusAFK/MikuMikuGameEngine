@@ -10,6 +10,9 @@
 #include "MikuMikuGameEngineDoc.h"
 #include "MikuMikuGameEngineView.h"
 
+#include "LocalSettingsStore.h"
+#include "engine/core/util/util.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -45,6 +48,9 @@ CMikuMikuGameEngineApp theApp;
 
 BOOL CMikuMikuGameEngineApp::InitInstance()
 {
+	//  store settings in a file in local appdata, not in the registry
+	CSettingsStoreSP::SetRuntimeClass(RUNTIME_CLASS(CLocalSettingsStore));
+
 	// アプリケーション マニフェストが visual スタイルを有効にするために、
 	// ComCtl32.dll Version 6 以降の使用を指定する場合は、
 	// Windows XP に InitCommonControlsEx() が必要です。さもなければ、ウィンドウ作成はすべて失敗します。
@@ -64,7 +70,17 @@ BOOL CMikuMikuGameEngineApp::InitInstance()
 	// 設定が格納されているレジストリ キーを変更します。
 	// TODO: 会社名または組織名などの適切な文字列に
 	// この文字列を変更してください。
-	SetRegistryKey(_T("アプリケーション ウィザードで生成されたローカル アプリケーション"));
+	//SetRegistryKey(_T("アプリケーション ウィザードで生成されたローカル アプリケーション"));
+	SetRegistryKey(_T(""));
+	//if(m_pszProfileName)
+	//{
+	//	TCHAR szPath[MAX_PATH];
+	// 
+	//	::GetModuleFileName(NULL, szPath, MAX_PATH);  // 実行ファイルのパスを取得
+	//	::PathRenameExtension(szPath, _T(".ini"));  // 拡張子をiniへ変更
+	//	free ((void*)m_pszProfileName);  // メモリの解放
+	//	m_pszProfileName = _tcsdup(szPath);  // 新しいパスを設定 
+	//}
 	LoadStdProfileSettings(4);  // 標準の INI ファイルのオプションをロードします (MRU を含む)
 
 	InitContextMenuManager();
@@ -106,6 +122,7 @@ BOOL CMikuMikuGameEngineApp::InitInstance()
 	m_pMainWnd->UpdateWindow();
 	// 接尾辞が存在する場合にのみ DragAcceptFiles を呼び出してください。
 	//  SDI アプリケーションでは、ProcessShellCommand の直後にこの呼び出しが発生しなければなりません。
+
 	return TRUE;
 }
 
