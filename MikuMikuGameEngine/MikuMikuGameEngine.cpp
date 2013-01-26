@@ -83,7 +83,6 @@ BOOL CMikuMikuGameEngineApp::InitInstance()
 	//}
 	LoadStdProfileSettings(4);  // 標準の INI ファイルのオプションをロードします (MRU を含む)
 
-	// test
 	InitContextMenuManager();
 
 	InitKeyboardManager();
