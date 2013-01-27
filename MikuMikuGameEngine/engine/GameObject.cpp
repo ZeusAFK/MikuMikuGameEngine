@@ -433,16 +433,3 @@ void GameObject::Render( const sRenderInfo& renderInfo )
 		child = child->GetSiblingNext();
 	}
 }
-
-void GameObject::RenderNonShader()
-{
-	if( m_pModelRenderer )
-	{
-		m_pModelRenderer->RenderNonShader();
-	}
-
-	if( m_pPMDModelRenderer )
-	{
-		m_pPMDModelRenderer->RenderNonShader();
-	}
-}

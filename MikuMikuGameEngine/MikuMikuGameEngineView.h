@@ -7,6 +7,8 @@
 
 #include "engine/core/graphics/Shader.h"
 #include "engine/core/graphics/RenderTexture.h"
+#include "engine/core/graphics/TextureAtlas.h"
+#include "engine/core/graphics/UISpriteRenderer.h"
 #include "engine/GameObject.h"
 
 #include "engine/CoordinateAxis.h"
@@ -40,7 +42,11 @@ private:
 
 	RenderTexturePtr m_shadowMap;
 
-	TexturePtr m_controlUITexture;
+	TextureAtlasPtr m_controlUITextureAtlas;
+
+	UISpriteRenderer m_handleMoveX;
+	UISpriteRenderer m_handleMoveY;
+	UISpriteRenderer m_handleMoveZ;
 
 // オーバーライド
 public:

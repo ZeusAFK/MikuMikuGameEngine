@@ -67,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib shlwapi.lib"
+				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib shlwapi.lib xmllite.lib"
 				LinkIncremental="2"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -148,7 +148,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9.lib shlwapi.lib"
+				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9.lib shlwapi.lib xmllite.lib"
 				LinkIncremental="1"
 				GenerateDebugInformation="true"
 				SubSystem="2"
@@ -424,10 +424,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\res\texture1.bin"
-				>
-			</File>
-			<File
 				RelativePath=".\res\Toolbar.bmp"
 				>
 			</File>
@@ -488,6 +484,10 @@
 				>
 				<File
 					RelativePath=".\res\Texture\ControlUI.tga"
+					>
+				</File>
+				<File
+					RelativePath=".\res\Texture\ControlUI.xml"
 					>
 				</File>
 			</Filter>
@@ -639,6 +639,22 @@
 					</File>
 					<File
 						RelativePath=".\engine\core\graphics\Texture.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\graphics\TextureAtlas.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\graphics\TextureAtlas.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\graphics\UISpriteRenderer.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\graphics\UISpriteRenderer.h"
 						>
 					</File>
 					<File

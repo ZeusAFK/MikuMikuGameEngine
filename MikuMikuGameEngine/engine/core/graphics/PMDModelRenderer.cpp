@@ -835,22 +835,3 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 
 	graphics->SetRenderState( D3DRS_CULLMODE,D3DCULL_CCW );
 }
-
-void PMDModelRenderer::RenderNonShader()
-{
-	if( !m_pMesh )
-	{
-		return;
-	}
-
-	DWORD attrNum = m_pMesh->GetAttributeRangeNum();
-
-	sMaterial* pMaterials = m_pModel->GetMaterials();
-
-	for( DWORD attrIdx = 0 ; attrIdx < attrNum ; attrIdx++ )
-	{
-		DWORD attrID = m_pMesh->GetAttributeID( attrIdx );
-
-		m_pMesh->Draw( attrIdx );
-	}
-}

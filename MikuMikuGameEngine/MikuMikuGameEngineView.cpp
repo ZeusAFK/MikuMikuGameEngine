@@ -110,11 +110,24 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	m_shadowMap=RenderTexturePtr( new RenderTexture );
 	m_shadowMap->Create( 2048,2048,D3DFMT_R32F );
 
-	m_controlUITexture = TexturePtr( new Texture );
-	if( !m_controlUITexture->CreateFromResource( IDR_TEXTURE_CONTROL_UI ) )
+	TexturePtr controlUITexture = TexturePtr( new Texture );
+	if( controlUITexture->CreateFromResource( IDR_TEXTURE_CONTROL_UI ) )
 	{
-		m_controlUITexture.reset();
+		m_controlUITextureAtlas = TextureAtlasPtr( new TextureAtlas );
+		if( !m_controlUITextureAtlas->CreateFromResource( IDR_ATLAS_CONTROL_UI,controlUITexture ) )
+		{
+			m_controlUITextureAtlas.reset();
+		}
 	}
+
+	m_handleMoveX.SetAtlas( m_controlUITextureAtlas );
+	m_handleMoveX.SetSpriteName( tstring(_T("HandleMoveXNormal")) );
+
+	m_handleMoveY.SetAtlas( m_controlUITextureAtlas );
+	m_handleMoveY.SetSpriteName( tstring(_T("HandleMoveYNormal")) );
+
+	m_handleMoveZ.SetAtlas( m_controlUITextureAtlas );
+	m_handleMoveZ.SetSpriteName( tstring(_T("HandleMoveZNormal")) );
 
 	//{
 	//	//tstring pmdFilePath = _T("project\\assets\\Model\\Lat式ミクVer2.3\\Lat式ミクVer2.3_Normal.pmd");
@@ -560,66 +573,77 @@ void CMikuMikuGameEngineView::OnIdle()
 			graphics->SetRenderState( D3DRS_SEPARATEALPHABLENDENABLE,FALSE );
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 
+			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+
+			float x = (float)graphics->GetBackBufferWidth()-150.0f+0.5f;
+			float y = (float)graphics->GetBackBufferHeight()-40.0f+0.5f;
+
+			m_handleMoveX.Render( x,y );
+			m_handleMoveY.Render( x+40.0f,y );
+			m_handleMoveZ.Render( x+80.0f,y );
+
+			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
+
 			GameObject* selectObject = GetDocument()->GetSelectGameObject();
 			//if( selectObject )
-			{
-				// TODO:Draw Select Object
-				ShaderPtr pDefaultShader = graphics->GetDefaultShader();
-				if( pDefaultShader )
-				{
-					ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
+			//{
+			//	// TODO:Draw Select Object
+			//	ShaderPtr pDefaultShader = graphics->GetDefaultShader();
+			//	if( pDefaultShader )
+			//	{
+			//		ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
 
-					graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+			//		graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
 
-					{
-					graphics->SetFVF( D3DFVF_XYZRHW|D3DFVF_TEX1 );
+			//		{
+			//		graphics->SetFVF( D3DFVF_XYZRHW|D3DFVF_TEX1 );
 
-					pEffect->SetTechnique( "TechScreenDiffuseTexture" );
-					
-					UINT passes;
-					pEffect->Begin( &passes,0 );
-					
-					struct sVertex
-					{
-						float x;
-						float y;
-						float z;
-						float rhw;
-						float u;
-						float v;
-					};
+			//		pEffect->SetTechnique( "TechScreenDiffuseTexture" );
+			//		
+			//		UINT passes;
+			//		pEffect->Begin( &passes,0 );
+			//		
+			//		struct sVertex
+			//		{
+			//			float x;
+			//			float y;
+			//			float z;
+			//			float rhw;
+			//			float u;
+			//			float v;
+			//		};
 
-					float right = (float)graphics->GetBackBufferWidth()+0.5f;
-					float left = right-512.0f+0.5f;
-					float top = 0.0f+0.5f;
-					float bottom = top+512.0f+0.5f;
+			//		float right = (float)graphics->GetBackBufferWidth()+0.5f;
+			//		float left = right-512.0f+0.5f;
+			//		float top = 0.0f+0.5f;
+			//		float bottom = top+512.0f+0.5f;
 
-					sVertex v[4]={
-						{  left,   top,0.0f,1.0f,0.0f,0.0f},
-						{ right,   top,0.0f,1.0f,1.0f,0.0f},
-						{  left,bottom,0.0f,1.0f,0.0f,1.0f},
-						{ right,bottom,0.0f,1.0f,1.0f,1.0f},
-					};
+			//		sVertex v[4]={
+			//			{  left,   top,0.0f,1.0f,0.0f,0.0f},
+			//			{ right,   top,0.0f,1.0f,1.0f,0.0f},
+			//			{  left,bottom,0.0f,1.0f,0.0f,1.0f},
+			//			{ right,bottom,0.0f,1.0f,1.0f,1.0f},
+			//		};
 
-					D3DXVECTOR4 color( 1.0f,1.0f,1.0f,1.0f );
-					pEffect->SetVector( "g_materialDiffuse" , &color );
-					pEffect->SetTexture( "g_Texture",m_controlUITexture->GetTexture() );
+			//		D3DXVECTOR4 color( 1.0f,1.0f,1.0f,1.0f );
+			//		pEffect->SetVector( "g_materialDiffuse" , &color );
+			//		pEffect->SetTexture( "g_Texture",m_controlUITextureAtlas->GetTexture()->GetTexture() );
 
-					for( UINT cpass = 0; cpass<passes; cpass++ )
-					{
-						pEffect->BeginPass( cpass );
+			//		for( UINT cpass = 0; cpass<passes; cpass++ )
+			//		{
+			//			pEffect->BeginPass( cpass );
 
-						graphics->DrawPrimitiveUP( D3DPT_TRIANGLESTRIP,2,v,sizeof(sVertex) );
+			//			graphics->DrawPrimitiveUP( D3DPT_TRIANGLESTRIP,2,v,sizeof(sVertex) );
 
-						pEffect->EndPass();
-					}
+			//			pEffect->EndPass();
+			//		}
 
-					pEffect->End();
-				}
+			//		pEffect->End();
+			//	}
 
-					graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
-				}
-			}
+			//		graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
+			//	}
+			//}
 
 			//// Debug Shadow Map
 			//ShaderPtr pDefaultShader = graphics->GetDefaultShader();

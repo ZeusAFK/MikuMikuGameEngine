@@ -397,7 +397,9 @@ END
 //
 // RCDATA
 //
-IDR_TEXTURE_CONTROL_UI           RCDATA                  "res\\Texture\\ControlUI.tga"
+
+IDR_TEXTURE_CONTROL_UI  RCDATA                  "res\\Texture\\ControlUI.tga"
+IDR_ATLAS_CONTROL_UI  RCDATA                  "res\\Texture\\ControlUI.xml"
 
 /////////////////////////////////////////////////////////////////////////////
 //

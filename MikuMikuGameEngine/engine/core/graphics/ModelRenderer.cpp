@@ -207,29 +207,3 @@ void ModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& render
 		}
 	}
 }
-
-void ModelRenderer::RenderNonShader()
-{
-	if( !m_pModel || !m_pModel->GetMeshContainer() )
-	{
-		return;
-	}
-
-	MeshContainer* pMeshContainer = m_pModel->GetMeshContainer();
-
-	Mesh* pMesh = pMeshContainer->pMesh;
-
-	if( !pMesh )
-	{
-		return;
-	}
-
-	DWORD attrNum = pMesh->GetAttributeRangeNum();
-
-	for( DWORD attrIdx = 0 ; attrIdx < attrNum ; attrIdx++ )
-	{
-		DWORD attrID = pMesh->GetAttributeID( attrIdx );
-
-		pMesh->Draw( attrIdx );
-	}
-}

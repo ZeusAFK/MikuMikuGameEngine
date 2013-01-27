@@ -79,6 +79,4 @@ public:
 
 	void RenderZPlot( const sRenderInfo& renderInfo );
 	void Render( const sRenderInfo& renderInfo );
-
-	void RenderNonShader();
 };

@@ -582,6 +582,29 @@ technique TechDiffuseTextureSphereAddShadow
 }
 
 //=========================================================================================
+// UI2D(VertexColorUnlitTexture)
+//=========================================================================================
+
+struct sPS_UserInterface2DInput
+{
+	float4 color : COLOR0;
+	float2 tex : TEXCOORD0;
+};
+
+float4 PS_UserInterface2D( sPS_UserInterface2DInput In ) : COLOR
+{
+	return In.color * tex2D( TextureSampler,In.tex );
+}
+
+technique TechUserInterface2D
+{
+	pass P0
+	{
+		PixelShader  = compile ps_2_0 PS_UserInterface2D();
+	}
+}
+
+//=========================================================================================
 // VertexColor
 //=========================================================================================
 

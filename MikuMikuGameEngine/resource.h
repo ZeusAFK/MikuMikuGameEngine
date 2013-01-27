@@ -99,6 +99,8 @@
 #define IDB_TOON09                      323
 #define IDB_TOON10                      324
 #define IDR_TEXTURE_CONTROL_UI          327
+#define IDR_RCDATA1                     329
+#define IDR_ATLAS_CONTROL_UI            329
 #define ID_POPUP_32771                  32771
 #define ID_POPUP_32772                  32772
 #define ID_ADD_OBJECT                   32773
@@ -115,7 +117,7 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        329
+#define _APS_NEXT_RESOURCE_VALUE        330
 #define _APS_NEXT_COMMAND_VALUE         32782
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           312

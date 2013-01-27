@@ -1,0 +1,12 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+
+<chiplist version="0">
+
+	<chip id="HandleMoveXOver" x="0" y="0" width="32" height="32" cx="16" cy="16" />
+	<chip id="HandleMoveXNormal" x="0" y="32" width="32" height="32" cx="16" cy="16" />
+	<chip id="HandleMoveYOver" x="32" y="0" width="32" height="32" cx="16" cy="16" />
+	<chip id="HandleMoveYNormal" x="32" y="32" width="32" height="32" cx="16" cy="16" />
+	<chip id="HandleMoveZOver" x="64" y="0" width="32" height="32" cx="16" cy="16" />
+	<chip id="HandleMoveZNormal" x="64" y="32" width="32" height="32" cx="16" cy="16" />
+
+</chiplist>

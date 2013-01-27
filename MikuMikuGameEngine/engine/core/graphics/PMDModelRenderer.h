@@ -56,6 +56,4 @@ public:
 
 	void RenderZPlot( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo );
 	void Render( const D3DXMATRIX& matWorld,const sRenderInfo& renderInfo );
-
-	void RenderNonShader();
 };
