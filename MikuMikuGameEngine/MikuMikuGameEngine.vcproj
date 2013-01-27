@@ -424,6 +424,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\res\texture1.bin"
+				>
+			</File>
+			<File
 				RelativePath=".\res\Toolbar.bmp"
 				>
 			</File>
@@ -476,6 +480,14 @@
 				</File>
 				<File
 					RelativePath=".\res\Toon\toon10.bmp"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Texture"
+				>
+				<File
+					RelativePath=".\res\Texture\ControlUI.tga"
 					>
 				</File>
 			</Filter>

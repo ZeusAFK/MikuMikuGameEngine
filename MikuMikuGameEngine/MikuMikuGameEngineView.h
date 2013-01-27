@@ -40,6 +40,8 @@ private:
 
 	RenderTexturePtr m_shadowMap;
 
+	TexturePtr m_controlUITexture;
+
 // オーバーライド
 public:
 	virtual void OnDraw(CDC* pDC);  // このビューを描画するためにオーバーライドされます。

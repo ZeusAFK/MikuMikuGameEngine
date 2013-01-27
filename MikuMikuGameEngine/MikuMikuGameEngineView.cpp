@@ -110,6 +110,12 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	m_shadowMap=RenderTexturePtr( new RenderTexture );
 	m_shadowMap->Create( 2048,2048,D3DFMT_R32F );
 
+	m_controlUITexture = TexturePtr( new Texture );
+	if( !m_controlUITexture->CreateFromResource( IDR_TEXTURE_CONTROL_UI ) )
+	{
+		m_controlUITexture.reset();
+	}
+
 	//{
 	//	//tstring pmdFilePath = _T("project\\assets\\Model\\Lat式ミクVer2.3\\Lat式ミクVer2.3_Normal.pmd");
 	//	tstring pmdFilePath = _T("project\\assets\\Model\\初音ミク.pmd");
@@ -555,9 +561,64 @@ void CMikuMikuGameEngineView::OnIdle()
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 
 			GameObject* selectObject = GetDocument()->GetSelectGameObject();
-			if( selectObject )
+			//if( selectObject )
 			{
 				// TODO:Draw Select Object
+				ShaderPtr pDefaultShader = graphics->GetDefaultShader();
+				if( pDefaultShader )
+				{
+					ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
+
+					graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+
+					{
+					graphics->SetFVF( D3DFVF_XYZRHW|D3DFVF_TEX1 );
+
+					pEffect->SetTechnique( "TechScreenDiffuseTexture" );
+					
+					UINT passes;
+					pEffect->Begin( &passes,0 );
+					
+					struct sVertex
+					{
+						float x;
+						float y;
+						float z;
+						float rhw;
+						float u;
+						float v;
+					};
+
+					float right = (float)graphics->GetBackBufferWidth()+0.5f;
+					float left = right-512.0f+0.5f;
+					float top = 0.0f+0.5f;
+					float bottom = top+512.0f+0.5f;
+
+					sVertex v[4]={
+						{  left,   top,0.0f,1.0f,0.0f,0.0f},
+						{ right,   top,0.0f,1.0f,1.0f,0.0f},
+						{  left,bottom,0.0f,1.0f,0.0f,1.0f},
+						{ right,bottom,0.0f,1.0f,1.0f,1.0f},
+					};
+
+					D3DXVECTOR4 color( 1.0f,1.0f,1.0f,1.0f );
+					pEffect->SetVector( "g_materialDiffuse" , &color );
+					pEffect->SetTexture( "g_Texture",m_controlUITexture->GetTexture() );
+
+					for( UINT cpass = 0; cpass<passes; cpass++ )
+					{
+						pEffect->BeginPass( cpass );
+
+						graphics->DrawPrimitiveUP( D3DPT_TRIANGLESTRIP,2,v,sizeof(sVertex) );
+
+						pEffect->EndPass();
+					}
+
+					pEffect->End();
+				}
+
+					graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
+				}
 			}
 
 			//// Debug Shadow Map
