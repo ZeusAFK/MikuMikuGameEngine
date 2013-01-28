@@ -142,6 +142,11 @@ void GameObject::SetLocalPosition( const D3DXVECTOR3& position )
 	UpdateTransform( matParent );
 }
 
+const D3DXVECTOR3& GameObject::GetLocalPosition() const
+{
+	return m_localPosition;
+}
+
 void GameObject::SetLocalRotation( const D3DXQUATERNION& rotation )
 {
 	m_localRotation = rotation;
@@ -159,6 +164,11 @@ void GameObject::SetLocalRotation( const D3DXQUATERNION& rotation )
 	UpdateTransform( matParent );
 }
 
+const D3DXQUATERNION& GameObject::GetLocalRotation() const
+{
+	return m_localRotation;
+}
+
 void GameObject::SetLocalScale( const D3DXVECTOR3& scale )
 {
 	m_localScale = scale;
@@ -174,6 +184,11 @@ void GameObject::SetLocalScale( const D3DXVECTOR3& scale )
 
 	m_changedLocal = true;
 	UpdateTransform( matParent );
+}
+
+const D3DXVECTOR3& GameObject::GetLocalScale() const
+{
+	return m_localScale;
 }
 
 void GameObject::ChangeParent( GameObject* nextParent )

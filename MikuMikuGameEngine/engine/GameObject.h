@@ -65,8 +65,11 @@ public:
 	D3DXMATRIX GetWorldMatrix();
 
 	void SetLocalPosition( const D3DXVECTOR3& position );
+	const D3DXVECTOR3& GetLocalPosition() const;
 	void SetLocalRotation( const D3DXQUATERNION& rotation );
+	const D3DXQUATERNION& GetLocalRotation() const;
 	void SetLocalScale( const D3DXVECTOR3& scale );
+	const D3DXVECTOR3& GetLocalScale() const;
 
 	void ChangeParent( GameObject* parent );
 

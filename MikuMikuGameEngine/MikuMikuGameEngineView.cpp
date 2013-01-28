@@ -14,6 +14,8 @@
 #include "engine/core/graphics/PMDFileLoader.h"
 #include "engine/core/graphics/VMDFileLoader.h"
 
+#include "engine/core/util/util.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -35,6 +37,8 @@ ON_WM_MBUTTONDOWN()
 ON_WM_MBUTTONUP()
 ON_WM_MOUSEWHEEL()
 ON_WM_CAPTURECHANGED()
+ON_WM_LBUTTONUP()
+ON_WM_LBUTTONDOWN()
 END_MESSAGE_MAP()
 
 // CMikuMikuGameEngineView コンストラクション/デストラクション
@@ -122,12 +126,15 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 
 	m_handleMoveX.SetAtlas( m_controlUITextureAtlas );
 	m_handleMoveX.SetSpriteName( tstring(_T("HandleMoveXNormal")) );
+	m_handleMoveXOver = false;
 
 	m_handleMoveY.SetAtlas( m_controlUITextureAtlas );
 	m_handleMoveY.SetSpriteName( tstring(_T("HandleMoveYNormal")) );
+	m_handleMoveYOver = false;
 
 	m_handleMoveZ.SetAtlas( m_controlUITextureAtlas );
 	m_handleMoveZ.SetSpriteName( tstring(_T("HandleMoveZNormal")) );
+	m_handleMoveZOver = false;
 
 	//{
 	//	//tstring pmdFilePath = _T("project\\assets\\Model\\Lat式ミクVer2.3\\Lat式ミクVer2.3_Normal.pmd");
@@ -369,7 +376,7 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 
 	D3DXQuaternionIdentity( &m_cameraRotation );
 	m_cameraRadius = 35.0f;
-	m_cameraState = 0;
+	m_controlState = Idle;
 
 	m_coordinateAxis = new CoordinateAxis;
 
@@ -875,16 +882,52 @@ void CMikuMikuGameEngineView::OnRButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: ここにメッセージ ハンドラ コードを追加するか、既定の処理を呼び出します。
 
-	if( m_cameraState == 0 )
+	switch( m_controlState )
 	{
-		POINT pt;
-		pt.x = point.x;
-		pt.y = point.y;
+	case Idle:
+		{
+			if( m_handleMoveXOver )
+			{
+			}
+			else if( m_handleMoveYOver )
+			{
+			}
+			else if( m_handleMoveZOver )
+			{
+			}
+			else
+			{
+				POINT pt;
+				pt.x = point.x;
+				pt.y = point.y;
 
-		m_ptCursorDown = pt;
-		m_cameraState = 1;
+				m_ptCursorDown = pt;
+				m_controlState = CameraRotate;
 
-		SetCapture();
+				SetCapture();
+			}
+		}
+		break;
+	case CameraRotate:
+		{
+		}
+		break;
+	case CameraMove:
+		{
+		}
+		break;
+	case HandleMoveX:
+		{
+		}
+		break;
+	case HandleMoveY:
+		{
+		}
+		break;
+	case HandleMoveZ:
+		{
+		}
+		break;
 	}
 
 	CView::OnRButtonDown(nFlags, point);
@@ -894,15 +937,39 @@ void CMikuMikuGameEngineView::OnRButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: ここにメッセージ ハンドラ コードを追加するか、既定の処理を呼び出します。
 
-	if( m_cameraState == 1 )
+	switch( m_controlState )
 	{
-		POINT pt;
-		pt.x = point.x;
-		pt.y = point.y;
+	case Idle:
+		{
+		}
+		break;
+	case CameraRotate:
+		{
+			POINT pt;
+			pt.x = point.x;
+			pt.y = point.y;
 
-		m_cameraState = 0;
+			m_controlState = Idle;
 
-		ReleaseCapture();
+			ReleaseCapture();
+		}
+		break;
+	case CameraMove:
+		{
+		}
+		break;
+	case HandleMoveX:
+		{
+		}
+		break;
+	case HandleMoveY:
+		{
+		}
+		break;
+	case HandleMoveZ:
+		{
+		}
+		break;
 	}
 
 	CView::OnRButtonUp(nFlags, point);
@@ -916,12 +983,58 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 	pt.x = point.x;
 	pt.y = point.y;
 
+	Graphics* graphics = Graphics::GetInstance();
+
 	int x = pt.x-m_ptCursorDown.x;
 	int y = pt.y-m_ptCursorDown.y;
 
-	switch( m_cameraState )
+	switch( m_controlState )
 	{
-	case 1:
+	case Idle:
+		{
+			float handleX = (float)graphics->GetBackBufferWidth()-150.0f+0.5f;
+			float handleY = (float)graphics->GetBackBufferHeight()-40.0f+0.5f;
+
+			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+				handleY <= pt.y && pt.y <= handleY+32.0f )
+			{
+				m_handleMoveX.SetSpriteName( tstring(_T("HandleMoveXOver")) );
+				m_handleMoveXOver = true;
+			}
+			else
+			{
+				m_handleMoveX.SetSpriteName( tstring(_T("HandleMoveXNormal")) );
+				m_handleMoveXOver = false;
+			}
+
+			handleX+=40.0f;
+			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+				handleY <= pt.y && pt.y <= handleY+32.0f )
+			{
+				m_handleMoveY.SetSpriteName( tstring(_T("HandleMoveYOver")) );
+				m_handleMoveYOver = true;
+			}
+			else
+			{
+				m_handleMoveY.SetSpriteName( tstring(_T("HandleMoveYNormal")) );
+				m_handleMoveYOver = false;
+			}
+
+			handleX+=40.0f;
+			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+				handleY <= pt.y && pt.y <= handleY+32.0f )
+			{
+				m_handleMoveZ.SetSpriteName( tstring(_T("HandleMoveZOver")) );
+				m_handleMoveZOver = true;
+			}
+			else
+			{
+				m_handleMoveZ.SetSpriteName( tstring(_T("HandleMoveZNormal")) );
+				m_handleMoveZOver = false;
+			}
+		}
+		break;
+	case CameraRotate:
 		{
 			m_ptCursorDown = pt;
 
@@ -942,19 +1055,87 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 			}
 		}
 		break;
-	case 2:
+	case CameraMove:
 		{
 			m_ptCursorDown = pt;
 
-			D3DXVECTOR3 move((float)-x,(float)y,0.0f);
-			move *= 0.05f;
+			if( x!=0 || y!=0 )
+			{
+				D3DXVECTOR3 move((float)-x,(float)y,0.0f);
+				move *= 0.05f;
 
-			D3DXMATRIX matCameraRotate;
-			D3DXMatrixRotationQuaternion( &matCameraRotate,&m_cameraRotation );
+				D3DXMATRIX matCameraRotate;
+				D3DXMatrixRotationQuaternion( &matCameraRotate,&m_cameraRotation );
 
-			D3DXVec3TransformNormal( &move,&move,&matCameraRotate );
+				D3DXVec3TransformNormal( &move,&move,&matCameraRotate );
 
-			m_cameraPosition += move;
+				m_cameraPosition += move;
+			}
+		}
+		break;
+	case HandleMoveX:
+		{
+			if( x!=0 )
+			{
+				D3DXVECTOR3 move((float)x,0.0f,0.0f);
+				move *= 0.05f;
+
+				GameObject* selectObject = GetDocument()->GetSelectGameObject();
+				if( selectObject )
+				{
+					D3DXVECTOR3 localPosition = selectObject->GetLocalPosition() + move;
+					selectObject->SetLocalPosition( localPosition );
+				}
+
+				POINT ptCursor = m_ptCursorDown;
+				ClientToScreen( &ptCursor );
+
+				SetCursorPos( ptCursor.x,ptCursor.y );
+
+				OutputDebugStringFormat( _T("MouseMouve HandleX(%d,%d)\n"),pt.x,pt.y );
+			}
+		}
+		break;
+	case HandleMoveY:
+		{
+			if( x!=0 )
+			{
+				D3DXVECTOR3 move(0.0f,(float)x,0.0f);
+				move *= 0.05f;
+
+				GameObject* selectObject = GetDocument()->GetSelectGameObject();
+				if( selectObject )
+				{
+					D3DXVECTOR3 localPosition = selectObject->GetLocalPosition() + move;
+					selectObject->SetLocalPosition( localPosition );
+				}
+
+				POINT ptCursor = m_ptCursorDown;
+				ClientToScreen( &ptCursor );
+
+				SetCursorPos( ptCursor.x,ptCursor.y );
+			}
+		}
+		break;
+	case HandleMoveZ:
+		{
+			if( x!=0 )
+			{
+				D3DXVECTOR3 move(0.0f,0.0f,(float)x);
+				move *= 0.05f;
+
+				GameObject* selectObject = GetDocument()->GetSelectGameObject();
+				if( selectObject )
+				{
+					D3DXVECTOR3 localPosition = selectObject->GetLocalPosition() + move;
+					selectObject->SetLocalPosition( localPosition );
+				}
+
+				POINT ptCursor = m_ptCursorDown;
+				ClientToScreen( &ptCursor );
+
+				SetCursorPos( ptCursor.x,ptCursor.y );
+			}
 		}
 		break;
 	}
@@ -965,16 +1146,52 @@ void CMikuMikuGameEngineView::OnMButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: ここにメッセージ ハンドラ コードを追加するか、既定の処理を呼び出します。
 
-	if( m_cameraState == 0 )
+	switch( m_controlState )
 	{
-		POINT pt;
-		pt.x = point.x;
-		pt.y = point.y;
+	case Idle:
+		{
+			if( m_handleMoveXOver )
+			{
+			}
+			else if( m_handleMoveYOver )
+			{
+			}
+			else if( m_handleMoveZOver )
+			{
+			}
+			else
+			{
+				POINT pt;
+				pt.x = point.x;
+				pt.y = point.y;
 
-		m_ptCursorDown = pt;
-		m_cameraState = 2;
+				m_ptCursorDown = pt;
+				m_controlState = CameraMove;
 
-		SetCapture();
+				SetCapture();
+			}
+		}
+		break;
+	case CameraRotate:
+		{
+		}
+		break;
+	case CameraMove:
+		{
+		}
+		break;
+	case HandleMoveX:
+		{
+		}
+		break;
+	case HandleMoveY:
+		{
+		}
+		break;
+	case HandleMoveZ:
+		{
+		}
+		break;
 	}
 
 	CView::OnMButtonDown(nFlags, point);
@@ -984,15 +1201,39 @@ void CMikuMikuGameEngineView::OnMButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: ここにメッセージ ハンドラ コードを追加するか、既定の処理を呼び出します。
 
-	if( m_cameraState == 2 )
+	switch( m_controlState )
 	{
-		POINT pt;
-		pt.x = point.x;
-		pt.y = point.y;
+	case Idle:
+		{
+		}
+		break;
+	case CameraRotate:
+		{
+		}
+		break;
+	case CameraMove:
+		{
+			POINT pt;
+			pt.x = point.x;
+			pt.y = point.y;
 
-		m_cameraState = 0;
+			m_controlState = Idle;
 
-		ReleaseCapture();
+			ReleaseCapture();
+		}
+		break;
+	case HandleMoveX:
+		{
+		}
+		break;
+	case HandleMoveY:
+		{
+		}
+		break;
+	case HandleMoveZ:
+		{
+		}
+		break;
 	}
 
 	CView::OnMButtonUp(nFlags, point);
@@ -1011,10 +1252,183 @@ void CMikuMikuGameEngineView::OnCaptureChanged(CWnd *pWnd)
 {
 	// TODO: ここにメッセージ ハンドラ コードを追加します。
 
-	if( m_cameraState != 0 )
+	switch( m_controlState )
 	{
-		m_cameraState = 0;
+	case Idle:
+		{
+			m_controlState = Idle;
+		}
+		break;
+	case CameraRotate:
+		{
+			m_controlState = Idle;
+		}
+		break;
+	case CameraMove:
+		{
+			m_controlState = Idle;
+		}
+		break;
+	case HandleMoveX:
+		{
+			m_controlState = Idle;
+
+			ShowCursor( FALSE );
+		}
+		break;
+	case HandleMoveY:
+		{
+			m_controlState = Idle;
+
+			ShowCursor( FALSE );
+		}
+		break;
+	case HandleMoveZ:
+		{
+			m_controlState = Idle;
+
+			ShowCursor( FALSE );
+		}
+		break;
 	}
 
 	CView::OnCaptureChanged(pWnd);
+}
+
+void CMikuMikuGameEngineView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: ここにメッセージ ハンドラ コードを追加するか、既定の処理を呼び出します。
+	switch( m_controlState )
+	{
+	case Idle:
+		{
+			if( m_handleMoveXOver )
+			{
+				POINT pt;
+				pt.x = point.x;
+				pt.y = point.y;
+
+				m_ptCursorDown = pt;
+				m_controlState = HandleMoveX;
+
+				SetCapture();
+
+				ShowCursor( FALSE );
+			}
+			else if( m_handleMoveYOver )
+			{
+				POINT pt;
+				pt.x = point.x;
+				pt.y = point.y;
+
+				m_ptCursorDown = pt;
+				m_controlState = HandleMoveY;
+
+				SetCapture();
+
+				ShowCursor( FALSE );
+			}
+			else if( m_handleMoveZOver )
+			{
+				POINT pt;
+				pt.x = point.x;
+				pt.y = point.y;
+
+				m_ptCursorDown = pt;
+				m_controlState = HandleMoveZ;
+
+				SetCapture();
+
+				ShowCursor( FALSE );
+			}
+			else
+			{
+			}
+		}
+		break;
+	case CameraRotate:
+		{
+		}
+		break;
+	case CameraMove:
+		{
+		}
+		break;
+	case HandleMoveX:
+		{
+		}
+		break;
+	case HandleMoveY:
+		{
+		}
+		break;
+	case HandleMoveZ:
+		{
+		}
+		break;
+	}
+
+	CView::OnLButtonDown(nFlags, point);
+}
+
+void CMikuMikuGameEngineView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: ここにメッセージ ハンドラ コードを追加するか、既定の処理を呼び出します。
+
+	switch( m_controlState )
+	{
+	case Idle:
+		{
+		}
+		break;
+	case CameraRotate:
+		{
+		}
+		break;
+	case CameraMove:
+		{
+		}
+		break;
+	case HandleMoveX:
+		{
+			POINT pt;
+			pt.x = point.x;
+			pt.y = point.y;
+
+			m_controlState = Idle;
+
+			ReleaseCapture();
+
+			ShowCursor( TRUE );
+		}
+		break;
+	case HandleMoveY:
+		{
+			POINT pt;
+			pt.x = point.x;
+			pt.y = point.y;
+
+			m_controlState = Idle;
+
+			ReleaseCapture();
+
+			ShowCursor( TRUE );
+		}
+		break;
+	case HandleMoveZ:
+		{
+			POINT pt;
+			pt.x = point.x;
+			pt.y = point.y;
+
+			m_controlState = Idle;
+
+			ReleaseCapture();
+
+			ShowCursor( TRUE );
+		}
+		break;
+	}
+
+	CView::OnLButtonUp(nFlags, point);
 }

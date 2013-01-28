@@ -424,6 +424,11 @@ bool PMDLoad(unsigned char* buffer,size_t size,sPMD* pmd)
 		buffer+=sz;
 	}
 
+	if( size==0 )
+	{
+		return true;
+	}
+
 	// •¨—‰‰Z
 	{
 		sz = sizeof(unsigned long);
