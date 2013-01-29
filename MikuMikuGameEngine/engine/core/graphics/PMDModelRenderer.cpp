@@ -135,7 +135,7 @@ void PMDModelRenderer::SetModel( PMDModelPtr pModel )
 	}
 
 	m_skinWeights = new SkinWeight[ pPmd->skin_list.skin_count ];
-	ZeroMemory( m_skinWeights,sizeof(float)*pPmd->skin_list.skin_count );
+	ZeroMemory( m_skinWeights,sizeof(SkinWeight)*pPmd->skin_list.skin_count );
 	
 	m_ppBoneList = new PMDBone*[ pPmd->bone_list.bone_count ];
 
@@ -620,6 +620,7 @@ void PMDModelRenderer::UpdateMesh( const D3DXMATRIX& matWorld,const sRenderInfo&
 		D3DXVec3TransformNormal( &norm2,&vertex->normal,&pBoneMatrix[boneIdx2] );
 
 		D3DXVec3Lerp( &vertex->normal,&norm2,&norm1,weight );
+		D3DXVec3Normalize( &vertex->normal,&vertex->normal );
 
 		edgeVertex->position = vertex->position;
 		edgeVertex->normal = vertex->normal;
@@ -705,15 +706,6 @@ void PMDModelRenderer::Render( const D3DXMATRIX& matWorld,const sRenderInfo& ren
 
 	D3DXVECTOR3 vLight = renderInfo.lightDir;
 	D3DXVECTOR3 vEye = renderInfo.camera.GetPosition();
-	//{
-	//	D3DXMATRIX matWorldInv;
-	//	D3DXMatrixInverse( &matWorldInv,NULL,&matWorld );
-
-	//	D3DXVec3TransformNormal( &vLight,&vLight,&matView );
-	//	vLight = -vLight;
-
-	//	D3DXVec3TransformCoord( &vEye,&vEye,&matWorldInv );
-	//}
 
 	for( DWORD attrIdx = 0 ; attrIdx < attrNum ; attrIdx++ )
 	{
