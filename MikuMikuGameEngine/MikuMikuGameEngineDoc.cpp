@@ -75,6 +75,11 @@ void CMikuMikuGameEngineDoc::AddGameObject( GameObject* obj,GameObject* parent,b
 
 void CMikuMikuGameEngineDoc::SetObjectName( GameObject* obj, const tstring& name )
 {
+	if( name.empty() )
+	{
+		return;
+	}
+
 	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
 
 	pMainFrame->GetObjectListView()->SetObjectName( obj,name );
