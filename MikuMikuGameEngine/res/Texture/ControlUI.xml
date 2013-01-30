@@ -8,5 +8,11 @@
 	<chip id="HandleMoveYNormal" x="32" y="32" width="32" height="32" cx="16" cy="16" />
 	<chip id="HandleMoveZOver" x="64" y="0" width="32" height="32" cx="16" cy="16" />
 	<chip id="HandleMoveZNormal" x="64" y="32" width="32" height="32" cx="16" cy="16" />
+  <chip id="HandleRotateXOver" x="0" y="64" width="32" height="32" cx="16" cy="16" />
+  <chip id="HandleRotateXNormal" x="0" y="96" width="32" height="32" cx="16" cy="16" />
+  <chip id="HandleRotateYOver" x="32" y="64" width="32" height="32" cx="16" cy="16" />
+  <chip id="HandleRotateYNormal" x="32" y="96" width="32" height="32" cx="16" cy="16" />
+  <chip id="HandleRotateZOver" x="64" y="65" width="32" height="32" cx="16" cy="16" />
+  <chip id="HandleRotateZNormal" x="64" y="96" width="32" height="32" cx="16" cy="16" />
 
 </chiplist>

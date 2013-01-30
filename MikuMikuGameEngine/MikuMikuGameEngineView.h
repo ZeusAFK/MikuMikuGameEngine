@@ -45,6 +45,9 @@ private:
 		HandleMoveX,
 		HandleMoveY,
 		HandleMoveZ,
+		HandleRotateX,
+		HandleRotateY,
+		HandleRotateZ,
 	};
 	ControlState m_controlState;
 
@@ -60,6 +63,13 @@ private:
 	bool m_handleMoveYOver;
 	UISpriteRenderer m_handleMoveZ;
 	bool m_handleMoveZOver;
+
+	UISpriteRenderer m_handleRotateX;
+	bool m_handleRotateXOver;
+	UISpriteRenderer m_handleRotateY;
+	bool m_handleRotateYOver;
+	UISpriteRenderer m_handleRotateZ;
+	bool m_handleRotateZOver;
 
 // オーバーライド
 public:

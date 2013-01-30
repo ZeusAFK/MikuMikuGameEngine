@@ -136,6 +136,18 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	m_handleMoveZ.SetSpriteName( tstring(_T("HandleMoveZNormal")) );
 	m_handleMoveZOver = false;
 
+	m_handleRotateX.SetAtlas( m_controlUITextureAtlas );
+	m_handleRotateX.SetSpriteName( tstring(_T("HandleRotateXNormal")) );
+	m_handleRotateXOver = false;
+
+	m_handleRotateY.SetAtlas( m_controlUITextureAtlas );
+	m_handleRotateY.SetSpriteName( tstring(_T("HandleRotateYNormal")) );
+	m_handleRotateYOver = false;
+
+	m_handleRotateZ.SetAtlas( m_controlUITextureAtlas );
+	m_handleRotateZ.SetSpriteName( tstring(_T("HandleRotateZNormal")) );
+	m_handleRotateZOver = false;
+
 	//{
 	//	//tstring pmdFilePath = _T("project\\assets\\Model\\Lat式ミクVer2.3\\Lat式ミクVer2.3_Normal.pmd");
 	//	tstring pmdFilePath = _T("project\\assets\\Model\\初音ミク.pmd");
@@ -583,7 +595,13 @@ void CMikuMikuGameEngineView::OnIdle()
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
 
 			float x = (float)graphics->GetBackBufferWidth()-150.0f+0.5f;
-			float y = (float)graphics->GetBackBufferHeight()-40.0f+0.5f;
+			float y = (float)graphics->GetBackBufferHeight()-80.0f+0.5f;
+
+			m_handleRotateX.Render( x,y );
+			m_handleRotateY.Render( x+40.0f,y );
+			m_handleRotateZ.Render( x+80.0f,y );
+
+			y += 40.0f;
 
 			m_handleMoveX.Render( x,y );
 			m_handleMoveY.Render( x+40.0f,y );
@@ -895,6 +913,15 @@ void CMikuMikuGameEngineView::OnRButtonDown(UINT nFlags, CPoint point)
 			else if( m_handleMoveZOver )
 			{
 			}
+			else if( m_handleRotateXOver )
+			{
+			}
+			else if( m_handleRotateYOver )
+			{
+			}
+			else if( m_handleRotateZOver )
+			{
+			}
 			else
 			{
 				POINT pt;
@@ -925,6 +952,18 @@ void CMikuMikuGameEngineView::OnRButtonDown(UINT nFlags, CPoint point)
 		}
 		break;
 	case HandleMoveZ:
+		{
+		}
+		break;
+	case HandleRotateX:
+		{
+		}
+		break;
+	case HandleRotateY:
+		{
+		}
+		break;
+	case HandleRotateZ:
 		{
 		}
 		break;
@@ -970,6 +1009,18 @@ void CMikuMikuGameEngineView::OnRButtonUp(UINT nFlags, CPoint point)
 		{
 		}
 		break;
+	case HandleRotateX:
+		{
+		}
+		break;
+	case HandleRotateY:
+		{
+		}
+		break;
+	case HandleRotateZ:
+		{
+		}
+		break;
 	}
 
 	CView::OnRButtonUp(nFlags, point);
@@ -993,7 +1044,48 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 	case Idle:
 		{
 			float handleX = (float)graphics->GetBackBufferWidth()-150.0f+0.5f;
-			float handleY = (float)graphics->GetBackBufferHeight()-40.0f+0.5f;
+			float handleY = (float)graphics->GetBackBufferHeight()-80.0f+0.5f;
+
+			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+				handleY <= pt.y && pt.y <= handleY+32.0f )
+			{
+				m_handleRotateX.SetSpriteName( tstring(_T("HandleRotateXOver")) );
+				m_handleRotateXOver = true;
+			}
+			else
+			{
+				m_handleRotateX.SetSpriteName( tstring(_T("HandleRotateXNormal")) );
+				m_handleRotateXOver = false;
+			}
+
+			handleX+=40.0f;
+			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+				handleY <= pt.y && pt.y <= handleY+32.0f )
+			{
+				m_handleRotateY.SetSpriteName( tstring(_T("HandleRotateYOver")) );
+				m_handleRotateYOver = true;
+			}
+			else
+			{
+				m_handleRotateY.SetSpriteName( tstring(_T("HandleRotateYNormal")) );
+				m_handleRotateYOver = false;
+			}
+
+			handleX+=40.0f;
+			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+				handleY <= pt.y && pt.y <= handleY+32.0f )
+			{
+				m_handleRotateZ.SetSpriteName( tstring(_T("HandleRotateZOver")) );
+				m_handleRotateZOver = true;
+			}
+			else
+			{
+				m_handleRotateZ.SetSpriteName( tstring(_T("HandleRotateZNormal")) );
+				m_handleRotateZOver = false;
+			}
+
+			handleX -= 80.0f;
+			handleY += 40.0f;
 
 			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
 				handleY <= pt.y && pt.y <= handleY+32.0f )
@@ -1138,6 +1230,78 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 			}
 		}
 		break;
+	case HandleRotateX:
+		{
+			if( y!=0 )
+			{
+				D3DXQUATERNION q;
+				D3DXQuaternionRotationAxis( &q,&D3DXVECTOR3(1.0f,0.0f,0.0f),D3DXToRadian( y*0.573f ) );
+
+				GameObject* selectObject = GetDocument()->GetSelectGameObject();
+				if( selectObject )
+				{
+					D3DXQUATERNION localRotation = selectObject->GetLocalRotation();
+					localRotation = q * localRotation;
+					selectObject->SetLocalRotation( localRotation );
+				}
+
+				POINT ptCursor = m_ptCursorDown;
+				ClientToScreen( &ptCursor );
+
+				SetCursorPos( ptCursor.x,ptCursor.y );
+
+				OutputDebugStringFormat( _T("MouseMouve HandleX(%d,%d)\n"),pt.x,pt.y );
+			}
+		}
+		break;
+	case HandleRotateY:
+		{
+			if( y!=0 )
+			{
+				D3DXQUATERNION q;
+				D3DXQuaternionRotationAxis( &q,&D3DXVECTOR3(0.0f,1.0f,0.0f),D3DXToRadian( y*0.573f ) );
+
+				GameObject* selectObject = GetDocument()->GetSelectGameObject();
+				if( selectObject )
+				{
+					D3DXQUATERNION localRotation = selectObject->GetLocalRotation();
+					localRotation = q * localRotation;
+					selectObject->SetLocalRotation( localRotation );
+				}
+
+				POINT ptCursor = m_ptCursorDown;
+				ClientToScreen( &ptCursor );
+
+				SetCursorPos( ptCursor.x,ptCursor.y );
+
+				OutputDebugStringFormat( _T("MouseMouve HandleY(%d,%d)\n"),pt.x,pt.y );
+			}
+		}
+		break;
+	case HandleRotateZ:
+		{
+			if( y!=0 )
+			{
+				D3DXQUATERNION q;
+				D3DXQuaternionRotationAxis( &q,&D3DXVECTOR3(0.0f,0.0f,1.0f),D3DXToRadian( y*0.573f ) );
+
+				GameObject* selectObject = GetDocument()->GetSelectGameObject();
+				if( selectObject )
+				{
+					D3DXQUATERNION localRotation = selectObject->GetLocalRotation();
+					localRotation = q * localRotation;
+					selectObject->SetLocalRotation( localRotation );
+				}
+
+				POINT ptCursor = m_ptCursorDown;
+				ClientToScreen( &ptCursor );
+
+				SetCursorPos( ptCursor.x,ptCursor.y );
+
+				OutputDebugStringFormat( _T("MouseMouve HandleZ(%d,%d)\n"),pt.x,pt.y );
+			}
+		}
+		break;
 	}
 	CView::OnMouseMove(nFlags, point);
 }
@@ -1192,6 +1356,18 @@ void CMikuMikuGameEngineView::OnMButtonDown(UINT nFlags, CPoint point)
 		{
 		}
 		break;
+	case HandleRotateX:
+		{
+		}
+		break;
+	case HandleRotateY:
+		{
+		}
+		break;
+	case HandleRotateZ:
+		{
+		}
+		break;
 	}
 
 	CView::OnMButtonDown(nFlags, point);
@@ -1234,6 +1410,18 @@ void CMikuMikuGameEngineView::OnMButtonUp(UINT nFlags, CPoint point)
 		{
 		}
 		break;
+	case HandleRotateX:
+		{
+		}
+		break;
+	case HandleRotateY:
+		{
+		}
+		break;
+	case HandleRotateZ:
+		{
+		}
+		break;
 	}
 
 	CView::OnMButtonUp(nFlags, point);
@@ -1273,21 +1461,42 @@ void CMikuMikuGameEngineView::OnCaptureChanged(CWnd *pWnd)
 		{
 			m_controlState = Idle;
 
-			ShowCursor( FALSE );
+			ShowCursor( TRUE );
 		}
 		break;
 	case HandleMoveY:
 		{
 			m_controlState = Idle;
 
-			ShowCursor( FALSE );
+			ShowCursor( TRUE );
 		}
 		break;
 	case HandleMoveZ:
 		{
 			m_controlState = Idle;
 
-			ShowCursor( FALSE );
+			ShowCursor( TRUE );
+		}
+		break;
+	case HandleRotateX:
+		{
+			m_controlState = Idle;
+
+			ShowCursor( TRUE );
+		}
+		break;
+	case HandleRotateY:
+		{
+			m_controlState = Idle;
+
+			ShowCursor( TRUE );
+		}
+		break;
+	case HandleRotateZ:
+		{
+			m_controlState = Idle;
+
+			ShowCursor( TRUE );
 		}
 		break;
 	}
@@ -1341,6 +1550,45 @@ void CMikuMikuGameEngineView::OnLButtonDown(UINT nFlags, CPoint point)
 
 				ShowCursor( FALSE );
 			}
+			else if( m_handleRotateXOver )
+			{
+				POINT pt;
+				pt.x = point.x;
+				pt.y = point.y;
+
+				m_ptCursorDown = pt;
+				m_controlState = HandleRotateX;
+
+				SetCapture();
+
+				ShowCursor( FALSE );
+			}
+			else if( m_handleRotateYOver )
+			{
+				POINT pt;
+				pt.x = point.x;
+				pt.y = point.y;
+
+				m_ptCursorDown = pt;
+				m_controlState = HandleRotateY;
+
+				SetCapture();
+
+				ShowCursor( FALSE );
+			}
+			else if( m_handleRotateZOver )
+			{
+				POINT pt;
+				pt.x = point.x;
+				pt.y = point.y;
+
+				m_ptCursorDown = pt;
+				m_controlState = HandleRotateZ;
+
+				SetCapture();
+
+				ShowCursor( FALSE );
+			}
 			else
 			{
 			}
@@ -1363,6 +1611,18 @@ void CMikuMikuGameEngineView::OnLButtonDown(UINT nFlags, CPoint point)
 		}
 		break;
 	case HandleMoveZ:
+		{
+		}
+		break;
+	case HandleRotateX:
+		{
+		}
+		break;
+	case HandleRotateY:
+		{
+		}
+		break;
+	case HandleRotateZ:
 		{
 		}
 		break;
@@ -1416,6 +1676,45 @@ void CMikuMikuGameEngineView::OnLButtonUp(UINT nFlags, CPoint point)
 		}
 		break;
 	case HandleMoveZ:
+		{
+			POINT pt;
+			pt.x = point.x;
+			pt.y = point.y;
+
+			m_controlState = Idle;
+
+			ReleaseCapture();
+
+			ShowCursor( TRUE );
+		}
+		break;
+	case HandleRotateX:
+		{
+			POINT pt;
+			pt.x = point.x;
+			pt.y = point.y;
+
+			m_controlState = Idle;
+
+			ReleaseCapture();
+
+			ShowCursor( TRUE );
+		}
+		break;
+	case HandleRotateY:
+		{
+			POINT pt;
+			pt.x = point.x;
+			pt.y = point.y;
+
+			m_controlState = Idle;
+
+			ReleaseCapture();
+
+			ShowCursor( TRUE );
+		}
+		break;
+	case HandleRotateZ:
 		{
 			POINT pt;
 			pt.x = point.x;
