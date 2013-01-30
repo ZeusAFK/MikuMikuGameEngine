@@ -523,6 +523,8 @@ void PMDModelRenderer::UpdateMesh( const D3DXMATRIX& matWorld,const sRenderInfo&
 		return;
 	}
 
+	D3DXVECTOR3 vec3tmp;
+
 	D3DXVECTOR3 cameraPos = renderInfo.camera.GetPosition();
 	D3DXMATRIX matWorldInv = matWorld;
 	D3DXMatrixInverse( &matWorldInv,NULL,&matWorld );
@@ -542,7 +544,7 @@ void PMDModelRenderer::UpdateMesh( const D3DXMATRIX& matWorld,const sRenderInfo&
 
 		if( boneObj )
 		{
-			pBoneMatrix[idx] = m_pOffsetMatrices[idx] * boneObj->GetWorldMatrix();
+			D3DXMatrixMultiply( &pBoneMatrix[idx],&m_pOffsetMatrices[idx],&boneObj->GetWorldMatrix() );
 		}
 		else
 		{
@@ -626,8 +628,8 @@ void PMDModelRenderer::UpdateMesh( const D3DXMATRIX& matWorld,const sRenderInfo&
 		edgeVertex->normal = vertex->normal;
 		if( pmdVertex->edge_flag==0 )
 		{
-			float length = D3DXVec3Length( &(edgeVertex->position-cameraPos) );
-			edgeVertex->position += vertex->normal * 0.0015f * length;
+			float length = D3DXVec3Length( D3DXVec3Subtract(&vec3tmp,&edgeVertex->position,&cameraPos) );
+			D3DXVec3Add( &edgeVertex->position,&edgeVertex->position,D3DXVec3Scale( &vec3tmp,&vertex->normal,0.0015f*length ) );
 		}
 	}
 

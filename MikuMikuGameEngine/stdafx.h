@@ -85,4 +85,4 @@
 
 _COM_SMARTPTR_TYPEDEF(ID3DXEffect,IID_ID3DXEffect);
 
-_COM_SMARTPTR_TYPEDEF(IXmlReader,IID_IXmlReader);
+_COM_SMARTPTR_TYPEDEF(IXmlReader,__uuidof(IXmlReader) );

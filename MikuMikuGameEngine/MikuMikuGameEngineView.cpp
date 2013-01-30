@@ -1075,9 +1075,9 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 		break;
 	case HandleMoveX:
 		{
-			if( x!=0 )
+			if( y!=0 )
 			{
-				D3DXVECTOR3 move((float)x,0.0f,0.0f);
+				D3DXVECTOR3 move((float)-y,0.0f,0.0f);
 				move *= 0.05f;
 
 				GameObject* selectObject = GetDocument()->GetSelectGameObject();
@@ -1098,9 +1098,9 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 		break;
 	case HandleMoveY:
 		{
-			if( x!=0 )
+			if( y!=0 )
 			{
-				D3DXVECTOR3 move(0.0f,(float)x,0.0f);
+				D3DXVECTOR3 move(0.0f,(float)-y,0.0f);
 				move *= 0.05f;
 
 				GameObject* selectObject = GetDocument()->GetSelectGameObject();
@@ -1119,9 +1119,9 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 		break;
 	case HandleMoveZ:
 		{
-			if( x!=0 )
+			if( y!=0 )
 			{
-				D3DXVECTOR3 move(0.0f,0.0f,(float)x);
+				D3DXVECTOR3 move(0.0f,0.0f,(float)y);
 				move *= 0.05f;
 
 				GameObject* selectObject = GetDocument()->GetSelectGameObject();
