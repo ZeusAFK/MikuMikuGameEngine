@@ -67,8 +67,9 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib shlwapi.lib xmllite.lib"
+				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib shlwapi.lib xmllite.lib squirrel_debug.lib sqstdlib_debug.lib"
 				LinkIncremental="2"
+				AdditionalLibraryDirectories="lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				TargetMachine="1"
@@ -148,8 +149,10 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9.lib shlwapi.lib xmllite.lib"
+				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9.lib shlwapi.lib xmllite.lib squirrel.lib sqstdlib.lib"
+				OutputFile="$(SolutionDir)\bin\$(ProjectName).exe"
 				LinkIncremental="1"
+				AdditionalLibraryDirectories="lib"
 				GenerateDebugInformation="true"
 				SubSystem="2"
 				OptimizeReferences="2"
@@ -785,6 +788,58 @@
 					</File>
 					<File
 						RelativePath=".\engine\core\math\Ray.h"
+						>
+					</File>
+				</Filter>
+			</Filter>
+			<Filter
+				Name="script"
+				>
+				<File
+					RelativePath=".\engine\script\ScriptManager.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\engine\script\ScriptManager.h"
+					>
+				</File>
+				<File
+					RelativePath=".\engine\script\TestScript.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\engine\script\TestScript.h"
+					>
+				</File>
+				<Filter
+					Name="squirrel"
+					>
+					<File
+						RelativePath=".\engine\script\squirrel\sqstdaux.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\script\squirrel\sqstdblob.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\script\squirrel\sqstdio.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\script\squirrel\sqstdmath.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\script\squirrel\sqstdstring.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\script\squirrel\sqstdsystem.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\script\squirrel\squirrel.h"
 						>
 					</File>
 				</Filter>

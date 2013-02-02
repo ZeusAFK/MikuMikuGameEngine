@@ -16,6 +16,8 @@
 
 #include "engine/core/util/util.h"
 
+#include "engine/script/TestScript.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -383,6 +385,8 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	//		}
 	//	}
 	//}
+
+	TestScript();
 
 	m_cameraPosition = D3DXVECTOR3( 0.0f,10.0f,0.0f );
 

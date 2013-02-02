@@ -37,46 +37,19 @@ int COutputWnd::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	CRect rectDummy;
 	rectDummy.SetRectEmpty();
 
-	// タブ付きウィンドウの作成:
-	if (!m_wndTabs.Create(CMFCTabCtrl::STYLE_FLAT, rectDummy, this, 1))
-	{
-		TRACE0("タブ付き出力ウィンドウを作成できませんでした\n");
-		return -1;      // 作成できない場合
-	}
-
 	// 出力ペインの作成:
-	const DWORD dwStyle = LBS_NOINTEGRALHEIGHT | WS_CHILD | WS_VISIBLE | WS_HSCROLL | WS_VSCROLL;
+	const DWORD dwStyle = WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY | ES_AUTOVSCROLL;
 
-	if (!m_wndOutputBuild.Create(dwStyle, rectDummy, &m_wndTabs, 2) ||
-		!m_wndOutputDebug.Create(dwStyle, rectDummy, &m_wndTabs, 3) ||
-		!m_wndOutputFind.Create(dwStyle, rectDummy, &m_wndTabs, 4))
+	if( !m_wndOutputDebug.Create(dwStyle, rectDummy, this, 1) )
 	{
 		TRACE0("出力ウィンドウを作成できませんでした\n");
 		return -1;      // 作成できない場合
 	}
 
-	m_wndOutputBuild.SetFont(&m_Font);
 	m_wndOutputDebug.SetFont(&m_Font);
-	m_wndOutputFind.SetFont(&m_Font);
-
-	CString strTabName;
-	BOOL bNameValid;
-
-	// 一覧ウィンドウをタブに割り当てます:
-	bNameValid = strTabName.LoadString(IDS_BUILD_TAB);
-	ASSERT(bNameValid);
-	m_wndTabs.AddTab(&m_wndOutputBuild, strTabName, (UINT)0);
-	bNameValid = strTabName.LoadString(IDS_DEBUG_TAB);
-	ASSERT(bNameValid);
-	m_wndTabs.AddTab(&m_wndOutputDebug, strTabName, (UINT)1);
-	bNameValid = strTabName.LoadString(IDS_FIND_TAB);
-	ASSERT(bNameValid);
-	m_wndTabs.AddTab(&m_wndOutputFind, strTabName, (UINT)2);
 
 	// 出力タブにダミー テキストを入力します
-	FillBuildWindow();
 	FillDebugWindow();
-	FillFindWindow();
 
 	return 0;
 }
@@ -86,47 +59,22 @@ void COutputWnd::OnSize(UINT nType, int cx, int cy)
 	CDockablePane::OnSize(nType, cx, cy);
 
 	// タブ コントロールは、クライアント領域全体をカバーする必要があります:
-	m_wndTabs.SetWindowPos (NULL, -1, -1, cx, cy, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
+	m_wndOutputDebug.SetWindowPos (NULL, -1, -1, cx, cy, SWP_NOMOVE | SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
-void COutputWnd::AdjustHorzScroll(CListBox& wndListBox)
+void COutputWnd::AddString( const tstring& text )
 {
-	CClientDC dc(this);
-	CFont* pOldFont = dc.SelectObject(&m_Font);
-
-	int cxExtentMax = 0;
-
-	for (int i = 0; i < wndListBox.GetCount(); i ++)
-	{
-		CString strItem;
-		wndListBox.GetText(i, strItem);
-
-		cxExtentMax = max(cxExtentMax, dc.GetTextExtent(strItem).cx);
-	}
-
-	wndListBox.SetHorizontalExtent(cxExtentMax);
-	dc.SelectObject(pOldFont);
-}
-
-void COutputWnd::FillBuildWindow()
-{
-	m_wndOutputBuild.AddString(_T("ビルド出力データがここに表示されます。"));
-	m_wndOutputBuild.AddString(_T("出力データはリスト ビューの各行に表示されます"));
-	m_wndOutputBuild.AddString(_T("表示方法を変更することもできます..."));
+	int nLen = m_wndOutputDebug.GetWindowTextLength();
+	//m_wndOutputDebug.SetFocus();
+	m_wndOutputDebug.SetSel(nLen, nLen);
+	m_wndOutputDebug.ReplaceSel((text+_T("\r\n")).c_str());
 }
 
 void COutputWnd::FillDebugWindow()
 {
-	m_wndOutputDebug.AddString(_T("デバッグ出力データがここに表示されます。"));
-	m_wndOutputDebug.AddString(_T("出力データはリスト ビューの各行に表示されます"));
-	m_wndOutputDebug.AddString(_T("表示方法を変更することもできます..."));
-}
-
-void COutputWnd::FillFindWindow()
-{
-	m_wndOutputFind.AddString(_T("検索出力データがここに表示されます。"));
-	m_wndOutputFind.AddString(_T("出力データはリスト ビューの各行に表示されます"));
-	m_wndOutputFind.AddString(_T("表示方法を変更することもできます..."));
+	AddString(_T("デバッグ出力データがここに表示されます。"));
+	AddString(_T("出力データはリスト ビューの各行に表示されます"));
+	AddString(_T("表示方法を変更することもできます..."));
 }
 
 /////////////////////////////////////////////////////////////////////////////

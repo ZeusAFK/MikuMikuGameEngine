@@ -1,6 +1,8 @@
 
 #pragma once
 
+#include "engine/core/util/Charset.h"
+
 /////////////////////////////////////////////////////////////////////////////
 // COutputList ウィンドウ
 
@@ -33,18 +35,13 @@ public:
 protected:
 	CFont m_Font;
 
-	CMFCTabCtrl	m_wndTabs;
-
-	COutputList m_wndOutputBuild;
-	COutputList m_wndOutputDebug;
-	COutputList m_wndOutputFind;
+	CEdit m_wndOutputDebug;
 
 protected:
-	void FillBuildWindow();
 	void FillDebugWindow();
-	void FillFindWindow();
 
-	void AdjustHorzScroll(CListBox& wndListBox);
+public:
+	void AddString( const tstring& text );
 
 // 実装
 public:

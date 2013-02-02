@@ -39,18 +39,13 @@ void GetLastErrorMessage( DWORD dwMessageId,tstring& errorMessage )
 
 void OutputDebugStringFormat( LPCTSTR format,... )
 {
-	LPTSTR tszDebug;
-
 	va_list va;
 	va_start( va,format );
 
-	int len=_vsctprintf( format,va );
-	tszDebug = new TCHAR[len+1];
-	_vsntprintf_s( tszDebug,_TRUNCATE,len,format,va );
-			
+	tstring tszDebug;
+	tstring_format_va( tszDebug,format,va );
+
 	va_end( va );
 
-	OutputDebugString( tszDebug );
-
-	delete[] tszDebug;
+	OutputDebugString( tszDebug.c_str() );
 }
