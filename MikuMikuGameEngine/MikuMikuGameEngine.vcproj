@@ -796,6 +796,14 @@
 				Name="script"
 				>
 				<File
+					RelativePath=".\engine\script\ScriptBehavior.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\engine\script\ScriptBehavior.h"
+					>
+				</File>
+				<File
 					RelativePath=".\engine\script\ScriptManager.cpp"
 					>
 				</File>

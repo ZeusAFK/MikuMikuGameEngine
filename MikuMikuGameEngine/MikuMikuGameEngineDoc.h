@@ -35,7 +35,6 @@ public:
 
 	AssetNode* GetRootAsset();
 	AssetNode* GetSelectAsset();
-	void AddAsset( AssetNode* asset,AssetNode* parent,bool select );
 	void AddAssetFiles( const std::vector<tstring>& filePaths,AssetNode* parent,bool select );
 	void AddAssetFolder( const tstring& folderName,AssetNode* parent,bool select );
 	void SetAssetName( AssetNode* asset, const tstring& name );

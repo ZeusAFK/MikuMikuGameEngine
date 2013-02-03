@@ -13,6 +13,8 @@
 #include "engine/core/graphics/PMDFileLoader.h"
 #include "engine/core/graphics/VMDFileLoader.h"
 
+#include "engine/script/ScriptManager.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -129,20 +131,6 @@ AssetNode* CMikuMikuGameEngineDoc::GetSelectAsset()
 	return m_pSelectAsset;
 }
 
-void CMikuMikuGameEngineDoc::AddAsset( AssetNode* asset,AssetNode* parent,bool select )
-{
-	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
-
-	//pMainFrame->GetAssetExplorer()->AddAsset( asset,parent,select );
-
-	if( !parent )
-	{
-		parent = m_pAssetRoot;
-	}
-
-	asset->SetParent( parent );
-}
-
 void CMikuMikuGameEngineDoc::AddAssetFiles( const std::vector<tstring>& filePaths,AssetNode* parent,bool select )
 {
 	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
@@ -151,6 +139,8 @@ void CMikuMikuGameEngineDoc::AddAssetFiles( const std::vector<tstring>& filePath
 	{
 		parent = m_pAssetRoot;
 	}
+
+	bool findNut = false;
 
 	for( std::vector<tstring>::const_iterator it = filePaths.begin();it!=filePaths.end();++it )
 	{
@@ -185,6 +175,7 @@ void CMikuMikuGameEngineDoc::AddAssetFiles( const std::vector<tstring>& filePath
 		else if( _tcscmp( fileExt,_T(".nut") ) == 0 )
 		{
 			type = AssetNode::NutFile;
+			findNut = true;
 		}
 
 		tstring searchFileName = fileName;
@@ -215,6 +206,11 @@ void CMikuMikuGameEngineDoc::AddAssetFiles( const std::vector<tstring>& filePath
 		asset->SetParent( parent );
 
 		pMainFrame->GetAssetExplorer()->AddAsset( asset,parent,select,false );
+	}
+
+	if( findNut )
+	{
+		ScriptManager::GetInstance()->Build( m_pAssetRoot );
 	}
 }
 
