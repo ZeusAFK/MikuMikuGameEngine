@@ -6,6 +6,30 @@
 #include "squirrel/sqstdio.h"
 #include "squirrel/sqstdaux.h"
 
+class ScriptParameterInterface
+{
+protected:
+	tstring_symbol m_name;
+public:
+	void SetName( const tstring_symbol& name )
+	{
+		m_name = name;
+	}
+
+	virtual void SetParameter( HSQUIRRELVM vm ) = 0;
+};
+
+class ScriptParameterInteger : public ScriptParameterInterface
+{
+private:
+	int m_value;
+public:
+	ScriptParameterInteger();
+	void SetValue( int value );
+
+	void SetParameter( HSQUIRRELVM vm );
+};
+
 class ScriptBehavior
 {
 private:

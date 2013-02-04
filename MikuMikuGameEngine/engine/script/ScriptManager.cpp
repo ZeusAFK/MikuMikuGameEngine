@@ -102,6 +102,15 @@ void ScriptManager::BuildScript( AssetNode* asset )
 	}
 }
 
+void ScriptManager::AddBehaviorObject( const tstring_symbol& className,HSQOBJECT& obj )
+{
+	sq_addref( m_vm,&obj );
+
+	// TODO:必要なメンバーを追加する
+
+	m_classObjects.insert( _map_ClassObject::value_type( className,obj ) );
+}
+
 void ScriptManager::Build( AssetNode* assetRoot )
 {
 	Clear();
@@ -194,11 +203,7 @@ void ScriptManager::Build( AssetNode* assetRoot )
 
 				if( typeValue==_T("Behavior") )
 				{
-					sq_addref( m_vm,&obj );
-
-					// TODO:必要なメンバーを追加する
-
-					m_classObjects.insert( _map_ClassObject::value_type( className,obj ) );
+					AddBehaviorObject( className,obj );
 				}
 			}
 

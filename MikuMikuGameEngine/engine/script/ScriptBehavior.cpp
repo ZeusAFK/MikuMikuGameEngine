@@ -2,6 +2,24 @@
 
 #include "ScriptBehavior.h"
 
+ScriptParameterInteger::ScriptParameterInteger()
+	: m_value(0)
+{
+}
+
+void ScriptParameterInteger::SetValue( int value )
+{
+	m_value = value;
+}
+
+void ScriptParameterInteger::SetParameter( HSQUIRRELVM vm )
+{
+	sq_pushstring( vm,m_name.key().c_str(),-1 );
+	sq_pushinteger( vm,3939 );
+
+	sq_set( vm,-3 );
+}
+
 ScriptBehavior::ScriptBehavior( HSQUIRRELVM vm,HSQOBJECT classObject )
 	: m_vm(vm)
 {
@@ -56,6 +74,12 @@ ScriptBehavior::ScriptBehavior( HSQUIRRELVM vm,HSQOBJECT classObject )
 				}
 			}
 			sq_pop(m_vm,1);
+
+			ScriptParameterInteger parameter;
+			parameter.SetName( tstring(_T("hp")) );
+			parameter.SetValue( 3939 );
+
+			parameter.SetParameter( m_vm );
 		}
 	}
 

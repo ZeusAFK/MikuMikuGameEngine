@@ -30,6 +30,8 @@ private:
 	void BuildScript( const tstring& filePath );
 	void BuildScript( AssetNode* assetScript );
 
+	void AddBehaviorObject( const tstring_symbol& className,HSQOBJECT& obj );
+
 public:
 	void Build( AssetNode* assetRoot );
 

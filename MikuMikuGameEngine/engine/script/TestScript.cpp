@@ -212,6 +212,13 @@ void TestScript()
 														serializeType = value;
 
 														OutputDebugStringFormat( _T("serializable %s %s\n"),value,key );
+
+														if( serializeType==_T("int") )
+														{
+															ScriptParameterInteger parameter;
+															parameter.SetName( tstring(key) );
+															parameter.SetValue( sq_objtointeger(&val) );
+														}
 													}
 
 													sq_pop(sqvm,1);
