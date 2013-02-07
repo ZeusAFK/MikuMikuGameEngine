@@ -6,6 +6,10 @@
 #include "squirrel/sqstdmath.h"
 #include "squirrel/sqstdstring.h"
 
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
 void ScriptManager::PrintFunc( HSQUIRRELVM vm,const SQChar* format,... )
 {
 	va_list va;

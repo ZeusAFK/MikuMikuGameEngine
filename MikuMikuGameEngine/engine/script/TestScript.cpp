@@ -11,6 +11,12 @@
 
 #include "ScriptBehavior.h"
 
+#include <map>
+
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
 void PrintFunc( HSQUIRRELVM vm,const SQChar* format,... )
 {
 	va_list va;
@@ -129,7 +135,7 @@ void TestScript()
 					
 					if( SQ_SUCCEEDED( sq_getattributes(sqvm,-2 ) ) )
 					{
-						sq_pushstring( sqvm,_SC("type"),-1 );
+						sq_pushstring( sqvm,_SC("Type"),-1 );
 
 						if( SQ_SUCCEEDED( sq_get(sqvm,-2 ) ) )
 						{
@@ -151,6 +157,7 @@ void TestScript()
 					if( behaviorClass )
 					{
 						// classÇÃÉÅÉìÉoÅ[ïœêîÇóÒãìÇ∑ÇÈ
+						std::map< tstring_symbol,ScriptParameterInterfacePtr > scriptParameters;
 						{
 							int top = sq_gettop(sqvm);
 
@@ -178,51 +185,61 @@ void TestScript()
 									{
 										int top = sq_gettop(sqvm);
 
-										bool serializable = false;
-
 										sq_pushobject(sqvm, classObject);
 
 										sq_pushstring( sqvm,key,-1 );
 										if( SQ_SUCCEEDED( sq_getattributes(sqvm,-2 ) ) )
 										{
-											sq_pushstring( sqvm,_SC("serializable"),-1 );
+											sq_pushstring( sqvm,_SC("SerializeType"),-1 );
 											if( SQ_SUCCEEDED( sq_get(sqvm,-2 ) ) )
 											{
-												SQBool value;
+												const SQChar* value;
 
-												if( SQ_SUCCEEDED( sq_getbool( sqvm,-1,&value) ) )
+												if( SQ_SUCCEEDED( sq_getstring( sqvm,-1,&value) ) )
 												{
-													serializable = value!=SQFalse;
+													tstring serializeType = value;
+
+													OutputDebugStringFormat( _T("SerializeType %s %s\n"),value,key );
+
+													if( serializeType==_T("int") )
+													{
+														ScriptParameterInteger* parameter = new ScriptParameterInteger;
+														tstring_symbol nameSymbol = tstring(key);
+														parameter->SetName( nameSymbol );
+														parameter->SetValue( sq_objtointeger(&val) );
+
+														scriptParameters.insert( std::map< tstring_symbol,ScriptParameterInterfacePtr >::value_type( nameSymbol,ScriptParameterInterfacePtr(parameter) ) );
+													}
+													else if( serializeType==_T("bool") )
+													{
+														ScriptParameterBool* parameter = new ScriptParameterBool;
+														tstring_symbol nameSymbol = tstring(key);
+														parameter->SetName( nameSymbol );
+														parameter->SetValue( sq_objtobool(&val)!=SQFalse?true:false );
+
+														scriptParameters.insert( std::map< tstring_symbol,ScriptParameterInterfacePtr >::value_type( nameSymbol,ScriptParameterInterfacePtr(parameter) ) );
+													}
+													else if( serializeType==_T("float") )
+													{
+														ScriptParameterFloat* parameter = new ScriptParameterFloat;
+														tstring_symbol nameSymbol = tstring(key);
+														parameter->SetName( nameSymbol );
+														parameter->SetValue( sq_objtofloat(&val) );
+
+														scriptParameters.insert( std::map< tstring_symbol,ScriptParameterInterfacePtr >::value_type( nameSymbol,ScriptParameterInterfacePtr(parameter) ) );
+													}
+													else if( serializeType==_T("string") )
+													{
+														ScriptParameterString* parameter = new ScriptParameterString;
+														tstring_symbol nameSymbol = tstring(key);
+														parameter->SetName( nameSymbol );
+														parameter->SetValue( tstring(sq_objtostring(&val)) );
+
+														scriptParameters.insert( std::map< tstring_symbol,ScriptParameterInterfacePtr >::value_type( nameSymbol,ScriptParameterInterfacePtr(parameter) ) );
+													}
 												}
 
 												sq_pop(sqvm,1);
-											}
-											
-											if( serializable )
-											{
-												tstring serializeType;
-
-												sq_pushstring( sqvm,_SC("type"),-1 );
-												if( SQ_SUCCEEDED( sq_get(sqvm,-2 ) ) )
-												{
-													const SQChar* value;
-
-													if( SQ_SUCCEEDED( sq_getstring( sqvm,-1,&value) ) )
-													{
-														serializeType = value;
-
-														OutputDebugStringFormat( _T("serializable %s %s\n"),value,key );
-
-														if( serializeType==_T("int") )
-														{
-															ScriptParameterInteger parameter;
-															parameter.SetName( tstring(key) );
-															parameter.SetValue( sq_objtointeger(&val) );
-														}
-													}
-
-													sq_pop(sqvm,1);
-												}
 											}
 										}
 
@@ -236,7 +253,7 @@ void TestScript()
 							sq_settop( sqvm,top );
 						}
 
-						ScriptBehavior behavior( sqvm,classObject );
+						ScriptBehavior behavior( sqvm,classObject,scriptParameters );
 
 						behavior.Awake();
 						behavior.Start();

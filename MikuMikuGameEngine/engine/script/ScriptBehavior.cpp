@@ -2,6 +2,10 @@
 
 #include "ScriptBehavior.h"
 
+#ifdef _DEBUG
+#define new DEBUG_NEW
+#endif
+
 ScriptParameterInteger::ScriptParameterInteger()
 	: m_value(0)
 {
@@ -12,15 +16,68 @@ void ScriptParameterInteger::SetValue( int value )
 	m_value = value;
 }
 
-void ScriptParameterInteger::SetParameter( HSQUIRRELVM vm )
+void ScriptParameterInteger::SetParameter( HSQUIRRELVM vm ) const
 {
 	sq_pushstring( vm,m_name.key().c_str(),-1 );
-	sq_pushinteger( vm,3939 );
-
+	sq_pushinteger( vm,m_value );
+	
 	sq_set( vm,-3 );
 }
 
-ScriptBehavior::ScriptBehavior( HSQUIRRELVM vm,HSQOBJECT classObject )
+ScriptParameterBool::ScriptParameterBool()
+	: m_value(false)
+{
+}
+
+void ScriptParameterBool::SetValue( bool value )
+{
+	m_value = value;
+}
+
+void ScriptParameterBool::SetParameter( HSQUIRRELVM vm ) const
+{
+	sq_pushstring( vm,m_name.key().c_str(),-1 );
+	sq_pushbool( vm,m_value?SQTrue:SQFalse );
+	
+	sq_set( vm,-3 );
+}
+
+ScriptParameterFloat::ScriptParameterFloat()
+	: m_value(0.0f)
+{
+}
+
+void ScriptParameterFloat::SetValue( float value )
+{
+	m_value = value;
+}
+
+void ScriptParameterFloat::SetParameter( HSQUIRRELVM vm ) const
+{
+	sq_pushstring( vm,m_name.key().c_str(),-1 );
+	sq_pushfloat( vm,m_value );
+	
+	sq_set( vm,-3 );
+}
+
+ScriptParameterString::ScriptParameterString()
+{
+}
+
+void ScriptParameterString::SetValue( const tstring& value )
+{
+	m_value = value;
+}
+
+void ScriptParameterString::SetParameter( HSQUIRRELVM vm ) const
+{
+	sq_pushstring( vm,m_name.key().c_str(),-1 );
+	sq_pushstring( vm,m_value.c_str(),-1 );
+	
+	sq_set( vm,-3 );
+}
+
+ScriptBehavior::ScriptBehavior( HSQUIRRELVM vm,HSQOBJECT classObject,const std::map< tstring_symbol,ScriptParameterInterfacePtr >& scriptParameters  )
 	: m_vm(vm)
 {
 	int top = sq_gettop(m_vm);
@@ -75,11 +132,12 @@ ScriptBehavior::ScriptBehavior( HSQUIRRELVM vm,HSQOBJECT classObject )
 			}
 			sq_pop(m_vm,1);
 
-			ScriptParameterInteger parameter;
-			parameter.SetName( tstring(_T("hp")) );
-			parameter.SetValue( 3939 );
-
-			parameter.SetParameter( m_vm );
+			std::map< tstring_symbol,ScriptParameterInterfacePtr >::const_iterator it = scriptParameters.begin();
+			while( it!=scriptParameters.end() )
+			{
+				it->second->SetParameter( m_vm );
+				it++;
+			}
 		}
 	}
 
