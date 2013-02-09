@@ -421,6 +421,8 @@ void CMikuMikuGameEngineDoc::DropAsset( AssetNode* asset,CWnd* pDropWnd,const PO
 
 					gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
+					gameObject->AttachScript( tstring(_T("TestBehavior") ) );
+
 					AddGameObject( gameObject,GetRootGameObject(),true );
 				}
 			}

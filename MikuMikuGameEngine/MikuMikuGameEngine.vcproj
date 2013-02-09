@@ -804,19 +804,19 @@
 					>
 				</File>
 				<File
+					RelativePath=".\engine\script\ScriptClassObject.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\engine\script\ScriptClassObject.h"
+					>
+				</File>
+				<File
 					RelativePath=".\engine\script\ScriptManager.cpp"
 					>
 				</File>
 				<File
 					RelativePath=".\engine\script\ScriptManager.h"
-					>
-				</File>
-				<File
-					RelativePath=".\engine\script\TestScript.cpp"
-					>
-				</File>
-				<File
-					RelativePath=".\engine\script\TestScript.h"
 					>
 				</File>
 				<Filter

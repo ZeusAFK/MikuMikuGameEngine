@@ -27,6 +27,15 @@ GameObject::GameObject()
 
 GameObject::~GameObject()
 {
+	std::vector<ScriptBehavior*>::iterator it = m_scriptBehaviors.begin();
+	while( it!=m_scriptBehaviors.end() )
+	{
+		delete *it;
+
+		++it;
+	}
+	m_scriptBehaviors.clear();
+
 	if( m_pModelRenderer )
 	{
 		delete m_pModelRenderer;
@@ -381,6 +390,42 @@ void GameObject::UpdateAnimation( float elapsedTime )
 	while( child )
 	{
 		child->UpdateAnimation( elapsedTime );
+
+		child = child->GetSiblingNext();
+	}
+}
+
+void GameObject::AttachScript( const tstring_symbol& behaviorName )
+{
+	ScriptManager* scriptManager = ScriptManager::GetInstance();
+
+	ScriptClassObject* classObject = scriptManager->GetClassObject( behaviorName );
+	if( classObject == NULL )
+	{
+		return;
+	}
+
+	ScriptBehavior* behavior = classObject->CreateBehavior();
+
+	behavior->Awake();
+
+	m_scriptBehaviors.push_back( behavior );
+}
+
+void GameObject::UpdateScript( float deltaTime )
+{
+	std::vector<ScriptBehavior*>::iterator it = m_scriptBehaviors.begin();
+	while( it!=m_scriptBehaviors.end() )
+	{
+		(*it)->Update( deltaTime );
+
+		++it;
+	}
+
+	GameObject* child = GetChild();
+	while( child )
+	{
+		child->UpdateScript( deltaTime );
 
 		child = child->GetSiblingNext();
 	}

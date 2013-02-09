@@ -9,6 +9,8 @@
 
 #include "Camera.h"
 
+#include "script/ScriptManager.h"
+
 struct sRenderInfo
 {
 	Camera camera;
@@ -46,6 +48,8 @@ private:
 	float m_animationTime;
 	float m_animationLastFrame;
 
+	std::vector<ScriptBehavior*> m_scriptBehaviors;
+
 public:
 	GameObject();
 	virtual ~GameObject();
@@ -76,6 +80,10 @@ public:
 	void UpdateTransform( const D3DXMATRIX& matParent );
 
 	void UpdateAnimation( float elapsedTime );
+
+	void AttachScript( const tstring_symbol& behaviorName );
+
+	void UpdateScript( float deltaTime );
 
 public:
 	void UpdateMesh( const sRenderInfo& renderInfo );

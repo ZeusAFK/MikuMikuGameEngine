@@ -42,7 +42,7 @@ void ScriptManager::Clear()
 		_map_ClassObject::iterator it = m_classObjects.begin();
 		while( it!=m_classObjects.end() )
 		{
-			sq_release( m_vm,&it->second );
+			delete it->second;
 			++it;
 		}
 		m_classObjects.clear();
@@ -108,11 +108,7 @@ void ScriptManager::BuildScript( AssetNode* asset )
 
 void ScriptManager::AddBehaviorObject( const tstring_symbol& className,HSQOBJECT& obj )
 {
-	sq_addref( m_vm,&obj );
-
-	// TODO:必要なメンバーを追加する
-
-	m_classObjects.insert( _map_ClassObject::value_type( className,obj ) );
+	m_classObjects.insert( _map_ClassObject::value_type( className,new ScriptClassObject( m_vm,obj ) ) );
 }
 
 void ScriptManager::Build( AssetNode* assetRoot )
@@ -190,7 +186,7 @@ void ScriptManager::Build( AssetNode* assetRoot )
 				
 				if( SQ_SUCCEEDED( sq_getattributes(m_vm,-2 ) ) )
 				{
-					sq_pushstring( m_vm,_SC("type"),-1 );
+					sq_pushstring( m_vm,_SC("Type"),-1 );
 
 					if( SQ_SUCCEEDED( sq_get(m_vm,-2 ) ) )
 					{
@@ -218,4 +214,14 @@ void ScriptManager::Build( AssetNode* assetRoot )
 
 		sq_settop( m_vm,top );
 	}
+}
+
+ScriptClassObject* ScriptManager::GetClassObject( const tstring_symbol& className )
+{
+	_map_ClassObject::iterator it = m_classObjects.find( className );
+	if( it!=m_classObjects.end() )
+	{
+		return it->second;
+	}
+	return NULL;
 }

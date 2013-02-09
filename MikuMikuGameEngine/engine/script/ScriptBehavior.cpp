@@ -79,6 +79,7 @@ void ScriptParameterString::SetParameter( HSQUIRRELVM vm ) const
 
 ScriptBehavior::ScriptBehavior( HSQUIRRELVM vm,HSQOBJECT classObject,const std::map< tstring_symbol,ScriptParameterInterfacePtr >& scriptParameters  )
 	: m_vm(vm)
+	, m_start(false)
 {
 	int top = sq_gettop(m_vm);
 
@@ -203,6 +204,12 @@ void ScriptBehavior::Start()
 
 void ScriptBehavior::Update( float deltaTime )
 {
+	if( !m_start )
+	{
+		Start();
+		m_start = true;
+	}
+
 	if( !m_initialize || !m_haveUpdate )
 	{
 		return;

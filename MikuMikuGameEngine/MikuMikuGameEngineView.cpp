@@ -16,8 +16,6 @@
 
 #include "engine/core/util/util.h"
 
-#include "engine/script/TestScript.h"
-
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -386,8 +384,6 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 	//	}
 	//}
 
-	TestScript();
-
 	m_cameraPosition = D3DXVECTOR3( 0.0f,10.0f,0.0f );
 
 	D3DXQuaternionIdentity( &m_cameraRotation );
@@ -517,7 +513,11 @@ void CMikuMikuGameEngineView::OnIdle()
 	float elapsedTime=(time-m_nowTime)/1000.0f;
 	m_nowTime=time;
 
-	GetDocument()->GetRootGameObject()->UpdateAnimation( elapsedTime );
+	GameObject* rootGameObject = GetDocument()->GetRootGameObject();
+
+	rootGameObject->UpdateScript( elapsedTime );
+
+	rootGameObject->UpdateAnimation( elapsedTime );
 
 	{
 		Graphics* graphics = Graphics::GetInstance();
@@ -569,7 +569,7 @@ void CMikuMikuGameEngineView::OnIdle()
 
 				graphics->Clear( 0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, 0xFFFFFFFF, 1.0f, 0 );
 
-				GetDocument()->GetRootGameObject()->RenderZPlot( renderInfo );
+				rootGameObject->RenderZPlot( renderInfo );
 
 				pD3DDevice->SetRenderTarget( 0,pOldBackBuffer );
 				pD3DDevice->SetDepthStencilSurface( pOldDepthBuffer );
@@ -591,7 +591,7 @@ void CMikuMikuGameEngineView::OnIdle()
 			graphics->SetRenderState( D3DRS_DESTBLENDALPHA,D3DBLEND_ONE );
 			graphics->SetRenderState( D3DRS_BLENDOPALPHA,D3DBLENDOP_ADD );
 
-			GetDocument()->GetRootGameObject()->Render( renderInfo );
+			rootGameObject->Render( renderInfo );
 
 			graphics->SetRenderState( D3DRS_SEPARATEALPHABLENDENABLE,FALSE );
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );

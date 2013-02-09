@@ -10,6 +10,8 @@
 
 #include <map>
 
+#include "ScriptClassObject.h"
+
 class ScriptManager
 {
 public:
@@ -35,9 +37,11 @@ private:
 public:
 	void Build( AssetNode* assetRoot );
 
+	ScriptClassObject* GetClassObject( const tstring_symbol& className );
+
 private:
 	HSQUIRRELVM m_vm;
 
-	typedef std::map< tstring_symbol,HSQOBJECT > _map_ClassObject;
+	typedef std::map< tstring_symbol,ScriptClassObject* > _map_ClassObject;
 	_map_ClassObject m_classObjects;
 };

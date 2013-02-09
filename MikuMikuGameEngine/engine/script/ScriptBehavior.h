@@ -77,6 +77,8 @@ private:
 	bool m_haveStart;
 	bool m_haveUpdate;
 
+	bool m_start;
+
 	HSQOBJECT m_instance;
 	HSQOBJECT m_awakeFunction;
 	HSQOBJECT m_startFunction;
