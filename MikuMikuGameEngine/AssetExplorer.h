@@ -3,16 +3,6 @@
 
 #include "ViewTree.h"
 
-class CAssetExplorerToolBar : public CMFCToolBar
-{
-	virtual void OnUpdateCmdUI(CFrameWnd* /*pTarget*/, BOOL bDisableIfNoHndler)
-	{
-		CMFCToolBar::OnUpdateCmdUI((CFrameWnd*) GetOwner(), bDisableIfNoHndler);
-	}
-
-	virtual BOOL AllowShowOnList() const { return FALSE; }
-};
-
 class CAssetExplorer : public CDockablePane , public TreeCallbackInterface
 {
 // コンストラクション
@@ -27,7 +17,6 @@ protected:
 
 	ObjectListTree m_wndFileView;
 	CImageList m_AssetExplorerImages;
-	CAssetExplorerToolBar m_wndToolBar;
 
 protected:
 	void FillFileView();

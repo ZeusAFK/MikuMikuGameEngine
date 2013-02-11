@@ -399,7 +399,8 @@ END
 //
 
 IDR_TEXTURE_CONTROL_UI  RCDATA                  "res\\Texture\\ControlUI.tga"
-IDR_ATLAS_CONTROL_UI  RCDATA                  "res\\Texture\\ControlUI.xml"
+IDR_ATLAS_CONTROL_UI    RCDATA                  "res\\Texture\\ControlUI.xml"
+IDR_MODEL_AXIS          RCDATA                  "res\\Model\\axis.x"
 
 /////////////////////////////////////////////////////////////////////////////
 //

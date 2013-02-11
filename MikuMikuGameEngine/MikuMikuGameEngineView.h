@@ -53,6 +53,8 @@ private:
 
 	CoordinateAxis* m_coordinateAxis;
 
+	ModelRenderer m_objectAxisModelRenderer;
+
 	RenderTexturePtr m_shadowMap;
 
 	TextureAtlasPtr m_controlUITextureAtlas;

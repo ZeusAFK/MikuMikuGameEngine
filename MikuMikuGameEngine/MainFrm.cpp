@@ -42,9 +42,9 @@ CMainFrame::CMainFrame()
 	// TODO: メンバ初期化コードをここに追加してください。
 	theApp.m_nAppLook = theApp.GetInt(_T("ApplicationLook"), ID_VIEW_APPLOOK_VS_2005);
 
-#if !defined(DEBUG)
-	EnableLoadDockState(FALSE);
-#endif
+//#if defined(DEBUG)
+//	EnableLoadDockState(FALSE);
+//#endif
 }
 
 CMainFrame::~CMainFrame()
@@ -124,11 +124,15 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	m_wndAssetExplorer.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndAssetExplorer);
 
-	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
-	DockPane(&m_wndOutput);
-
 	m_wndObjectListView.EnableDocking(CBRS_ALIGN_ANY);
 	DockPane(&m_wndObjectListView);
+
+	m_wndProperties.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&m_wndProperties);
+	m_wndProperties.DockToWindow( &m_wndObjectListView,CBRS_ALIGN_BOTTOM );
+
+	m_wndOutput.EnableDocking(CBRS_ALIGN_ANY);
+	DockPane(&m_wndOutput);
 
 	// ツール バーとドッキング ウィンドウ メニューの配置変更を有効にします
 	EnablePaneMenu(TRUE, ID_VIEW_CUSTOMIZE, strCustomize, ID_VIEW_TOOLBAR);
@@ -224,6 +228,16 @@ BOOL CMainFrame::CreateDockingWindows()
 		return FALSE; // 作成できませんでした
 	}
 
+	// プロパティ ウィンドウを作成します
+	CString strPropertiesWnd;
+	bNameValid = strPropertiesWnd.LoadString(IDS_PROPERTIES_WND);
+	ASSERT(bNameValid);
+	if (!m_wndProperties.Create(strPropertiesWnd, this, CRect(0, 0, 200, 200), TRUE, ID_VIEW_PROPERTIESWND, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_RIGHT | CBRS_FLOAT_MULTI))
+	{
+		TRACE0("プロパティ ウィンドウを作成できませんでした\n");
+		return FALSE; // 作成できませんでした
+	}
+
 	SetDockingWindowIcons(theApp.m_bHiColorIcons);
 	return TRUE;
 }
@@ -238,6 +252,9 @@ void CMainFrame::SetDockingWindowIcons(BOOL bHiColorIcons)
 
 	HICON hObjectListViewIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_OBJECTLIST_VIEW_HC : IDI_OBJECTLIST_VIEW), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
 	m_wndObjectListView.SetIcon(hObjectListViewIcon, FALSE);
+
+	HICON hPropertiesBarIcon = (HICON) ::LoadImage(::AfxGetResourceHandle(), MAKEINTRESOURCE(bHiColorIcons ? IDI_PROPERTIES_WND_HC : IDI_PROPERTIES_WND), IMAGE_ICON, ::GetSystemMetrics(SM_CXSMICON), ::GetSystemMetrics(SM_CYSMICON), 0);
+	m_wndProperties.SetIcon(hPropertiesBarIcon, FALSE);
 }
 
 // CMainFrame 診断

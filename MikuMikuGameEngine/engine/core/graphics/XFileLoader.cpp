@@ -64,54 +64,23 @@ XFileLoader::~XFileLoader()
 {
 }
 
-ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
+MeshContainer* XFileLoader::CreateMeshContainer()
 {
-	HRESULT hr = S_OK;
+	HRESULT hr;
 
-	m_fileName = filePath;
-
-	TCHAR path[MAX_PATH];
-	_tcscpy_s( path,MAX_PATH,filePath.c_str() );
-	PathRemoveFileSpec( path );
-	PathAddBackslash( path );
-	m_path = path;
-
-	m_scale = scale;
+	MeshContainer* meshContainer = NULL;
 
 	Graphics* graphics = Graphics::GetInstance();
 	IDirect3DDevice9Ptr pD3DDevice = graphics->GetDirect3DDevice();
 
-	LPD3DXBUFFER pAdjacencyBuf = NULL;
-	LPD3DXBUFFER pMaterialBuf = NULL;
-	LPD3DXBUFFER pEffectInstancesBuf = NULL;
-	DWORD Materials = 0;
-	LPD3DXMESH pD3DMesh = NULL;
-
-	ModelPtr pModel;
-
-	hr = D3DXLoadMeshFromX(
-		m_fileName.c_str(),
-		D3DXMESH_SYSTEMMEM,
-		pD3DDevice,
-		&pAdjacencyBuf,
-		&pMaterialBuf,
-		&pEffectInstancesBuf,
-		&Materials,
-		&pD3DMesh );
-
-	if( FAILED(hr) )
-	{
-		goto exit;
-	}
-
-	if( !(pD3DMesh->GetFVF() & D3DFVF_NORMAL) )
+	if( !(m_pD3DMesh->GetFVF() & D3DFVF_NORMAL) )
     {
 		LPD3DXMESH tmpMesh = NULL;
 
         // 柔軟な頂点フォーマット (FVF) コードを使ってメッシュのコピーを作成する
-        hr = pD3DMesh->CloneMeshFVF(
-            pD3DMesh->GetOptions(),
-            pD3DMesh->GetFVF() | D3DFVF_NORMAL,
+        hr = m_pD3DMesh->CloneMeshFVF(
+            m_pD3DMesh->GetOptions(),
+            m_pD3DMesh->GetFVF() | D3DFVF_NORMAL,
             pD3DDevice,
             &tmpMesh); // ←ここにコピー
         if(FAILED(hr))
@@ -122,27 +91,27 @@ ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
         //D3DXComputeNormals( tmpMesh, reinterpret_cast<DWORD*>(pAdjacencyBuf->GetBufferPointer()) );
 		D3DXComputeNormals( tmpMesh, NULL );
 
-		pD3DMesh->Release();
-		pD3DMesh = tmpMesh;
+		m_pD3DMesh->Release();
+		m_pD3DMesh = tmpMesh;
 	}
 
 	D3DVERTEXELEMENT9 pDecl[MAX_FVF_DECL_SIZE];
-	hr = pD3DMesh->GetDeclaration(pDecl);
+	hr = m_pD3DMesh->GetDeclaration(pDecl);
 	if( FAILED(hr) )
 	{
 		goto exit;
 	}
 
-	DWORD vertexNum = pD3DMesh->GetNumVertices();
-	DWORD faceNum = pD3DMesh->GetNumFaces();
+	DWORD vertexNum = m_pD3DMesh->GetNumVertices();
+	DWORD faceNum = m_pD3DMesh->GetNumFaces();
 
 	DWORD attrNum = 0;
-	pD3DMesh->GetAttributeTable(NULL, &attrNum);
+	m_pD3DMesh->GetAttributeTable(NULL, &attrNum);
 	
-	DWORD size = pD3DMesh->GetNumBytesPerVertex();
+	DWORD size = m_pD3DMesh->GetNumBytesPerVertex();
 
 	BYTE* pD3DVertice = NULL;
-	pD3DMesh->LockVertexBuffer( 0,(LPVOID*)&pD3DVertice );
+	m_pD3DMesh->LockVertexBuffer( 0,(LPVOID*)&pD3DVertice );
 
 	sVertex* vertices = new sVertex[vertexNum];
 
@@ -180,10 +149,10 @@ ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
 		}
 	}
 
-	pD3DMesh->UnlockVertexBuffer();
+	m_pD3DMesh->UnlockVertexBuffer();
 
 	LPDIRECT3DINDEXBUFFER9 pIndexBuffer = NULL;
-	pD3DMesh->GetIndexBuffer( &pIndexBuffer );
+	m_pD3DMesh->GetIndexBuffer( &pIndexBuffer );
 	D3DINDEXBUFFER_DESC desc;
 	pIndexBuffer->GetDesc( &desc );
 	pIndexBuffer->Release();
@@ -193,25 +162,25 @@ ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
 	if( desc.Format==D3DFMT_INDEX16 )
 	{
 		WORD* pD3DIndices = NULL;
-		pD3DMesh->LockIndexBuffer(0,(LPVOID*)&pD3DIndices );
+		m_pD3DMesh->LockIndexBuffer(0,(LPVOID*)&pD3DIndices );
 		for( DWORD i=0;i<faceNum*3;i++ )
 		{
 			indices[i] = pD3DIndices[i];
 		}
-		pD3DMesh->UnlockIndexBuffer();
+		m_pD3DMesh->UnlockIndexBuffer();
 	}
 	else
 	{
 		DWORD* pD3DIndices =NULL;
-		pD3DMesh->LockIndexBuffer(0,(LPVOID*)&pD3DIndices );
+		m_pD3DMesh->LockIndexBuffer(0,(LPVOID*)&pD3DIndices );
 		memcpy( indices,pD3DIndices,sizeof(DWORD)*faceNum*3 );
-		pD3DMesh->UnlockIndexBuffer();
+		m_pD3DMesh->UnlockIndexBuffer();
 	}
 
 	D3DXATTRIBUTERANGE *attrList = new D3DXATTRIBUTERANGE[attrNum];
-	pD3DMesh->GetAttributeTable(attrList, &attrNum);
+	m_pD3DMesh->GetAttributeTable(attrList, &attrNum);
 
-	MeshContainer* meshContainer = new MeshContainer;
+	meshContainer = new MeshContainer;
 
 	meshContainer->pMesh = new Mesh;
 	meshContainer->pMesh->Create( vertexNum,faceNum,attrNum );
@@ -226,12 +195,12 @@ ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
 	delete[] indices;
 	delete[] attrList;
 
-	meshContainer->materialNum = Materials;
-	meshContainer->pMaterials = new sMaterial[Materials];
+	meshContainer->materialNum = m_Materials;
+	meshContainer->pMaterials = new sMaterial[m_Materials];
 
-	D3DXMATERIAL* pD3DMaterials = (D3DXMATERIAL*)pMaterialBuf->GetBufferPointer();
+	D3DXMATERIAL* pD3DMaterials = (D3DXMATERIAL*)m_pMaterialBuf->GetBufferPointer();
 
-	for( DWORD i=0;i<Materials;i++ )
+	for( DWORD i=0;i<m_Materials;i++ )
 	{
 		sMaterial* pMaterial = &meshContainer->pMaterials[i];
 
@@ -351,114 +320,114 @@ ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
 		}
 	}
 
-	pModel = ModelPtr( new Model(meshContainer) );
-
 exit:
-	if( pMaterialBuf )
+	if( m_pMaterialBuf )
 	{
-		pMaterialBuf->Release();
-		pMaterialBuf = NULL;
+		m_pMaterialBuf->Release();
+		m_pMaterialBuf = NULL;
 	}
-	if( pEffectInstancesBuf )
+	if( m_pEffectInstancesBuf )
 	{
-		pEffectInstancesBuf->Release();
-		pEffectInstancesBuf = NULL;
+		m_pEffectInstancesBuf->Release();
+		m_pEffectInstancesBuf = NULL;
 	}
-	if( pAdjacencyBuf )
+	if( m_pAdjacencyBuf )
 	{
-		pAdjacencyBuf->Release();
-		pAdjacencyBuf = NULL;
+		m_pAdjacencyBuf->Release();
+		m_pAdjacencyBuf = NULL;
 	}
-	if( pD3DMesh )
+	if( m_pD3DMesh )
 	{
-		pD3DMesh->Release();
-		pD3DMesh = NULL;
+		m_pD3DMesh->Release();
+		m_pD3DMesh = NULL;
 	}
-
-	return pModel;
+	return meshContainer;
 }
 
-//ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
-//{
-//	ModelPtr pModel;
-//
-//	m_fileName = filePath;
-//
-//	TCHAR path[MAX_PATH];
-//	_tcscpy_s( path,MAX_PATH,filePath.c_str() );
-//	PathRemoveFileSpec( path );
-//	PathAddBackslash( path );
-//	m_path = path;
-//
-//	m_scale = scale;
-//
-//	LPD3DXFILE pXof = NULL;
-//	LPD3DXFILEENUMOBJECT pXofEnum = NULL;
-//
-//	HRESULT hr = D3DXFileCreate( &pXof );
-//
-//	if( FAILED(hr) )
-//	{
-//		goto exit;
-//	}
-//
-//	hr = pXof->RegisterTemplates((void *)D3DRM_XTEMPLATES, D3DRM_XTEMPLATE_BYTES);
-//	if( FAILED(hr) )
-//	{
-//		goto exit;
-//	}
-//	hr = pXof->RegisterTemplates((void *)SKINEXP_XTEMPLATES, sizeof(SKINEXP_XTEMPLATES) - 1);
-//	if( FAILED(hr) )
-//	{
-//		goto exit;
-//	}
-//	hr = pXof->RegisterTemplates((void *)XEXTENSIONS_XTEMPLATES, sizeof(XEXTENSIONS_XTEMPLATES) - 1);
-//	if( FAILED(hr) )
-//	{
-//		goto exit;
-//	}
-//
-//	hr = pXof->CreateEnumObject( (void*)to_string(m_fileName).c_str(),DXFILELOAD_FROMFILE,&pXofEnum );
-//	if( FAILED(hr) )
-//	{
-//		goto exit;
-//	}
-//
-//	TCHAR filename[MAX_PATH];
-//	_tcscpy_s( filename,PathFindFileName( filePath.c_str() ) );
-//	PathRemoveExtension( filename );
-//
-//	ModelFrame* pFrame = new ModelFrame;
-//	pFrame->SetName( filename );
-//
-//	SIZE_T counts = 0;
-//	pXofEnum->GetChildren(&counts);
-//	for( SIZE_T i = 0; i < counts; i++ )
-//	{
-//		LPD3DXFILEDATA pXofData = NULL;
-//		pXofEnum->GetChild(i, &pXofData);
-//
-//		LoadFrameNode( pXofData,pFrame );
-//
-//		pXofData->Release();
-//	}
-//
-//	pModel = ModelPtr( new Model(pFrame) );
-//
-//	SetModelRef( pModel,pFrame );
-//
-//exit:
-//
-//	if( pXofEnum )
-//	{
-//		pXofEnum->Release();
-//		pXofEnum = NULL;
-//	}
-//	if( pXof )
-//	{
-//		pXof->Release();
-//		pXof = NULL;
-//	}
-//
-//	return pModel;
-//}
+ModelPtr XFileLoader::Open( const tstring& filePath,float scale )
+{
+	HRESULT hr = S_OK;
+
+	m_fileName = filePath;
+
+	TCHAR path[MAX_PATH];
+	_tcscpy_s( path,MAX_PATH,filePath.c_str() );
+	PathRemoveFileSpec( path );
+	PathAddBackslash( path );
+	m_path = path;
+
+	m_scale = scale;
+
+	Graphics* graphics = Graphics::GetInstance();
+	IDirect3DDevice9Ptr pD3DDevice = graphics->GetDirect3DDevice();
+
+	m_pAdjacencyBuf = NULL;
+	m_pMaterialBuf = NULL;
+	m_pEffectInstancesBuf = NULL;
+	m_Materials = 0;
+	m_pD3DMesh = NULL;
+
+	ModelPtr pModel;
+
+	hr = D3DXLoadMeshFromX(
+		m_fileName.c_str(),
+		D3DXMESH_SYSTEMMEM,
+		pD3DDevice,
+		&m_pAdjacencyBuf,
+		&m_pMaterialBuf,
+		&m_pEffectInstancesBuf,
+		&m_Materials,
+		&m_pD3DMesh );
+
+	if( FAILED(hr) )
+	{
+		return ModelPtr();
+	}
+
+	return ModelPtr( new Model( CreateMeshContainer() ) );
+}
+
+ModelPtr XFileLoader::OpenFromResource( int resourceID,float scale )
+{
+	HRESULT hr = S_OK;
+
+	m_fileName = _T("");
+
+	TCHAR path[MAX_PATH];
+	_tcscpy_s( path,MAX_PATH,m_fileName.c_str() );
+	PathRemoveFileSpec( path );
+	PathAddBackslash( path );
+	m_path = path;
+
+	m_scale = scale;
+
+	Graphics* graphics = Graphics::GetInstance();
+	IDirect3DDevice9Ptr pD3DDevice = graphics->GetDirect3DDevice();
+
+	m_pAdjacencyBuf = NULL;
+	m_pMaterialBuf = NULL;
+	m_pEffectInstancesBuf = NULL;
+	m_Materials = 0;
+	m_pD3DMesh = NULL;
+
+	ModelPtr pModel;
+
+	hr = D3DXLoadMeshFromXResource(
+		NULL,
+		(LPSTR)MAKEINTRESOURCE( resourceID ),
+		(LPSTR)RT_RCDATA,
+		D3DXMESH_SYSTEMMEM,
+		pD3DDevice,
+		&m_pAdjacencyBuf,
+		&m_pMaterialBuf,
+		&m_pEffectInstancesBuf,
+		&m_Materials,
+		&m_pD3DMesh );
+
+	if( FAILED(hr) )
+	{
+		return ModelPtr();
+	}
+
+	return ModelPtr( new Model( CreateMeshContainer() ) );
+}

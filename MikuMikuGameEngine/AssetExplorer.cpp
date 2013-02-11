@@ -66,19 +66,7 @@ int CAssetExplorer::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	m_wndFileView.SetCallBack( this );
 
-	m_wndToolBar.Create(this, AFX_DEFAULT_TOOLBAR_STYLE, IDR_EXPLORER);
-	m_wndToolBar.LoadToolBar(IDR_EXPLORER, 0, 0, TRUE /* ロックされています*/);
-
 	OnChangeVisualStyle();
-
-	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() | CBRS_TOOLTIPS | CBRS_FLYBY);
-
-	m_wndToolBar.SetPaneStyle(m_wndToolBar.GetPaneStyle() & ~(CBRS_GRIPPER | CBRS_SIZE_DYNAMIC | CBRS_BORDER_TOP | CBRS_BORDER_BOTTOM | CBRS_BORDER_LEFT | CBRS_BORDER_RIGHT));
-
-	m_wndToolBar.SetOwner(this);
-
-	// すべてのコマンドが、親フレーム経由ではなくこのコントロール経由で渡されます:
-	m_wndToolBar.SetRouteCommandsViaFrame(FALSE);
 
 	// 静的ツリー ビュー データ (ダミー コード) を入力します
 	//FillFileView();
@@ -165,10 +153,7 @@ void CAssetExplorer::AdjustLayout()
 	CRect rectClient;
 	GetClientRect(rectClient);
 
-	int cyTlb = m_wndToolBar.CalcFixedLayout(FALSE, TRUE).cy;
-
-	m_wndToolBar.SetWindowPos(NULL, rectClient.left, rectClient.top, rectClient.Width(), cyTlb, SWP_NOACTIVATE | SWP_NOZORDER);
-	m_wndFileView.SetWindowPos(NULL, rectClient.left + 1, rectClient.top + cyTlb + 1, rectClient.Width() - 2, rectClient.Height() - cyTlb - 2, SWP_NOACTIVATE | SWP_NOZORDER);
+	m_wndFileView.SetWindowPos(NULL, rectClient.left + 1, rectClient.top + 1, rectClient.Width() - 2, rectClient.Height() - 2, SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 void CAssetExplorer::AddAsset( AssetNode* asset,HTREEITEM hItemParent,bool select,bool editLabel )
@@ -366,9 +351,6 @@ void CAssetExplorer::OnSetFocus(CWnd* pOldWnd)
 
 void CAssetExplorer::OnChangeVisualStyle()
 {
-	m_wndToolBar.CleanUpLockedImages();
-	m_wndToolBar.LoadBitmap(theApp.m_bHiColorIcons ? IDB_EXPLORER_24 : IDR_EXPLORER, 0, 0, TRUE /* ロックされました*/);
-
 	m_AssetExplorerImages.DeleteImageList();
 
 	UINT uiBmpId = theApp.m_bHiColorIcons ? IDB_FILE_VIEW_24 : IDB_FILE_VIEW;

@@ -6,6 +6,7 @@
 #include "ObjectListView.h"
 #include "AssetExplorer.h"
 #include "OutputWnd.h"
+#include "PropertiesWnd.h"
 
 class CMainFrame : public CFrameWndEx
 {
@@ -41,10 +42,12 @@ protected:  // コントロール バー用メンバ
 	ObjectListView    m_wndObjectListView;
 	CAssetExplorer     m_wndAssetExplorer;
 	COutputWnd        m_wndOutput;
+	CPropertiesWnd    m_wndProperties;
 
 public:
 	CAssetExplorer*    GetAssetExplorer(){ return &m_wndAssetExplorer; }
 	ObjectListView*   GetObjectListView(){ return &m_wndObjectListView; }
+	CPropertiesWnd*    GetPropertiesWnd(){ return &m_wndProperties; }
 
 // 生成された、メッセージ割り当て関数
 protected:

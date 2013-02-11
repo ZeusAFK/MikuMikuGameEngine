@@ -27,6 +27,8 @@ private:
 public:
 	GameObject* GetRootGameObject();
 	GameObject* GetSelectGameObject();
+
+	void UpdateSelectedGameObject();
 	void AddGameObject( GameObject* obj,GameObject* parent,bool select );
 	void SetObjectName( GameObject* obj, const tstring& name );
 	void DeleteObject( GameObject* obj );

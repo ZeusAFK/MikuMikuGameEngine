@@ -389,6 +389,12 @@ void ObjectListTree::OnLButtonDown(UINT nFlags, CPoint point)
 	}
 	else
 	{
+		HTREEITEM hSelItem = GetSelectedItem();
+		if( hSelItem )
+		{
+			SetItemState( hSelItem,(UINT)~TVIS_SELECTED, TVIS_SELECTED);
+		}
+
 		HTREEITEM hItem = GetRootItem();
 		SelectItem(hItem);
 		SetItemState(hItem, (UINT)~TVIS_SELECTED, TVIS_SELECTED);
@@ -565,6 +571,11 @@ void ObjectListTree::OnNMClick(NMHDR *pNMHDR, LRESULT *pResult)
 
 		SelectItem(hItem);
 		SetItemState(hItem, (UINT)TVIS_SELECTED, TVIS_SELECTED);
+
+		if( m_callBack )
+		{
+			m_callBack->OnTreeSelectChanged( hItem );
+		}
 	}
 	
 	*pResult = 0;

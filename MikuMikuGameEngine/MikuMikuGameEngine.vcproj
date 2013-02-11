@@ -227,6 +227,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\PropertiesWnd.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp"
 				>
 				<FileConfiguration
@@ -290,6 +294,10 @@
 			</File>
 			<File
 				RelativePath=".\OutputWnd.h"
+				>
+			</File>
+			<File
+				RelativePath=".\PropertiesWnd.h"
 				>
 			</File>
 			<File
@@ -419,6 +427,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\res\texture\rcdata2.bin"
+				>
+			</File>
+			<File
 				RelativePath=".\res\sort.bmp"
 				>
 			</File>
@@ -491,6 +503,14 @@
 				</File>
 				<File
 					RelativePath=".\res\Texture\ControlUI.xml"
+					>
+				</File>
+			</Filter>
+			<Filter
+				Name="Model"
+				>
+				<File
+					RelativePath=".\res\Model\axis.x"
 					>
 				</File>
 			</Filter>
@@ -780,6 +800,14 @@
 					</File>
 					<File
 						RelativePath=".\engine\core\math\BoundingSphere.h"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\Quaternion.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\math\Quaternion.h"
 						>
 					</File>
 					<File

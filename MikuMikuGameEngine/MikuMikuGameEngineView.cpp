@@ -16,6 +16,8 @@
 
 #include "engine/core/util/util.h"
 
+#include "engine/core/math/Quaternion.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -113,6 +115,11 @@ void CMikuMikuGameEngineView::OnInitialUpdate()
 
 	m_shadowMap=RenderTexturePtr( new RenderTexture );
 	m_shadowMap->Create( 2048,2048,D3DFMT_R32F );
+
+	XFileLoader xFileLoader;
+	ModelPtr objectAxisModel = xFileLoader.OpenFromResource( IDR_MODEL_AXIS , 1.0f );
+
+	m_objectAxisModelRenderer.SetModel( objectAxisModel );
 
 	TexturePtr controlUITexture = TexturePtr( new Texture );
 	if( controlUITexture->CreateFromResource( IDR_TEXTURE_CONTROL_UI ) )
@@ -596,83 +603,42 @@ void CMikuMikuGameEngineView::OnIdle()
 			graphics->SetRenderState( D3DRS_SEPARATEALPHABLENDENABLE,FALSE );
 			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
 
-			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
-
-			float x = (float)graphics->GetBackBufferWidth()-150.0f+0.5f;
-			float y = (float)graphics->GetBackBufferHeight()-80.0f+0.5f;
-
-			m_handleRotateX.Render( x,y );
-			m_handleRotateY.Render( x+40.0f,y );
-			m_handleRotateZ.Render( x+80.0f,y );
-
-			y += 40.0f;
-
-			m_handleMoveX.Render( x,y );
-			m_handleMoveY.Render( x+40.0f,y );
-			m_handleMoveZ.Render( x+80.0f,y );
-
-			graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
-
 			GameObject* selectObject = GetDocument()->GetSelectGameObject();
-			//if( selectObject )
-			//{
-			//	// TODO:Draw Select Object
-			//	ShaderPtr pDefaultShader = graphics->GetDefaultShader();
-			//	if( pDefaultShader )
-			//	{
-			//		ID3DXEffectPtr pEffect = pDefaultShader->GetEffect();
+			if( selectObject )
+			{
+				graphics->Clear( 0, NULL, D3DCLEAR_ZBUFFER, D3DCOLOR_XRGB( 255, 255, 255 ), 1.0f, 0 );
 
-			//		graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
+				graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, TRUE );
 
-			//		{
-			//		graphics->SetFVF( D3DFVF_XYZRHW|D3DFVF_TEX1 );
+				{
+					D3DXMATRIX worldMatrix =selectObject->GetWorldMatrix();
 
-			//		pEffect->SetTechnique( "TechScreenDiffuseTexture" );
-			//		
-			//		UINT passes;
-			//		pEffect->Begin( &passes,0 );
-			//		
-			//		struct sVertex
-			//		{
-			//			float x;
-			//			float y;
-			//			float z;
-			//			float rhw;
-			//			float u;
-			//			float v;
-			//		};
+					D3DXVECTOR3 position(0.0f,0.0f,0.0f);
+					D3DXVec3TransformCoord( &position,&position,&worldMatrix );
+					D3DXVec3Subtract( &position,&renderInfo.camera.GetPosition(),&position );
+					float length = D3DXVec3Length( &position ) * 0.05f;
+					
+					D3DXMATRIX scaleMatrix;
+					D3DXMatrixScaling( &scaleMatrix,length,length,length );
+					D3DXMatrixMultiply( &worldMatrix,&scaleMatrix,&worldMatrix );
+					m_objectAxisModelRenderer.Render( worldMatrix,renderInfo );
+				}
 
-			//		float right = (float)graphics->GetBackBufferWidth()+0.5f;
-			//		float left = right-512.0f+0.5f;
-			//		float top = 0.0f+0.5f;
-			//		float bottom = top+512.0f+0.5f;
+				float x = (float)graphics->GetBackBufferWidth()-150.0f+0.5f;
+				float y = (float)graphics->GetBackBufferHeight()-80.0f+0.5f;
 
-			//		sVertex v[4]={
-			//			{  left,   top,0.0f,1.0f,0.0f,0.0f},
-			//			{ right,   top,0.0f,1.0f,1.0f,0.0f},
-			//			{  left,bottom,0.0f,1.0f,0.0f,1.0f},
-			//			{ right,bottom,0.0f,1.0f,1.0f,1.0f},
-			//		};
+				m_handleRotateX.Render( x,y );
+				m_handleRotateY.Render( x+40.0f,y );
+				m_handleRotateZ.Render( x+80.0f,y );
 
-			//		D3DXVECTOR4 color( 1.0f,1.0f,1.0f,1.0f );
-			//		pEffect->SetVector( "g_materialDiffuse" , &color );
-			//		pEffect->SetTexture( "g_Texture",m_controlUITextureAtlas->GetTexture()->GetTexture() );
+				y += 40.0f;
 
-			//		for( UINT cpass = 0; cpass<passes; cpass++ )
-			//		{
-			//			pEffect->BeginPass( cpass );
+				m_handleMoveX.Render( x,y );
+				m_handleMoveY.Render( x+40.0f,y );
+				m_handleMoveZ.Render( x+80.0f,y );
 
-			//			graphics->DrawPrimitiveUP( D3DPT_TRIANGLESTRIP,2,v,sizeof(sVertex) );
-
-			//			pEffect->EndPass();
-			//		}
-
-			//		pEffect->End();
-			//	}
-
-			//		graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
-			//	}
-			//}
+				graphics->SetRenderState( D3DRS_ALPHABLENDENABLE, FALSE );
+			}
 
 			//// Debug Shadow Map
 			//ShaderPtr pDefaultShader = graphics->GetDefaultShader();
@@ -1047,86 +1013,90 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 	{
 	case Idle:
 		{
-			float handleX = (float)graphics->GetBackBufferWidth()-150.0f+0.5f;
-			float handleY = (float)graphics->GetBackBufferHeight()-80.0f+0.5f;
+			GameObject* selectObject = GetDocument()->GetSelectGameObject();
+			if( selectObject )
+			{
+				float handleX = (float)graphics->GetBackBufferWidth()-150.0f+0.5f;
+				float handleY = (float)graphics->GetBackBufferHeight()-80.0f+0.5f;
 
-			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
-				handleY <= pt.y && pt.y <= handleY+32.0f )
-			{
-				m_handleRotateX.SetSpriteName( tstring(_T("HandleRotateXOver")) );
-				m_handleRotateXOver = true;
-			}
-			else
-			{
-				m_handleRotateX.SetSpriteName( tstring(_T("HandleRotateXNormal")) );
-				m_handleRotateXOver = false;
-			}
+				if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+					handleY <= pt.y && pt.y <= handleY+32.0f )
+				{
+					m_handleRotateX.SetSpriteName( tstring(_T("HandleRotateXOver")) );
+					m_handleRotateXOver = true;
+				}
+				else
+				{
+					m_handleRotateX.SetSpriteName( tstring(_T("HandleRotateXNormal")) );
+					m_handleRotateXOver = false;
+				}
 
-			handleX+=40.0f;
-			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
-				handleY <= pt.y && pt.y <= handleY+32.0f )
-			{
-				m_handleRotateY.SetSpriteName( tstring(_T("HandleRotateYOver")) );
-				m_handleRotateYOver = true;
-			}
-			else
-			{
-				m_handleRotateY.SetSpriteName( tstring(_T("HandleRotateYNormal")) );
-				m_handleRotateYOver = false;
-			}
+				handleX+=40.0f;
+				if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+					handleY <= pt.y && pt.y <= handleY+32.0f )
+				{
+					m_handleRotateY.SetSpriteName( tstring(_T("HandleRotateYOver")) );
+					m_handleRotateYOver = true;
+				}
+				else
+				{
+					m_handleRotateY.SetSpriteName( tstring(_T("HandleRotateYNormal")) );
+					m_handleRotateYOver = false;
+				}
 
-			handleX+=40.0f;
-			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
-				handleY <= pt.y && pt.y <= handleY+32.0f )
-			{
-				m_handleRotateZ.SetSpriteName( tstring(_T("HandleRotateZOver")) );
-				m_handleRotateZOver = true;
-			}
-			else
-			{
-				m_handleRotateZ.SetSpriteName( tstring(_T("HandleRotateZNormal")) );
-				m_handleRotateZOver = false;
-			}
+				handleX+=40.0f;
+				if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+					handleY <= pt.y && pt.y <= handleY+32.0f )
+				{
+					m_handleRotateZ.SetSpriteName( tstring(_T("HandleRotateZOver")) );
+					m_handleRotateZOver = true;
+				}
+				else
+				{
+					m_handleRotateZ.SetSpriteName( tstring(_T("HandleRotateZNormal")) );
+					m_handleRotateZOver = false;
+				}
 
-			handleX -= 80.0f;
-			handleY += 40.0f;
+				handleX -= 80.0f;
+				handleY += 40.0f;
 
-			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
-				handleY <= pt.y && pt.y <= handleY+32.0f )
-			{
-				m_handleMoveX.SetSpriteName( tstring(_T("HandleMoveXOver")) );
-				m_handleMoveXOver = true;
-			}
-			else
-			{
-				m_handleMoveX.SetSpriteName( tstring(_T("HandleMoveXNormal")) );
-				m_handleMoveXOver = false;
-			}
+				if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+					handleY <= pt.y && pt.y <= handleY+32.0f )
+				{
+					m_handleMoveX.SetSpriteName( tstring(_T("HandleMoveXOver")) );
+					m_handleMoveXOver = true;
+				}
+				else
+				{
+					m_handleMoveX.SetSpriteName( tstring(_T("HandleMoveXNormal")) );
+					m_handleMoveXOver = false;
+				}
 
-			handleX+=40.0f;
-			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
-				handleY <= pt.y && pt.y <= handleY+32.0f )
-			{
-				m_handleMoveY.SetSpriteName( tstring(_T("HandleMoveYOver")) );
-				m_handleMoveYOver = true;
-			}
-			else
-			{
-				m_handleMoveY.SetSpriteName( tstring(_T("HandleMoveYNormal")) );
-				m_handleMoveYOver = false;
-			}
+				handleX+=40.0f;
+				if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+					handleY <= pt.y && pt.y <= handleY+32.0f )
+				{
+					m_handleMoveY.SetSpriteName( tstring(_T("HandleMoveYOver")) );
+					m_handleMoveYOver = true;
+				}
+				else
+				{
+					m_handleMoveY.SetSpriteName( tstring(_T("HandleMoveYNormal")) );
+					m_handleMoveYOver = false;
+				}
 
-			handleX+=40.0f;
-			if( handleX <= pt.x && pt.x <= handleX+32.0f &&
-				handleY <= pt.y && pt.y <= handleY+32.0f )
-			{
-				m_handleMoveZ.SetSpriteName( tstring(_T("HandleMoveZOver")) );
-				m_handleMoveZOver = true;
-			}
-			else
-			{
-				m_handleMoveZ.SetSpriteName( tstring(_T("HandleMoveZNormal")) );
-				m_handleMoveZOver = false;
+				handleX+=40.0f;
+				if( handleX <= pt.x && pt.x <= handleX+32.0f &&
+					handleY <= pt.y && pt.y <= handleY+32.0f )
+				{
+					m_handleMoveZ.SetSpriteName( tstring(_T("HandleMoveZOver")) );
+					m_handleMoveZOver = true;
+				}
+				else
+				{
+					m_handleMoveZ.SetSpriteName( tstring(_T("HandleMoveZNormal")) );
+					m_handleMoveZOver = false;
+				}
 			}
 		}
 		break;
@@ -1179,8 +1149,12 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 				GameObject* selectObject = GetDocument()->GetSelectGameObject();
 				if( selectObject )
 				{
+					D3DXQUATERNION localRotation = selectObject->GetLocalRotation();
+					D3DXVec3Rotate( &move,&move,&localRotation );
 					D3DXVECTOR3 localPosition = selectObject->GetLocalPosition() + move;
 					selectObject->SetLocalPosition( localPosition );
+
+					GetDocument()->UpdateSelectedGameObject();
 				}
 
 				POINT ptCursor = m_ptCursorDown;
@@ -1202,8 +1176,12 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 				GameObject* selectObject = GetDocument()->GetSelectGameObject();
 				if( selectObject )
 				{
+					D3DXQUATERNION localRotation = selectObject->GetLocalRotation();
+					D3DXVec3Rotate( &move,&move,&localRotation );
 					D3DXVECTOR3 localPosition = selectObject->GetLocalPosition() + move;
 					selectObject->SetLocalPosition( localPosition );
+
+					GetDocument()->UpdateSelectedGameObject();
 				}
 
 				POINT ptCursor = m_ptCursorDown;
@@ -1223,8 +1201,12 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 				GameObject* selectObject = GetDocument()->GetSelectGameObject();
 				if( selectObject )
 				{
+					D3DXQUATERNION localRotation = selectObject->GetLocalRotation();
+					D3DXVec3Rotate( &move,&move,&localRotation );
 					D3DXVECTOR3 localPosition = selectObject->GetLocalPosition() + move;
 					selectObject->SetLocalPosition( localPosition );
+
+					GetDocument()->UpdateSelectedGameObject();
 				}
 
 				POINT ptCursor = m_ptCursorDown;
@@ -1239,7 +1221,7 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 			if( y!=0 )
 			{
 				D3DXQUATERNION q;
-				D3DXQuaternionRotationAxis( &q,&D3DXVECTOR3(1.0f,0.0f,0.0f),D3DXToRadian( y*0.573f ) );
+				D3DXQuaternionRotationAxis( &q,&D3DXVECTOR3(1.0f,0.0f,0.0f),D3DXToRadian( -y ) );
 
 				GameObject* selectObject = GetDocument()->GetSelectGameObject();
 				if( selectObject )
@@ -1247,6 +1229,8 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 					D3DXQUATERNION localRotation = selectObject->GetLocalRotation();
 					localRotation = q * localRotation;
 					selectObject->SetLocalRotation( localRotation );
+
+					GetDocument()->UpdateSelectedGameObject();
 				}
 
 				POINT ptCursor = m_ptCursorDown;
@@ -1263,7 +1247,7 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 			if( y!=0 )
 			{
 				D3DXQUATERNION q;
-				D3DXQuaternionRotationAxis( &q,&D3DXVECTOR3(0.0f,1.0f,0.0f),D3DXToRadian( y*0.573f ) );
+				D3DXQuaternionRotationAxis( &q,&D3DXVECTOR3(0.0f,1.0f,0.0f),D3DXToRadian( -y ) );
 
 				GameObject* selectObject = GetDocument()->GetSelectGameObject();
 				if( selectObject )
@@ -1271,6 +1255,8 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 					D3DXQUATERNION localRotation = selectObject->GetLocalRotation();
 					localRotation = q * localRotation;
 					selectObject->SetLocalRotation( localRotation );
+
+					GetDocument()->UpdateSelectedGameObject();
 				}
 
 				POINT ptCursor = m_ptCursorDown;
@@ -1287,7 +1273,7 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 			if( y!=0 )
 			{
 				D3DXQUATERNION q;
-				D3DXQuaternionRotationAxis( &q,&D3DXVECTOR3(0.0f,0.0f,1.0f),D3DXToRadian( y*0.573f ) );
+				D3DXQuaternionRotationAxis( &q,&D3DXVECTOR3(0.0f,0.0f,1.0f),D3DXToRadian( -y ) );
 
 				GameObject* selectObject = GetDocument()->GetSelectGameObject();
 				if( selectObject )
@@ -1295,6 +1281,8 @@ void CMikuMikuGameEngineView::OnMouseMove(UINT nFlags, CPoint point)
 					D3DXQUATERNION localRotation = selectObject->GetLocalRotation();
 					localRotation = q * localRotation;
 					selectObject->SetLocalRotation( localRotation );
+
+					GetDocument()->UpdateSelectedGameObject();
 				}
 
 				POINT ptCursor = m_ptCursorDown;

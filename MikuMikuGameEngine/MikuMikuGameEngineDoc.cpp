@@ -61,6 +61,12 @@ GameObject* CMikuMikuGameEngineDoc::GetSelectGameObject()
 	return m_pSelectObject;
 }
 
+void CMikuMikuGameEngineDoc::UpdateSelectedGameObject()
+{
+	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
+	pMainFrame->GetPropertiesWnd()->UpdateGameObject();
+}
+
 void CMikuMikuGameEngineDoc::AddGameObject( GameObject* obj,GameObject* parent,bool select )
 {
 	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
@@ -87,6 +93,8 @@ void CMikuMikuGameEngineDoc::SetObjectName( GameObject* obj, const tstring& name
 	pMainFrame->GetObjectListView()->SetObjectName( obj,name );
 
 	obj->SetName( name );
+
+	UpdateSelectedGameObject();
 }
 
 void CMikuMikuGameEngineDoc::DeleteObject( GameObject* obj )
@@ -98,6 +106,9 @@ void CMikuMikuGameEngineDoc::DeleteObject( GameObject* obj )
 	if( m_pSelectObject == obj )
 	{
 		m_pSelectObject = NULL;
+
+		CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
+		pMainFrame->GetPropertiesWnd()->SelectGameObject( NULL );
 	}
 
 	delete obj;
@@ -119,6 +130,9 @@ void CMikuMikuGameEngineDoc::SetObjectParent( GameObject* obj,GameObject* parent
 void CMikuMikuGameEngineDoc::SetSelectObject( GameObject* obj )
 {
 	m_pSelectObject = obj;
+
+	CMainFrame* pMainFrame = dynamic_cast<CMainFrame*>(theApp.m_pMainWnd);
+	pMainFrame->GetPropertiesWnd()->SelectGameObject( obj );
 }
 
 AssetNode* CMikuMikuGameEngineDoc::GetRootAsset()
