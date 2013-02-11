@@ -2,6 +2,8 @@
 
 #include "util.h"
 
+#include <Rpc.h>
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -48,4 +50,20 @@ void OutputDebugStringFormat( LPCTSTR format,... )
 	va_end( va );
 
 	OutputDebugString( tszDebug.c_str() );
+}
+
+void CreateUUIDSymbol( tstring_symbol& symbol )
+{
+	UUID uuid;
+    ::UuidCreate(&uuid);
+
+    // convert UUID to LPWSTR
+    WCHAR* wszUuid = NULL;
+    ::UuidToStringW(&uuid, (RPC_WSTR*)&wszUuid);
+    
+	//TODO: do something with wszUuid
+	symbol = to_tstring( wszUuid );
+
+	// free up the allocated string
+    ::RpcStringFree((RPC_WSTR*)&wszUuid);
 }

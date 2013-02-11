@@ -211,6 +211,21 @@ void PMDModelRenderer::SetModel( PMDModelPtr pModel )
 		D3DXMatrixInverse( &m_pOffsetMatrices[idx],NULL,&m_ppBoneList[idx]->GetWorldMatrix() );
 	}
 }
+
+PMDModelPtr PMDModelRenderer::GetModel()
+{
+	return m_pModel;
+}
+
+void PMDModelRenderer::SetAssetUUID( const tstring_symbol& assetUUID )
+{
+	m_assetUUID = assetUUID;
+}
+
+const tstring_symbol& PMDModelRenderer::GetAssetUUID() const
+{
+	return m_assetUUID;
+}
 	
 DWORD PMDModelRenderer::GetMaterialNum()
 {

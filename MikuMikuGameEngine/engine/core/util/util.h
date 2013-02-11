@@ -10,3 +10,5 @@ unsigned __int64 GetDiskFree();
 
 void GetLastErrorMessage( DWORD dwMessageId,tstring& errorMessage );
 void OutputDebugStringFormat( LPCTSTR format,... );
+
+void CreateUUIDSymbol( tstring_symbol& symbol );

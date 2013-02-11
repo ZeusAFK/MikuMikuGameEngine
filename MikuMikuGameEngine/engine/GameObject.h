@@ -2,7 +2,7 @@
 
 #include "core/graphics/ModelRenderer.h"
 #include "core/graphics/PMDModelRenderer.h"
-#include "core/graphics/VMDAnimationClip.h"
+#include "core/graphics/Animation.h"
 #include "core/graphics/RenderTexture.h"
 
 #include "core/util/TreeNode.h"
@@ -42,11 +42,7 @@ private:
 	ModelRenderer* m_pModelRenderer;
 	PMDModelRenderer* m_pPMDModelRenderer;
 
-	VMDAnimationClipPtr m_pAnimationClip;
-	PMDBone** m_ppAnimationBones;
-	int* m_pAnimationSkins;
-	float m_animationTime;
-	float m_animationLastFrame;
+	Animation* m_pAnimation;
 
 	std::vector<ScriptBehavior*> m_scriptBehaviors;
 
@@ -64,7 +60,8 @@ public:
 	void SetPMDModelRenderer( PMDModelRenderer* pPMDModelRenderer );
 	PMDModelRenderer* GetPMDModelRenderer();
 
-	void SetVMDAnimationClip( VMDAnimationClipPtr& animationClip );
+	void SetAnimation( Animation* pAnimation );
+	Animation* GetAnimation();
 
 	D3DXMATRIX GetWorldMatrix();
 

@@ -12,6 +12,8 @@ struct sRenderInfo;
 class PMDModelRenderer
 {
 private:
+	tstring_symbol m_assetUUID;
+
 	GameObject* m_gameObject;
 
 	PMDModelPtr m_pModel;
@@ -39,6 +41,9 @@ public:
 public:
 	void SetGameObject( GameObject* gameObject );
 	void SetModel( PMDModelPtr pModel );
+	PMDModelPtr GetModel();
+	void SetAssetUUID( const tstring_symbol& assetUUID );
+	const tstring_symbol& GetAssetUUID() const;
 	
 	DWORD GetMaterialNum();
 

@@ -24,6 +24,8 @@ private:
 
 	tstring m_name;
 
+	tstring_symbol m_uuid;
+
 	tstring m_path;
 
 public:
@@ -31,6 +33,10 @@ public:
 	virtual ~AssetNode();
 
 	Type GetType() const;
+
+	const tstring_symbol& GetUUID() const;
+
+	AssetNode* SearchAssetFromUUID( const tstring_symbol& uuidSymbol );
 
 	void SetName( const tstring& name );
 	const tstring& GetName() const;

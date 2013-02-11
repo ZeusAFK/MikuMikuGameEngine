@@ -68,6 +68,16 @@ void CPropertiesWnd::SelectGameObject( GameObject* object )
 
 	m_selectedObject = object;
 
+	UpdateGameObject();
+}
+
+GameObject* CPropertiesWnd::GetSelectGameObject()
+{
+	return m_selectedObject;
+}
+
+void CPropertiesWnd::UpdateGameObject()
+{
 	m_wndPropList.RemoveAll();
 
 	if( m_selectedObject == NULL )
@@ -123,54 +133,92 @@ void CPropertiesWnd::SelectGameObject( GameObject* object )
 	}
 
 	m_wndPropList.AddProperty( pGroup1 );
-}
 
-void CPropertiesWnd::UpdateGameObject()
-{
-	if( m_selectedObject == NULL )
+	ModelRenderer* modelRenderer = m_selectedObject->GetModelRenderer();
+	if( modelRenderer )
 	{
-		return;
+		CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("アクセサリ描画"));
+
+		tstring assetName = _T("none");
+
+		const tstring_symbol& assetUUID = modelRenderer->GetAssetUUID();
+		if( !assetUUID.key().empty() )
+		{
+			AssetNode* assetRoot = theApp.GetDocument()->GetRootAsset();
+			AssetNode* asset = assetRoot->SearchAssetFromUUID( assetUUID );
+			if( asset )
+			{
+				assetName = asset->GetName();
+			}
+			else
+			{
+				assetName = _T("unknown");
+			}
+		}
+
+		CMFCPropertyGridProperty* pProp = new CMFCPropertyGridProperty(_T("アセット"), assetName.c_str() );
+		pProp->Enable( FALSE );
+		pGroup->AddSubItem(pProp);
+
+		m_wndPropList.AddProperty( pGroup );
 	}
 
-	CMFCPropertyGridProperty* pProp;
-
-	CMFCPropertyGridProperty* pGroup1 = m_wndPropList.GetProperty( 0 );
-
+	PMDModelRenderer* pmdModelRenderer = m_selectedObject->GetPMDModelRenderer();
+	if( pmdModelRenderer )
 	{
-		pProp = pGroup1->GetSubItem( 0 );
+		CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("モデル描画"));
 
-		pProp->SetValue( m_selectedObject->GetName().c_str() );
+		tstring assetName = _T("none");
+
+		const tstring_symbol& assetUUID = pmdModelRenderer->GetAssetUUID();
+		if( !assetUUID.key().empty() )
+		{
+			AssetNode* assetRoot = theApp.GetDocument()->GetRootAsset();
+			AssetNode* asset = assetRoot->SearchAssetFromUUID( assetUUID );
+			if( asset )
+			{
+				assetName = asset->GetName();
+			}
+			else
+			{
+				assetName = _T("unknown");
+			}
+		}
+
+		CMFCPropertyGridProperty* pProp = new CMFCPropertyGridProperty(_T("アセット"), assetName.c_str() );
+		pProp->Enable( FALSE );
+		pGroup->AddSubItem(pProp);
+
+		m_wndPropList.AddProperty( pGroup );
 	}
 
+	Animation* animation = m_selectedObject->GetAnimation();
+	if( animation )
 	{
-		CMFCPropertyGridProperty* pPositionProperty = pGroup1->GetSubItem( 1 );
+		CMFCPropertyGridProperty* pGroup = new CMFCPropertyGridProperty(_T("アニメーション"));
 
-		pProp = pPositionProperty->GetSubItem(0);
-		pProp->SetValue( (_variant_t)m_selectedObject->GetLocalPosition().x );
+		tstring assetName = _T("none");
 
-		pProp = pPositionProperty->GetSubItem(1);
-		pProp->SetValue( (_variant_t)m_selectedObject->GetLocalPosition().y );
+		const tstring_symbol& assetUUID = animation->GetAssetUUID();
+		if( !assetUUID.key().empty() )
+		{
+			AssetNode* assetRoot = theApp.GetDocument()->GetRootAsset();
+			AssetNode* asset = assetRoot->SearchAssetFromUUID( assetUUID );
+			if( asset )
+			{
+				assetName = asset->GetName();
+			}
+			else
+			{
+				assetName = _T("unknown");
+			}
+		}
 
-		pProp = pPositionProperty->GetSubItem(2);
-		pProp->SetValue( (_variant_t)m_selectedObject->GetLocalPosition().z );
-	}
+		CMFCPropertyGridProperty* pProp = new CMFCPropertyGridProperty(_T("アセット"), assetName.c_str() );
+		pProp->Enable( FALSE );
+		pGroup->AddSubItem(pProp);
 
-	{
-		D3DXVECTOR3 eularAngle;
-		D3DXQuaternionToEularZXY( &eularAngle,&m_selectedObject->GetLocalRotation() );
-
-		eularAngle = D3DXToDegree( eularAngle );
-
-		CMFCPropertyGridProperty* pRotationProperty = pGroup1->GetSubItem( 2 );
-
-		pProp = pRotationProperty->GetSubItem( 0 );
-		pProp->SetValue( (_variant_t)eularAngle.x );
-
-		pProp = pRotationProperty->GetSubItem( 1 );
-		pProp->SetValue( (_variant_t)eularAngle.y );
-
-		pProp = pRotationProperty->GetSubItem( 2 );
-		pProp->SetValue( (_variant_t)eularAngle.z );
+		m_wndPropList.AddProperty( pGroup );
 	}
 }
 
@@ -429,4 +477,9 @@ LRESULT CPropertiesWnd::OnPropertyChanged(WPARAM wParam,LPARAM lParam)
 	}
 
 	return 0;
+}
+
+bool CPropertiesWnd::IsDropTarget( CWnd* pDropWnd )
+{
+	return pDropWnd == &m_wndPropList;
 }

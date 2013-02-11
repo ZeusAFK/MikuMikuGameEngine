@@ -67,7 +67,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib shlwapi.lib xmllite.lib squirrel_debug.lib sqstdlib_debug.lib"
+				AdditionalDependencies="winmm.lib Rpcrt4.lib dxerr.lib dxguid.lib d3d9.lib d3dx9d.lib shlwapi.lib xmllite.lib squirrel_debug.lib sqstdlib_debug.lib"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="lib"
 				GenerateDebugInformation="true"
@@ -149,7 +149,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="winmm.lib dxerr.lib dxguid.lib d3d9.lib d3dx9.lib shlwapi.lib xmllite.lib squirrel.lib sqstdlib.lib"
+				AdditionalDependencies="winmm.lib Rpcrt4.lib dxerr.lib dxguid.lib d3d9.lib d3dx9.lib shlwapi.lib xmllite.lib squirrel.lib sqstdlib.lib"
 				OutputFile="$(SolutionDir)\bin\$(ProjectName).exe"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="lib"
@@ -572,6 +572,14 @@
 				<Filter
 					Name="graphics"
 					>
+					<File
+						RelativePath=".\engine\core\graphics\Animation.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\engine\core\graphics\Animation.h"
+						>
+					</File>
 					<File
 						RelativePath=".\engine\core\graphics\Graphics.cpp"
 						>

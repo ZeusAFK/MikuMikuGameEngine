@@ -20,6 +20,7 @@ public:
 	}
 
 	void SelectGameObject( GameObject* object );
+	GameObject* GetSelectGameObject();
 	void UpdateGameObject();
 
 protected:
@@ -31,6 +32,9 @@ protected:
 // ŽÀ‘•
 public:
 	virtual ~CPropertiesWnd();
+
+public:
+	bool IsDropTarget( CWnd* pDropWnd );
 
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

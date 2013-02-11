@@ -21,6 +21,20 @@ void ModelRenderer::SetModel( ModelPtr pModel )
 	m_pModel = pModel;
 }
 
+ModelPtr ModelRenderer::GetModel()
+{
+	return m_pModel;
+}
+
+void ModelRenderer::SetAssetUUID( const tstring_symbol& assetUUID )
+{
+	m_assetUUID = assetUUID;
+}
+
+const tstring_symbol& ModelRenderer::GetAssetUUID() const
+{
+	return m_assetUUID;
+}
 
 DWORD ModelRenderer::GetMaterialNum()
 {

@@ -398,6 +398,7 @@ void CMikuMikuGameEngineDoc::DropAsset( AssetNode* asset,CWnd* pDropWnd,const PO
 
 					ModelRenderer* modelRenderer = new ModelRenderer;
 					modelRenderer->SetModel( pModel );
+					modelRenderer->SetAssetUUID( asset->GetUUID() );
 
 					gameObject->SetModelRenderer( modelRenderer );
 
@@ -432,6 +433,7 @@ void CMikuMikuGameEngineDoc::DropAsset( AssetNode* asset,CWnd* pDropWnd,const PO
 					PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
 					pmdModelRenderer->SetGameObject( gameObject );
 					pmdModelRenderer->SetModel( pModel );
+					pmdModelRenderer->SetAssetUUID( asset->GetUUID() );
 
 					gameObject->SetPMDModelRenderer( pmdModelRenderer );
 
@@ -443,6 +445,107 @@ void CMikuMikuGameEngineDoc::DropAsset( AssetNode* asset,CWnd* pDropWnd,const PO
 			break;
 		default:
 			break;
+		}
+	}
+	else if( pMainFrame->GetPropertiesWnd()->IsDropTarget(pDropWnd) )
+	{
+		CPropertiesWnd* propertiesWnd = pMainFrame->GetPropertiesWnd();
+		GameObject* selectedObject = propertiesWnd->GetSelectGameObject();
+		if( selectedObject )
+		{
+			AssetNode::Type type = asset->GetType();
+			switch( type )
+			{
+			case AssetNode::XFile:
+				{
+					tstring xFilePath = asset->GetPath();
+					
+					TCHAR path[MAX_PATH];
+					_tcscpy_s( path,PathFindFileName( xFilePath.c_str() ) );
+
+					PathRemoveExtension( path );
+
+					ModelPtr pModel = ResourceManager::GetInstance().GetResource<Model>( xFilePath );
+					if( !pModel )
+					{
+						XFileLoader xFileLoader;
+						pModel = xFileLoader.Open( xFilePath,10.0f );
+
+						ResourceManager::GetInstance().AddResource( xFilePath,pModel );
+					}
+
+					if( pModel )
+					{
+						ModelRenderer* modelRenderer = new ModelRenderer;
+						modelRenderer->SetModel( pModel );
+						modelRenderer->SetAssetUUID( asset->GetUUID() );
+
+						selectedObject->SetModelRenderer( modelRenderer );
+					}
+				}
+				break;
+			case AssetNode::PMDFile:
+				{
+					tstring pmdFilePath = asset->GetPath();
+
+					TCHAR path[MAX_PATH];
+					_tcscpy_s( path,PathFindFileName( pmdFilePath.c_str() ) );
+
+					PathRemoveExtension( path );
+
+					PMDModelPtr pModel = ResourceManager::GetInstance().GetResource<PMDModel>( pmdFilePath );
+					if( !pModel )
+					{
+						PMDFileLoader pmdFileLoader;
+						pModel = pmdFileLoader.Open( pmdFilePath );
+
+						ResourceManager::GetInstance().AddResource( pmdFilePath,pModel );
+					}
+
+					if( pModel )
+					{
+						PMDModelRenderer* pmdModelRenderer = new PMDModelRenderer;
+						pmdModelRenderer->SetGameObject( selectedObject );
+						pmdModelRenderer->SetModel( pModel );
+						pmdModelRenderer->SetAssetUUID( asset->GetUUID() );
+
+						selectedObject->SetPMDModelRenderer( pmdModelRenderer );
+					}
+				}
+				break;
+			case AssetNode::VMDFile:
+				{
+					tstring vmdFilePath = asset->GetPath();
+
+					TCHAR path[MAX_PATH];
+					_tcscpy_s( path,PathFindFileName( vmdFilePath.c_str() ) );
+
+					PathRemoveExtension( path );
+
+					VMDAnimationClipPtr pClip = ResourceManager::GetInstance().GetResource<VMDAnimationClip>( vmdFilePath );
+					if( !pClip )
+					{
+						VMDFileLoader vmdFileLoader;
+						pClip = vmdFileLoader.Open( vmdFilePath );
+
+						ResourceManager::GetInstance().AddResource( vmdFilePath,pClip );
+					}
+
+					if( pClip )
+					{
+						Animation* pAnimation = new Animation;
+						pAnimation->SetClip( pClip );
+						pAnimation->SetAssetUUID( asset->GetUUID() );
+
+						selectedObject->SetAnimation( pAnimation );
+					}
+				}
+				break;
+			default:
+				break;
+			}
+
+			UpdateSelectedGameObject();
 		}
 	}
 }
