@@ -57,6 +57,16 @@ const tstring& GameObject::GetName()
 	return m_name;
 }
 
+GameObject::BehaviorList::iterator GameObject::GetBehaviorBegin()
+{
+	return m_behaviors.begin();
+}
+
+GameObject::BehaviorList::iterator GameObject::GetBehaviorEnd()
+{
+	return m_behaviors.end();
+}
+
 void GameObject::SetModelRenderer( ModelRenderer* pModelRenderer )
 {
 	delete m_pPMDModelRenderer;

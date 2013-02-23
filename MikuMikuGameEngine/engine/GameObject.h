@@ -11,6 +11,9 @@
 
 #include "script/ScriptManager.h"
 
+#include <list>
+#include "Behavior.h"
+
 struct sRenderInfo
 {
 	Camera camera;
@@ -27,8 +30,12 @@ struct sRenderInfo
 
 class GameObject : public TreeNode<GameObject>
 {
+public:
+	typedef std::list< BehaviorPtr > BehaviorList;
 private:
 	tstring m_name;
+
+	BehaviorList m_behaviors;
 
 	D3DXMATRIX m_matWorld;
 
@@ -53,6 +60,11 @@ public:
 public:
 	void SetName( const tstring& name );
 	const tstring& GetName();
+
+	void AddBehavior( BehaviorPtr behavior );
+
+	BehaviorList::iterator GetBehaviorBegin();
+	BehaviorList::iterator GetBehaviorEnd();
 
 	void SetModelRenderer( ModelRenderer* pModelRenderer );
 	ModelRenderer* GetModelRenderer();
